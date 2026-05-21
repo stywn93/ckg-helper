@@ -3,6 +3,7 @@ import os
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
+
 def main():
 
 
@@ -16,32 +17,18 @@ def main():
         page.locator("input#email").fill("asembagusjempol@gmail.com")
         page.locator("input#password").fill("Asembagus*1")
 
-        # 2. Captcha tetap manual. Setelah user login berhasil, halaman persetujuan akan muncul.
-        verify_checkbox = page.locator("input#verify")
-        verify_checkbox.wait_for(state="attached", timeout=180000)
-        verify_checkbox.scroll_into_view_if_needed()
-        verify_checkbox.evaluate(
-            """el => {
-                el.checked = true;
-                el.dispatchEvent(new Event('input', { bubbles: true }));
-                el.dispatchEvent(new Event('change', { bubbles: true }));
-                el.click();
-            }"""
-        )
-        page.locator("button:has-text('Setuju')").click()
-        page.wait_for_load_state("networkidle")
-
+        page.pause()
         # 3. Setelah persetujuan, lanjut ke halaman pendaftaran
         page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pendaftaran-individu")
 
-        # 4. Tunggu halaman load sempurna
         page.wait_for_load_state("networkidle")
 
-        # 5. Klik tombol Daftar Baru
+        checkbox = page.locator("input[name='verify']")
+        checkbox.set_checked(True, force=True)
+        page.locator("button:has-text('Setuju')").click()
         page.get_by_role("button", name="Daftar Baru").click()
-
-        #klik field nik
-        page.locator("form input#nik").fill("1234567890123456")
+        nik_input = page.locator("form input#nik")
+        nik_input.fill("1234567890123456")
         page.locator('input#Nama\\ Lengkap').fill("Budi Santoso")
         page.locator("#Tanggal\\ Lahir .mx-input-wrapper").click()
 
@@ -49,10 +36,10 @@ def main():
         year_btn = popup.locator(".mx-btn-current-year")
         prev_year = popup.locator(".mx-btn-icon-double-left")
 
-        while year_btn.text_content().strip() != "1990":
+        while year_btn.text_content().strip() != "2010":
             prev_year.click()
 
-        popup.locator('td.cell[title="1990-05-15"]').click()
+        popup.locator('td.cell[title="2010-05-01"]').click()
 
         page.get_by_text("Pilih jenis kelamin", exact=True).click()
         page.get_by_text("Laki-laki", exact=True).click()
@@ -63,14 +50,61 @@ def main():
         panel.get_by_role("button", name="25").click()
 
         page.get_by_role("button", name="Selanjutnya").click()
-
         btn_recheck = page.locator("button:has-text('Periksa Kembali')").first
         try:
+        # Tunggu popup muncul
             btn_recheck.wait_for(state="visible", timeout=3000)
-            page.locator("input#tidak-punya-nik").check()
+            # Klik tombol "Periksa Kembali" untuk menutup popup
+            btn_recheck.click()
+            # Tunggu popup benar-benar hilang
+            btn_recheck.wait_for(state="hidden", timeout=5000)
         except PlaywrightTimeoutError:
+            # Popup tidak muncul = NIK valid, lanjut ke step berikutnya
             pass
 
+
+        # 4. Tunggu halaman load sempurna
+
+        # 5. Klik tombol Daftar Baru
+        #
+        #
+        #
+        # # Isi NIK dulu untuk cek validasi. Checkbox "tidak punya NIK" hanya dipakai jika NIK ditolak.
+        # nik_input = page.locator("form input#nik")
+        # nik_input.fill("1234567890123456")
+        # page.locator('input#Nama\\ Lengkap').fill("Budi Santoso")
+        # page.locator("#Tanggal\\ Lahir .mx-input-wrapper").click()
+        #
+        # popup = page.locator(".mx-datepicker-popup")
+        # year_btn = popup.locator(".mx-btn-current-year")
+        # prev_year = popup.locator(".mx-btn-icon-double-left")
+        #
+        # while year_btn.text_content().strip() != "1990":
+        #     prev_year.click()
+        #
+        # popup.locator('td.cell[title="2010-05-01"]').click()
+        #
+        # page.get_by_text("Pilih jenis kelamin", exact=True).click()
+        # page.get_by_text("Laki-laki", exact=True).click()
+        #
+        # page.locator('input#No\\ Whatsapp').fill("812345678")
+        #
+        # panel = page.locator("div:has(> .text-\\[20px\\].font-bold:text('Tanggal Pemeriksaan'))")
+        # panel.get_by_role("button", name="25").click()
+        #
+        # page.get_by_role("button", name="Selanjutnya").click()
+
+        # btn_recheck = page.locator("button:has-text('Periksa Kembali')").first
+        # try:
+        #     # Tunggu popup muncul
+        #     btn_recheck.wait_for(state="visible", timeout=3000)
+        #     # Klik tombol "Periksa Kembali" untuk menutup popup
+        #     btn_recheck.click()
+        #     # Tunggu popup benar-benar hilang
+        #     btn_recheck.wait_for(state="hidden", timeout=5000)
+        # except PlaywrightTimeoutError:
+        #     # Popup tidak muncul = NIK valid, lanjut ke step berikutnya
+        #     pass
         
 
         # Lanjutkan automasi di sini...
