@@ -1,8 +1,8 @@
-import os
 from openpyxl import load_workbook
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
+STATUS_COLUMN = "status"
 MONTH_LABELS = {
     "01": "Jan",
     "02": "Feb",
@@ -18,19 +18,26 @@ MONTH_LABELS = {
     "12": "Des",
 }
 
-def load_rows_from_excel(path: str) -> list[dict]:
+
+def load_rows_from_excel(path: str) -> tuple:
     workbook = load_workbook(path)
     sheet = workbook.active
 
     headers = [cell.value for cell in sheet[1]]
+    if STATUS_COLUMN not in headers:
+        sheet.cell(row=1, column=len(headers) + 1, value=STATUS_COLUMN)
+        headers.append(STATUS_COLUMN)
+
     rows = []
 
-    for row in sheet.iter_rows(min_row=2, values_only=True):
+    for row_number, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
         if not any(row):
             continue
-        rows.append(dict(zip(headers, row)))
+        row_data = dict(zip(headers, row))
+        rows.append({"row_number": row_number, "data": row_data})
 
-    return rows
+    return workbook, sheet, headers, rows
+
 
 def select_date_from_picker(page, field_selector: str, date_value: str) -> None:
     year, month, day = date_value.split("-")
@@ -52,6 +59,7 @@ def select_date_from_picker(page, field_selector: str, date_value: str) -> None:
 
     popup.locator(f'td.cell[title="{date_value}"]').click()
 
+
 def select_date_from_picker2(trigger_locator, date_value: str) -> None:
     year, month, day = date_value.split("-")
     month_label = MONTH_LABELS[month]
@@ -72,9 +80,117 @@ def select_date_from_picker2(trigger_locator, date_value: str) -> None:
 
     popup.locator(f'td.cell[title="{date_value}"]').click()
 
+
+def format_cell_value(value) -> str:
+    if value is None:
+        return ""
+    if hasattr(value, "strftime"):
+        return value.strftime("%Y-%m-%d")
+    return str(value)
+
+
+def update_row_status(workbook, sheet, headers: list, excel_path: str, row_number: int, status: str) -> None:
+    status_column_index = headers.index(STATUS_COLUMN) + 1
+    sheet.cell(row=row_number, column=status_column_index, value=status)
+    workbook.save(excel_path)
+
+
+def prepare_registration_page(page) -> None:
+    page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pendaftaran-individu")
+    page.wait_for_load_state("networkidle")
+
+    checkbox = page.locator("input[name='verify']")
+    if checkbox.count() > 0:
+        checkbox = page.locator("input[name='verify']")
+        checkbox.set_checked(True, force=True)
+        page.locator("button:has-text('Setuju')").click()
+        page.wait_for_load_state("networkidle")
+
+    page.get_by_role("button", name="Daftar Baru").click()
+
+
+def register_single_entry(page, data: dict, row_number: int) -> None:
+    print(f"Memproses baris Excel {row_number}...")
+    prepare_registration_page(page)
+
+    nik_input = page.locator("form input#nik")
+    nik_input.fill(format_cell_value(data["nik"]))
+    page.locator('input#Nama\\ Lengkap').fill(format_cell_value(data["nama_lengkap"]))
+
+    select_date_from_picker(page, "#Tanggal\\ Lahir .mx-input-wrapper", format_cell_value(data["tgl_lahir"]))
+
+    # page.get_by_text("Pilih jenis kelamin", exact=True).click()
+    # page.get_by_text(format_cell_value(data["gender"]), exact=True).click()
+    page.get_by_text("Pilih jenis kelamin", exact=True).click()
+    page.locator("div.absolute.top-13.z-2000").get_by_text(
+        format_cell_value(data["gender"]),
+        exact=True,
+    ).click()
+    
+    page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
+
+    panel = page.locator("div:has(> .text-\\[20px\\].font-bold:text('Tanggal Pemeriksaan'))")
+    panel.get_by_role("button", name=format_cell_value(data["tgl_pemeriksaan"])).nth(1).click()
+
+    page.get_by_role("button", name="Selanjutnya").click()
+    btn_recheck = page.locator("button:has-text('Periksa Kembali')").first
+    btn_success = page.locator("button:has-text('Lanjutkan')").first
+    try:
+        btn_recheck.wait_for(state="visible", timeout=3000)
+        btn_recheck.click()
+        btn_recheck.wait_for(state="hidden", timeout=5000)
+        checkbox = page.locator("input[name='noNik']")
+        checkbox.set_checked(True, force=True)
+        page.locator("input#nik\\ wali").fill(format_cell_value(data["nik_wali"]))
+        page.locator('input[name="Nama Lengkap Wali"]').fill(format_cell_value(data["nama_wali"]))
+
+        page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir").click()
+
+        select_date_from_picker2(
+            page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),
+            format_cell_value(data["tgl_lahir_wali"]),
+        )
+
+        page.locator("div:has(> .text-gray-4:text('Pilih Jenis Kelamin'))").click()
+        page.locator(".max-h-\\[250px\\]").get_by_text(format_cell_value(data["gender_wali"]), exact=True).click()
+        page.locator("label").filter(has_text="No. Whatsapp Wali").locator('input[name="Nomor whatsapp"]').fill(
+            format_cell_value(data["no_whatsapp_wali"])
+        )
+        page.get_by_role("button", name="Selanjutnya").click()
+        page.locator("button:has-text('Lanjutkan')").click()
+
+    except PlaywrightTimeoutError:
+        btn_success.click()
+
+    page.get_by_text("Pilih status pernikahan", exact=True).click()
+    page.get_by_text(format_cell_value(data["pernikahan"]), exact=True).click()
+
+    page.get_by_text("Pilih pekerjaan", exact=True).click()
+    page.get_by_text(format_cell_value(data["pekerjaan"]), exact=True).click()
+
+    page.get_by_text("Pilih alamat domisili", exact=True).click()
+    page.get_by_text(format_cell_value(data["prov"]), exact=True).click()
+    page.get_by_text(format_cell_value(data["kab"]), exact=True).click()
+    page.get_by_text(format_cell_value(data["kec"]), exact=True).click()
+    page.get_by_text(format_cell_value(data["desa"]), exact=True).click()
+
+    page.locator("textarea#detail-domisili").fill(format_cell_value(data["domisili"]))
+
+    page.get_by_role("button", name="Selanjutnya").click()
+    page.wait_for_timeout(1500)
+    page.get_by_role("button", name="Daftarkan Tanpa NIK").click()
+    page.wait_for_timeout(1500)
+    page.wait_for_load_state("networkidle")
+    page.get_by_role("button", name="Tutup").click()
+    print(f"Baris Excel {row_number} berhasil didaftarkan.")
+
+
 def main():
-    data_rows = load_rows_from_excel("data.xlsx")
-    data = data_rows[0]
+    excel_path = "data.xlsx"
+    workbook, sheet, headers, data_rows = load_rows_from_excel(excel_path)
+    if not data_rows:
+        print("Tidak ada data pada file Excel.")
+        return
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
@@ -84,88 +200,25 @@ def main():
         page.goto("https://sehatindonesiaku.kemkes.go.id/login")
         page.locator("input#email").fill("asembagusjempol@gmail.com")
         page.locator("input#password").fill("Asembagus*1")
-
         page.pause()
-        page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pendaftaran-individu")
-        page.wait_for_load_state("networkidle")
 
-        checkbox = page.locator("input[name='verify']")
-        checkbox.set_checked(True, force=True)
-        page.locator("button:has-text('Setuju')").click()
-        page.get_by_role("button", name="Daftar Baru").click()
-        nik_input = page.locator("form input#nik")
-        nik_input.fill(str(data["nik"]))
-        page.locator('input#Nama\\ Lengkap').fill(str(data["nama_lengkap"]))
+        failed_rows = []
 
-        select_date_from_picker(page, "#Tanggal\\ Lahir .mx-input-wrapper", str(data["tgl_lahir"]))
+        for row_entry in data_rows:
+            index = row_entry["row_number"]
+            data = row_entry["data"]
+            try:
+                register_single_entry(page, data, index)
+                update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
+            except Exception as exc:
+                failed_rows.append(index)
+                update_row_status(workbook, sheet, headers, excel_path, index, f"FAILED: {exc}")
+                print(f"Baris Excel {index} gagal diproses: {exc}")
 
-        page.get_by_text("Pilih jenis kelamin", exact=True).click()
-        page.get_by_text(str(data["gender"]), exact=True).click()
-
-        page.locator('input#No\\ Whatsapp').fill(str(data["no_whatsapp"]))
-        # page.pause()
-
-        panel = page.locator("div:has(> .text-\\[20px\\].font-bold:text('Tanggal Pemeriksaan'))")
-        # panel.get_by_role("button", str(data["tgl_pemeriksaan"])).nth(1).click()
-        panel.get_by_role("button", name=str(data["tgl_pemeriksaan"])).nth(1).click()
-
-        page.get_by_role("button", name="Selanjutnya").click()
-        btn_recheck = page.locator("button:has-text('Periksa Kembali')").first
-        btn_success = page.locator("button:has-text('Lanjutkan')").first
-        try:
-            btn_recheck.wait_for(state="visible", timeout=3000)
-            btn_recheck.click()
-            btn_recheck.wait_for(state="hidden", timeout=5000)
-            checkbox = page.locator("input[name='noNik']")
-            checkbox.set_checked(True, force=True)
-            page.locator("input#nik\\ wali").fill(str(data["nik_wali"]))
-            page.locator('input[name="Nama Lengkap Wali"]').fill(str(data["nama_wali"]))
-
-            page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir").click()
-
-            select_date_from_picker2(page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),str(data["tgl_lahir_wali"])
-            )
-
-            page.locator("div:has(> .text-gray-4:text('Pilih Jenis Kelamin'))").click()
-            page.locator(".max-h-\\[250px\\]").get_by_text(str(data["gender_wali"]), exact=True).click()
-            page.locator("label").filter(has_text="No. Whatsapp Wali").locator('input[name="Nomor whatsapp"]').fill(
-            str(data["no_whatsapp_wali"]))
-            page.get_by_role("button", name="Selanjutnya").click()
-            page.locator("button:has-text('Lanjutkan')").click()
-            # page.pause()
-
-        except PlaywrightTimeoutError:
-            btn_success.click()
-
-        page.get_by_text("Pilih status pernikahan", exact=True).click()
-        page.get_by_text(str(data["pernikahan"]), exact=True).click()
-
-        page.get_by_text("Pilih pekerjaan", exact=True).click()
-        page.get_by_text(str(data["pekerjaan"]), exact=True).click()
-
-        page.get_by_text("Pilih alamat domisili", exact=True).click()
-        page.get_by_text(str(data["prov"]), exact=True).click()
-        page.get_by_text(str(data["kab"]), exact=True).click()
-        page.get_by_text(str(data["kec"]), exact=True).click()
-        page.get_by_text(str(data["desa"]), exact=True).click()
-
-        page.locator("textarea#detail-domisili").fill(str(data["domisili"]))
-
-        page.get_by_role("button", name="Selanjutnya").click()
-        page.wait_for_timeout(1500)
-        page.get_by_role("button", name="Daftarkan Tanpa NIK").click()
-        page.wait_for_timeout(1500)
-        # page.get_by_role("button", name="Selanjutnya").click()
-        page.wait_for_load_state("networkidle")
-        page.get_by_role("button", name="Bantu Isi Skrining Mandiri").click()
-        page.wait_for_timeout(1500)
-        page.wait_for_load_state("networkidle")
-        checkbox = page.locator("input[id='sameLocation']")
-        checkbox.set_checked(True, force=True)
-        page.wait_for_timeout(2000)
-        page.get_by_role("button", name="Simpan").click()
-
-        page.pause()
+        if failed_rows:
+            print(f"Selesai dengan kegagalan pada baris: {failed_rows}")
+        else:
+            print("Semua baris Excel berhasil diproses.")
 
         context.close()
         browser.close()
