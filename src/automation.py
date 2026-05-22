@@ -1,11 +1,27 @@
 import os
-
+from openpyxl import load_workbook
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 
+def load_rows_from_excel(path: str) -> list[dict]:
+    workbook = load_workbook(path)
+    sheet = workbook.active
+
+    headers = [cell.value for cell in sheet[1]]
+    rows = []
+
+    for row in sheet.iter_rows(min_row=2, values_only=True):
+        if not any(row):
+            continue
+        rows.append(dict(zip(headers, row)))
+
+    return rows
+
 
 def main():
+    data_rows = load_rows_from_excel("data.xlsx")
+    data = data_rows[0]
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
@@ -25,8 +41,8 @@ def main():
         page.locator("button:has-text('Setuju')").click()
         page.get_by_role("button", name="Daftar Baru").click()
         nik_input = page.locator("form input#nik")
-        nik_input.fill("1234567890123456")
-        page.locator('input#Nama\\ Lengkap').fill("Budi Santoso")
+        nik_input.fill(str(data["nik"]))
+        page.locator('input#Nama\\ Lengkap').fill(str(data["nama_lengkap"]))
         page.locator("#Tanggal\\ Lahir .mx-input-wrapper").click()
 
         popup = page.locator(".mx-datepicker-popup")
