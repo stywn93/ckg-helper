@@ -1,8 +1,12 @@
+from datetime import datetime
+from pathlib import Path
+
 from openpyxl import load_workbook
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 STATUS_COLUMN = "status"
+TRACE_DIR = Path("traces")
 MONTH_LABELS = {
     "01": "Jan",
     "02": "Feb",
@@ -95,9 +99,16 @@ def update_row_status(workbook, sheet, headers: list, excel_path: str, row_numbe
     workbook.save(excel_path)
 
 
+def build_trace_path() -> Path:
+    TRACE_DIR.mkdir(exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    return TRACE_DIR / f"automation-trace-{timestamp}.zip"
+
+
 def prepare_registration_page(page) -> None:
     page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pendaftaran-individu")
     page.wait_for_load_state("networkidle")
+    page.reload(wait_until="networkidle")
 
     checkbox = page.locator("input[name='verify']")
     if checkbox.count() > 0:
@@ -117,6 +128,7 @@ def register_single_entry(page, data: dict, row_number: int) -> None:
     nik_input.fill(format_cell_value(data["nik"]))
     page.locator('input#Nama\\ Lengkap').fill(format_cell_value(data["nama_lengkap"]))
 
+    #masih menyisakan PR jika bulannya lebih kecil dari bulan ini
     select_date_from_picker(page, "#Tanggal\\ Lahir .mx-input-wrapper", format_cell_value(data["tgl_lahir"]))
 
     # page.get_by_text("Pilih jenis kelamin", exact=True).click()
@@ -196,32 +208,37 @@ def main():
         browser = p.chromium.launch(headless=False)
         context = browser.new_context(no_viewport=True)
         page = context.new_page()
+        trace_path = build_trace_path()
 
         page.goto("https://sehatindonesiaku.kemkes.go.id/login")
         page.locator("input#email").fill("asembagusjempol@gmail.com")
         page.locator("input#password").fill("Asembagus*1")
         page.pause()
+        context.tracing.start(screenshots=True, snapshots=True, sources=True)
 
         failed_rows = []
 
-        for row_entry in data_rows:
-            index = row_entry["row_number"]
-            data = row_entry["data"]
-            try:
-                register_single_entry(page, data, index)
-                update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
-            except Exception as exc:
-                failed_rows.append(index)
-                update_row_status(workbook, sheet, headers, excel_path, index, f"FAILED: {exc}")
-                print(f"Baris Excel {index} gagal diproses: {exc}")
+        try:
+            for row_entry in data_rows:
+                index = row_entry["row_number"]
+                data = row_entry["data"]
+                try:
+                    register_single_entry(page, data, index)
+                    update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
+                except Exception as exc:
+                    failed_rows.append(index)
+                    update_row_status(workbook, sheet, headers, excel_path, index, f"FAILED: {exc}")
+                    print(f"Baris Excel {index} gagal diproses: {exc}")
 
-        if failed_rows:
-            print(f"Selesai dengan kegagalan pada baris: {failed_rows}")
-        else:
-            print("Semua baris Excel berhasil diproses.")
-
-        context.close()
-        browser.close()
+            if failed_rows:
+                print(f"Selesai dengan kegagalan pada baris: {failed_rows}")
+            else:
+                print("Semua baris Excel berhasil diproses.")
+        finally:
+            context.tracing.stop(path=str(trace_path))
+            print(f"Playwright trace disimpan di: {trace_path}")
+            context.close()
+            browser.close()
 
 if __name__ == "__main__":
     main()
