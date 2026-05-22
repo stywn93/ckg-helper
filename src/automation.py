@@ -3,6 +3,20 @@ from openpyxl import load_workbook
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
+MONTH_LABELS = {
+    "01": "Jan",
+    "02": "Feb",
+    "03": "Mar",
+    "04": "Apr",
+    "05": "Mei",
+    "06": "Jun",
+    "07": "Jul",
+    "08": "Agu",
+    "09": "Sep",
+    "10": "Okt",
+    "11": "Nov",
+    "12": "Des",
+}
 
 def load_rows_from_excel(path: str) -> list[dict]:
     workbook = load_workbook(path)
@@ -17,6 +31,26 @@ def load_rows_from_excel(path: str) -> list[dict]:
         rows.append(dict(zip(headers, row)))
 
     return rows
+
+def select_date_from_picker(page, field_selector: str, date_value: str) -> None:
+    year, month, day = date_value.split("-")
+    month_label = MONTH_LABELS[month]
+
+    page.locator(field_selector).click()
+
+    popup = page.locator(".mx-datepicker-popup")
+    month_btn = popup.locator(".mx-btn-current-month")
+    prev_month = popup.locator(".mx-btn-icon-left")
+    year_btn = popup.locator(".mx-btn-current-year")
+    prev_year = popup.locator(".mx-btn-icon-double-left")
+
+    while month_btn.text_content().strip() != month_label:
+        prev_month.click()
+
+    while year_btn.text_content().strip() != year:
+        prev_year.click()
+
+    popup.locator(f'td.cell[title="{date_value}"]').click()
 
 
 def main():
@@ -43,29 +77,31 @@ def main():
         nik_input = page.locator("form input#nik")
         nik_input.fill(str(data["nik"]))
         page.locator('input#Nama\\ Lengkap').fill(str(data["nama_lengkap"]))
-        page.locator("#Tanggal\\ Lahir .mx-input-wrapper").click()
 
-        popup = page.locator(".mx-datepicker-popup")
-        year_btn = popup.locator(".mx-btn-current-year")
-        month_btn = popup.locator(".mx-btn-current-month")
-        prev_year = popup.locator(".mx-btn-icon-double-left")
-        prev_month = popup.locator(".mx-btn-icon-left")
-
-        while month_btn.text_content().strip() != "Okt":
-            prev_month.click()
-
-        while year_btn.text_content().strip() != "2010":
-            prev_year.click()
-
-
-        # page.pause()
-
-        popup.locator('td.cell[title="2010-10-01"]').click()
+        # page.locator("#Tanggal\\ Lahir .mx-input-wrapper").click()
+        # popup = page.locator(".mx-datepicker-popup")
+        # year_btn = popup.locator(".mx-btn-current-year")
+        # month_btn = popup.locator(".mx-btn-current-month")
+        # prev_year = popup.locator(".mx-btn-icon-double-left")
+        # prev_month = popup.locator(".mx-btn-icon-left")
+        #
+        # while month_btn.text_content().strip() != "Okt":
+        #     prev_month.click()
+        #
+        # while year_btn.text_content().strip() != "2010":
+        #     prev_year.click()
+        #
+        #
+        # # page.pause()
+        #
+        # popup.locator('td.cell[title="2010-10-01"]').click()
+        select_date_from_picker(page, "#Tanggal\\ Lahir .mx-input-wrapper", "2010-10-01")
 
         page.get_by_text("Pilih jenis kelamin", exact=True).click()
         page.get_by_text("Laki-laki", exact=True).click()
 
         page.locator('input#No\\ Whatsapp').fill("812345678")
+        page.pause()
 
         panel = page.locator("div:has(> .text-\\[20px\\].font-bold:text('Tanggal Pemeriksaan'))")
         panel.get_by_role("button", name="25").click()
@@ -82,17 +118,19 @@ def main():
             page.locator("input#nik\\ wali").fill("3512052205820001")
             page.locator('input[name="Nama Lengkap Wali"]').fill("KUSYONO")
 
-            page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir").click()
-            popup = page.locator(".mx-datepicker-popup")
-            month_btn = popup.locator(".mx-btn-current-month")
-            prev_month = popup.locator(".mx-btn-icon-left")
-            year_btn = popup.locator(".mx-btn-current-year")
-            prev_year = popup.locator(".mx-btn-icon-double-left")
-            while month_btn.text_content().strip() != "Mei":
-                prev_month.click()
-            while year_btn.text_content().strip() != "1982":
-                prev_year.click()
-            popup.locator('td.cell[title="1982-05-22"]').click()
+            # page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir").click()
+            # popup = page.locator(".mx-datepicker-popup")
+            # month_btn = popup.locator(".mx-btn-current-month")
+            # prev_month = popup.locator(".mx-btn-icon-left")
+            # year_btn = popup.locator(".mx-btn-current-year")
+            # prev_year = popup.locator(".mx-btn-icon-double-left")
+            # while month_btn.text_content().strip() != "Mei":
+            #     prev_month.click()
+            # while year_btn.text_content().strip() != "1982":
+            #     prev_year.click()
+            # popup.locator('td.cell[title="1982-05-22"]').click()
+            select_date_from_picker(page,'[id="Tanggal Lahir"] .mx-input-wrapper',"1982-05-22")
+            select_date_from_picker(page, "#Tanggal\\ Lahir .mx-input-wrapper", "2010-10-01")
 
             page.locator("div:has(> .text-gray-4:text('Pilih Jenis Kelamin'))").click()
             page.locator(".max-h-\\[250px\\]").get_by_text("Laki-laki", exact=True).click()
@@ -100,6 +138,7 @@ def main():
             "81234567890")
             page.get_by_role("button", name="Selanjutnya").click()
             page.locator("button:has-text('Lanjutkan')").click()
+            page.pause()
 
         except PlaywrightTimeoutError:
             btn_success.click()
