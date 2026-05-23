@@ -1,12 +1,8 @@
-from datetime import datetime
-from pathlib import Path
-
 from openpyxl import load_workbook
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 STATUS_COLUMN = "status"
-TRACE_DIR = Path("traces")
 MONTH_LABELS = {
     "01": "Jan",
     "02": "Feb",
@@ -21,7 +17,20 @@ MONTH_LABELS = {
     "11": "Nov",
     "12": "Des",
 }
-
+MONTH_TO_NUMBER = {
+    "Jan": 1,
+    "Feb": 2,
+    "Mar": 3,
+    "Apr": 4,
+    "Mei": 5,
+    "Jun": 6,
+    "Jul": 7,
+    "Agu": 8,
+    "Sep": 9,
+    "Okt": 10,
+    "Nov": 11,
+    "Des": 12,
+}
 
 def load_rows_from_excel(path: str) -> tuple:
     workbook = load_workbook(path)
@@ -45,6 +54,8 @@ def load_rows_from_excel(path: str) -> tuple:
 
 def select_date_from_picker(page, field_selector: str, date_value: str) -> None:
     year, month, day = date_value.split("-")
+    target_year = int(year)
+    target_month = int(month)
     month_label = MONTH_LABELS[month]
 
     page.locator(field_selector).click()
@@ -52,16 +63,51 @@ def select_date_from_picker(page, field_selector: str, date_value: str) -> None:
     popup = page.locator(".mx-datepicker-popup")
     month_btn = popup.locator(".mx-btn-current-month")
     prev_month = popup.locator(".mx-btn-icon-left")
+    next_month = popup.locator(".mx-btn-icon-right")
     year_btn = popup.locator(".mx-btn-current-year")
     prev_year = popup.locator(".mx-btn-icon-double-left")
+    next_year = popup.locator(".mx-btn-icon-double-right")
 
-    while month_btn.text_content().strip() != month_label:
-        prev_month.click()
+    # while year_btn.text_content().strip() != year:
+    #     prev_year.click()
+    # while month_btn.text_content().strip() != month_label:
+    #     prev_month.click()
+    # popup.locator(f'td.cell[title="{date_value}"]').click()
 
-    while year_btn.text_content().strip() != year:
-        prev_year.click()
+    while int(year_btn.text_content().strip()) != year:
+        current_year = int(year_btn.text_content().strip())
+        print("current_year", current_year)
+        print("target_year", target_year)
+
+        if target_year < current_year:
+            prev_year.click()
+        else:
+            break
+        page.pause()
+
+    # while MONTH_TO_NUMBER[month_btn.text_content().strip()] != month:
+    #     current_month = MONTH_TO_NUMBER[month_btn.text_content().strip()]
+    #
+    #     if target_month < current_month:
+    #         prev_month.click()
+    #     else:
+    #         next_month.click()
 
     popup.locator(f'td.cell[title="{date_value}"]').click()
+
+    # logic
+    # ambil dulu tahun sekarang, ambil tahun lahir
+    # bandingkan tahun lahir dengan tahun sekarang, pasti minimal sama atau lebih kecil
+    # selama belum sama, maka ulangi
+    # year_btn.text_content().strip() != year
+    # setelah tahun cocok, lanjut ke bulan
+    # ambil dulu bulan sekarang, konversi ke angka, mei = 5
+    # ambil bulan lahir
+    # bandingkan antara bulan sekarang dengan bulan lahir pasien
+    # jika bulan lahir pasien lebih besar daripada bulan sekarang, maka klik mx-btn-icon-right
+    # ulangi sampai bulan lahir pasien sama dengan bulan sekarang
+    # year_btn.text_content().strip() != year
+    # jika demikian berarti ada while dalam while bukan?
 
 
 def select_date_from_picker2(trigger_locator, date_value: str) -> None:
@@ -99,12 +145,6 @@ def update_row_status(workbook, sheet, headers: list, excel_path: str, row_numbe
     workbook.save(excel_path)
 
 
-def build_trace_path() -> Path:
-    TRACE_DIR.mkdir(exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    return TRACE_DIR / f"automation-trace-{timestamp}.zip"
-
-
 def prepare_registration_page(page) -> None:
     page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pendaftaran-individu")
     page.wait_for_load_state("networkidle")
@@ -121,7 +161,7 @@ def prepare_registration_page(page) -> None:
 
 
 def register_single_entry(page, data: dict, row_number: int) -> None:
-    print(f"Memproses baris Excel {row_number}...")
+    # print(f"Memproses baris Excel {row_number}...")
     prepare_registration_page(page)
 
     nik_input = page.locator("form input#nik")
@@ -130,6 +170,8 @@ def register_single_entry(page, data: dict, row_number: int) -> None:
 
     #masih menyisakan PR jika bulannya lebih kecil dari bulan ini
     select_date_from_picker(page, "#Tanggal\\ Lahir .mx-input-wrapper", format_cell_value(data["tgl_lahir"]))
+    # page.get_by_text("Pilih tanggal lahir", exact=True).fill("2010-01-01")
+    # page.pause()
 
     # page.get_by_text("Pilih jenis kelamin", exact=True).click()
     # page.get_by_text(format_cell_value(data["gender"]), exact=True).click()
@@ -194,7 +236,7 @@ def register_single_entry(page, data: dict, row_number: int) -> None:
     page.wait_for_timeout(1500)
     page.wait_for_load_state("networkidle")
     page.get_by_role("button", name="Tutup").click()
-    print(f"Baris Excel {row_number} berhasil didaftarkan.")
+    # print(f"Baris Excel {row_number} berhasil didaftarkan.")
 
 
 def main():
@@ -208,37 +250,27 @@ def main():
         browser = p.chromium.launch(headless=False)
         context = browser.new_context(no_viewport=True)
         page = context.new_page()
-        trace_path = build_trace_path()
 
         page.goto("https://sehatindonesiaku.kemkes.go.id/login")
         page.locator("input#email").fill("asembagusjempol@gmail.com")
         page.locator("input#password").fill("Asembagus*1")
         page.pause()
-        context.tracing.start(screenshots=True, snapshots=True, sources=True)
 
         failed_rows = []
 
-        try:
-            for row_entry in data_rows:
-                index = row_entry["row_number"]
-                data = row_entry["data"]
-                try:
-                    register_single_entry(page, data, index)
-                    update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
-                except Exception as exc:
-                    failed_rows.append(index)
-                    update_row_status(workbook, sheet, headers, excel_path, index, f"FAILED: {exc}")
-                    print(f"Baris Excel {index} gagal diproses: {exc}")
+        for row_entry in data_rows:
+            index = row_entry["row_number"]
+            data = row_entry["data"]
+            try:
+                register_single_entry(page, data, index)
+                update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
+            except Exception as exc:
+                failed_rows.append(index)
+                update_row_status(workbook, sheet, headers, excel_path, index, f"FAILED: {exc}")
+                # print(f"Baris Excel {index} gagal diproses: {exc}")
 
-            if failed_rows:
-                print(f"Selesai dengan kegagalan pada baris: {failed_rows}")
-            else:
-                print("Semua baris Excel berhasil diproses.")
-        finally:
-            context.tracing.stop(path=str(trace_path))
-            print(f"Playwright trace disimpan di: {trace_path}")
-            context.close()
-            browser.close()
+        context.close()
+        browser.close()
 
 if __name__ == "__main__":
     main()
