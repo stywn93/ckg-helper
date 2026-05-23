@@ -11,7 +11,7 @@ MONTH_LABELS = {
     "05": "Mei",
     "06": "Jun",
     "07": "Jul",
-    "08": "Agu",
+    "08": "Agt",
     "09": "Sep",
     "10": "Okt",
     "11": "Nov",
@@ -25,7 +25,7 @@ MONTH_TO_NUMBER = {
     "Mei": 5,
     "Jun": 6,
     "Jul": 7,
-    "Agu": 8,
+    "Agt": 8,
     "Sep": 9,
     "Okt": 10,
     "Nov": 11,
@@ -80,19 +80,48 @@ def select_date_from_picker(page, field_selector: str, date_value: str) -> None:
             prev_year.click()
         else:
             break
-    while month_btn.text_content().strip() != month_label:
-        current_month = int(MONTH_TO_NUMBER[month_btn.text_content().strip()])
-        print("bulan sekarang", current_month)
-        print("bulan lahir", target_month)
+
+    # a = 1
+    # while month_btn.text_content().strip() != month_label:
+    #     print(a)
+    #     print(month_btn.text_content().strip())
+    #     current_month = int(MONTH_TO_NUMBER[month_btn.text_content().strip()])
+    #     print("bulan sekarang", current_month)
+    #     print("bulan lahir", target_month)
+    #     a = a+1
+    #
+    #     if target_month < current_month:
+    #         prev_month.click()
+    #     elif target_month > current_month:
+    #         next_month.click()
+    #         page.pause()
+    #         # print("elif tanggal lahir", target_month)
+    #     else:
+    #         break
+    #
+    # popup.locator(f'td.cell[title="{date_value}"]').click()
+
+    # saran dari claude
+    # Hapus page.pause() dari dalam loop
+    # Re-fetch text setiap iterasi agar tidak stale
+
+    a = 1
+    while True:
+        current_label = month_btn.text_content().strip()
+        if current_label == month_label:
+            print(f"✓ Berhasil sampai bulan: {current_label}")
+            break
+
+        current_month = int(MONTH_TO_NUMBER[current_label])
+        print(f"Iterasi {a}: bulan sekarang={current_month}, target={target_month}")
+        a += 1
 
         if target_month < current_month:
             prev_month.click()
-        elif target_month > current_month:
-            next_month.click()
-            page.pause()
-            # print("elif tanggal lahir", target_month)
         else:
-            break
+            next_month.click()
+
+        page.wait_for_timeout(300)
 
     popup.locator(f'td.cell[title="{date_value}"]').click()
 
