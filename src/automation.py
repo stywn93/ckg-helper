@@ -76,22 +76,23 @@ def select_date_from_picker(page, field_selector: str, date_value: str) -> None:
 
     while int(year_btn.text_content().strip()) != year:
         current_year = int(year_btn.text_content().strip())
-        print("current_year", current_year)
-        print("target_year", target_year)
-
         if target_year < current_year:
             prev_year.click()
         else:
             break
-        page.pause()
+    while month_btn.text_content().strip() != month_label:
+        current_month = int(MONTH_TO_NUMBER[month_btn.text_content().strip()])
+        print("bulan sekarang", current_month)
+        print("bulan lahir", target_month)
 
-    # while MONTH_TO_NUMBER[month_btn.text_content().strip()] != month:
-    #     current_month = MONTH_TO_NUMBER[month_btn.text_content().strip()]
-    #
-    #     if target_month < current_month:
-    #         prev_month.click()
-    #     else:
-    #         next_month.click()
+        if target_month < current_month:
+            prev_month.click()
+        elif target_month > current_month:
+            next_month.click()
+            page.pause()
+            # print("elif tanggal lahir", target_month)
+        else:
+            break
 
     popup.locator(f'td.cell[title="{date_value}"]').click()
 
@@ -148,7 +149,7 @@ def update_row_status(workbook, sheet, headers: list, excel_path: str, row_numbe
 def prepare_registration_page(page) -> None:
     page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pendaftaran-individu")
     page.wait_for_load_state("networkidle")
-    page.reload(wait_until="networkidle")
+    # page.reload(wait_until="networkidle")
 
     checkbox = page.locator("input[name='verify']")
     if checkbox.count() > 0:
@@ -236,6 +237,8 @@ def register_single_entry(page, data: dict, row_number: int) -> None:
     page.wait_for_timeout(1500)
     page.wait_for_load_state("networkidle")
     page.get_by_role("button", name="Tutup").click()
+    page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
+    page.wait_for_load_state("networkidle")
     # print(f"Baris Excel {row_number} berhasil didaftarkan.")
 
 
