@@ -32,6 +32,7 @@ MONTH_TO_NUMBER = {
     "Des": 12,
 }
 
+
 def load_rows_from_excel(path: str) -> tuple:
     workbook = load_workbook(path)
     sheet = workbook.active
@@ -66,13 +67,6 @@ def select_date_from_picker(page, field_selector: str, date_value: str) -> None:
     next_month = popup.locator(".mx-btn-icon-right")
     year_btn = popup.locator(".mx-btn-current-year")
     prev_year = popup.locator(".mx-btn-icon-double-left")
-    next_year = popup.locator(".mx-btn-icon-double-right")
-
-    # while year_btn.text_content().strip() != year:
-    #     prev_year.click()
-    # while month_btn.text_content().strip() != month_label:
-    #     prev_month.click()
-    # popup.locator(f'td.cell[title="{date_value}"]').click()
 
     while int(year_btn.text_content().strip()) != year:
         current_year = int(year_btn.text_content().strip())
@@ -81,39 +75,13 @@ def select_date_from_picker(page, field_selector: str, date_value: str) -> None:
         else:
             break
 
-    # a = 1
-    # while month_btn.text_content().strip() != month_label:
-    #     print(a)
-    #     print(month_btn.text_content().strip())
-    #     current_month = int(MONTH_TO_NUMBER[month_btn.text_content().strip()])
-    #     print("bulan sekarang", current_month)
-    #     print("bulan lahir", target_month)
-    #     a = a+1
-    #
-    #     if target_month < current_month:
-    #         prev_month.click()
-    #     elif target_month > current_month:
-    #         next_month.click()
-    #         page.pause()
-    #         # print("elif tanggal lahir", target_month)
-    #     else:
-    #         break
-    #
-    # popup.locator(f'td.cell[title="{date_value}"]').click()
-
-    # saran dari claude
-    # Hapus page.pause() dari dalam loop
-    # Re-fetch text setiap iterasi agar tidak stale
-
     a = 1
     while True:
         current_label = month_btn.text_content().strip()
         if current_label == month_label:
-            print(f"✓ Berhasil sampai bulan: {current_label}")
             break
 
         current_month = int(MONTH_TO_NUMBER[current_label])
-        print(f"Iterasi {a}: bulan sekarang={current_month}, target={target_month}")
         a += 1
 
         if target_month < current_month:
@@ -124,20 +92,6 @@ def select_date_from_picker(page, field_selector: str, date_value: str) -> None:
         page.wait_for_timeout(300)
 
     popup.locator(f'td.cell[title="{date_value}"]').click()
-
-    # logic
-    # ambil dulu tahun sekarang, ambil tahun lahir
-    # bandingkan tahun lahir dengan tahun sekarang, pasti minimal sama atau lebih kecil
-    # selama belum sama, maka ulangi
-    # year_btn.text_content().strip() != year
-    # setelah tahun cocok, lanjut ke bulan
-    # ambil dulu bulan sekarang, konversi ke angka, mei = 5
-    # ambil bulan lahir
-    # bandingkan antara bulan sekarang dengan bulan lahir pasien
-    # jika bulan lahir pasien lebih besar daripada bulan sekarang, maka klik mx-btn-icon-right
-    # ulangi sampai bulan lahir pasien sama dengan bulan sekarang
-    # year_btn.text_content().strip() != year
-    # jika demikian berarti ada while dalam while bukan?
 
 
 def select_date_from_picker2(trigger_locator, date_value: str) -> None:
@@ -176,9 +130,8 @@ def update_row_status(workbook, sheet, headers: list, excel_path: str, row_numbe
 
 
 def prepare_registration_page(page) -> None:
-    page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pendaftaran-individu")
+    page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
     page.wait_for_load_state("networkidle")
-    # page.reload(wait_until="networkidle")
 
     checkbox = page.locator("input[name='verify']")
     if checkbox.count() > 0:
@@ -186,6 +139,15 @@ def prepare_registration_page(page) -> None:
         checkbox.set_checked(True, force=True)
         page.locator("button:has-text('Setuju')").click()
         page.wait_for_load_state("networkidle")
+
+    sameLocation = page.locator("input[name='sameLocation']")
+    if sameLocation.count() > 0:
+        sameLocation = page.locator("input[name='sameLocation']")
+        sameLocation.set_checked(True, force=True)
+        # page.pause()
+        page.locator("button:has-text('Simpan')").click()
+        page.wait_for_load_state("networkidle")
+
 
     page.get_by_role("button", name="Daftar Baru").click()
 
@@ -198,7 +160,7 @@ def register_single_entry(page, data: dict, row_number: int) -> None:
     nik_input.fill(format_cell_value(data["nik"]))
     page.locator('input#Nama\\ Lengkap').fill(format_cell_value(data["nama_lengkap"]))
 
-    #masih menyisakan PR jika bulannya lebih kecil dari bulan ini
+    # masih menyisakan PR jika bulannya lebih kecil dari bulan ini
     select_date_from_picker(page, "#Tanggal\\ Lahir .mx-input-wrapper", format_cell_value(data["tgl_lahir"]))
     # page.get_by_text("Pilih tanggal lahir", exact=True).fill("2010-01-01")
     # page.pause()
@@ -210,7 +172,7 @@ def register_single_entry(page, data: dict, row_number: int) -> None:
         format_cell_value(data["gender"]),
         exact=True,
     ).click()
-    
+
     page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
 
     panel = page.locator("div:has(> .text-\\[20px\\].font-bold:text('Tanggal Pemeriksaan'))")
@@ -266,9 +228,8 @@ def register_single_entry(page, data: dict, row_number: int) -> None:
     page.wait_for_timeout(1500)
     page.wait_for_load_state("networkidle")
     page.get_by_role("button", name="Tutup").click()
-    page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
-    page.wait_for_load_state("networkidle")
-    # print(f"Baris Excel {row_number} berhasil didaftarkan.")
+    # page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
+    # page.wait_for_load_state("networkidle")
 
 
 def main():
@@ -283,7 +244,7 @@ def main():
         context = browser.new_context(no_viewport=True)
         page = context.new_page()
 
-        page.goto("https://sehatindonesiaku.kemkes.go.id/login")
+        page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
         page.locator("input#email").fill("asembagusjempol@gmail.com")
         page.locator("input#password").fill("Asembagus*1")
         page.pause()
@@ -303,6 +264,7 @@ def main():
 
         context.close()
         browser.close()
+
 
 if __name__ == "__main__":
     main()
