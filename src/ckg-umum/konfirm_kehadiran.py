@@ -171,84 +171,24 @@ def prepare_registration_page(page) -> None:
         page.locator("button:has-text('Setuju')").click()
         page.wait_for_load_state("networkidle")
 
-    # page.locator('[id="Tanggal Pemeriksaan"]').click()
+
+def searchPatient(page, data: dict, row_number: int) -> None:
+    prepare_registration_page(page)
+
+    set_search_date(page.locator('[id="Tanggal Pemeriksaan"]'), "2026-05-25")
+
+    page.locator("span:has-text('Nomor Tiket')").click()
+    page.get_by_text("Nama", exact=True).click()
+    page.locator('input#searchNik').fill("Ahmad")
+    page.keyboard.press("Enter")
+    page.wait_for_load_state("networkidle")
+    page.pause()
+    page.locator("button:has-text('Setuju')").nth(0).click()
+    # page.get_by_text("Konfirmasi Hadir", exact=True).click()
+
     # page.pause()
 
 
-def register_single_entry(page, data: dict, row_number: int) -> None:
-    prepare_registration_page(page)
-
-    set_search_date(page.locator('[id="Tanggal Pemeriksaan"]'), "2026-06-22")
-    page.pause()
-
-    nik_input = page.locator("form input#nik")
-    nik_input.fill(format_cell_value(data["nik"]))
-    page.locator('input#Nama\\ Lengkap').fill(format_cell_value(data["nama_lengkap"]))
-
-    select_date_from_picker(page, "#Tanggal\\ Lahir .mx-input-wrapper", format_cell_value(data["tgl_lahir"]))
-    page.get_by_text("Pilih jenis kelamin", exact=True).click()
-    page.locator("div.absolute.top-13.z-2000").get_by_text(
-        format_cell_value(data["gender"]),
-        exact=True,
-    ).click()
-    
-    page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
-
-    panel = page.locator("div:has(> .text-\\[20px\\].font-bold:text('Tanggal Pemeriksaan'))")
-    panel.get_by_role("button", name=format_cell_value(data["tgl_pemeriksaan"])).nth(1).click()
-
-    page.get_by_role("button", name="Selanjutnya").click()
-    btn_recheck = page.locator("button:has-text('Periksa Kembali')").first
-    btn_success = page.locator("button:has-text('Lanjutkan')").first
-    try:
-        btn_recheck.wait_for(state="visible", timeout=3000)
-        btn_recheck.click()
-        btn_recheck.wait_for(state="hidden", timeout=5000)
-        checkbox = page.locator("input[name='noNik']")
-        checkbox.set_checked(True, force=True)
-        page.locator("input#nik\\ wali").fill(format_cell_value(data["nik_wali"]))
-        page.locator('input[name="Nama Lengkap Wali"]').fill(format_cell_value(data["nama_wali"]))
-
-        page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir").click()
-        print("tgl lahir wali picker clicked")
-        # page.pause()
-        select_date_from_picker2(
-            page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),
-            format_cell_value(data["tgl_lahir_wali"]),
-        )
-
-        page.locator("div:has(> .text-gray-4:text('Pilih Jenis Kelamin'))").click()
-        page.locator(".max-h-\\[250px\\]").get_by_text(format_cell_value(data["gender_wali"]), exact=True).click()
-        page.locator("label").filter(has_text="No. Whatsapp Wali").locator('input[name="Nomor whatsapp"]').fill(
-            format_cell_value(data["no_whatsapp_wali"])
-        )
-        page.get_by_role("button", name="Selanjutnya").click()
-        page.locator("button:has-text('Lanjutkan')").click()
-
-    except PlaywrightTimeoutError:
-        btn_success.click()
-
-    page.get_by_text("Pilih status pernikahan", exact=True).click()
-    page.get_by_text(format_cell_value(data["pernikahan"]), exact=True).click()
-
-    page.get_by_text("Pilih pekerjaan", exact=True).click()
-    page.get_by_text(format_cell_value(data["pekerjaan"]), exact=True).click()
-
-    page.get_by_text("Pilih alamat domisili", exact=True).click()
-    page.get_by_text(format_cell_value(data["prov"]), exact=True).click()
-    page.get_by_text(format_cell_value(data["kab"]), exact=True).click()
-    page.get_by_text(format_cell_value(data["kec"]), exact=True).click()
-    page.get_by_text(format_cell_value(data["desa"]), exact=True).click()
-    page.locator("textarea#detail-domisili").fill(format_cell_value(data["domisili"]))
-
-    page.get_by_role("button", name="Selanjutnya").click()
-    page.wait_for_timeout(1500)
-    page.get_by_role("button", name="Daftarkan Tanpa NIK").click()
-    page.wait_for_timeout(1500)
-    page.wait_for_load_state("networkidle")
-    page.get_by_role("button", name="Tutup").click()
-    # page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
-    # page.wait_for_load_state("networkidle")
 
 def main():
     excel_path = "pendaftaran_umum.xlsx"
@@ -275,7 +215,7 @@ def main():
             index = row_entry["row_number"]
             data = row_entry["data"]
             try:
-                register_single_entry(page, data, index)
+                searchPatient(page, data, index)
                 update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
             except Exception as exc:
                 failed_rows.append(index)
