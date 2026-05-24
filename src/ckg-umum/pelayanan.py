@@ -33,6 +33,10 @@ MONTH_TO_NUMBER = {
 }
 
 
+def is_success_status(value) -> bool:
+    return str(value).strip().upper() == "SUCCESS"
+
+
 def load_rows_from_excel(path: str) -> tuple:
     workbook = load_workbook(path)
     sheet = workbook.active
@@ -48,6 +52,8 @@ def load_rows_from_excel(path: str) -> tuple:
         if not any(row):
             continue
         row_data = dict(zip(headers, row))
+        if is_success_status(row_data.get(STATUS_COLUMN)):
+            continue
         rows.append({"row_number": row_number, "data": row_data})
 
     return workbook, sheet, headers, rows
