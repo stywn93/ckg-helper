@@ -184,11 +184,22 @@ def searchPatient(page, data: dict, row_number: int) -> None:
     page.wait_for_load_state("networkidle")
     confirm_button = page.locator("button:has-text('Konfirmasi Hadir')").first
     try:
-        confirm_button.wait_for(state="visible", timeout=5000)
+        confirm_button.wait_for(state="visible", timeout=3000)
     except PlaywrightTimeoutError:
         raise RuntimeError("Pencarian tidak memberikan hasil atau tombol Konfirmasi Hadir tidak muncul.")
 
     confirm_button.click()
+    checkbox = page.locator("input[name='verify']")
+    if checkbox.count() > 0:
+        checkbox = page.locator("input[name='verify']")
+        checkbox.set_checked(True, force=True)
+        hadir_button = page.get_by_role("button", name="Hadir", exact=True)
+        hadir_button.wait_for(state="visible", timeout=3000)
+        hadir_button.click()
+        page.wait_for_load_state("networkidle")
+        page.get_by_role("button", name="Tutup", exact=True).click()
+
+    #inspect again
     page.pause()
 
 
