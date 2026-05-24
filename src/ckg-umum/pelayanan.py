@@ -1,8 +1,15 @@
+import os
+
+from dotenv import load_dotenv
 from openpyxl import load_workbook
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
+load_dotenv()
+
 STATUS_COLUMN = "status"
+USERNAME_ENV = "CKG_USERNAME"
+PASSWORD_ENV = "CKG_PASSWORD"
 MONTH_LABELS = {
     "01": "Jan",
     "02": "Feb",
@@ -35,6 +42,13 @@ MONTH_TO_NUMBER = {
 
 def is_success_status(value) -> bool:
     return str(value).strip().upper() == "SUCCESS"
+
+
+def get_required_env(name: str) -> str:
+    value = os.getenv(name)
+    if not value:
+        raise RuntimeError(f"Environment variable {name} belum diisi.")
+    return value
 
 
 def load_rows_from_excel(path: str) -> tuple:
@@ -240,6 +254,8 @@ def register_single_entry(page, data: dict, row_number: int) -> None:
 
 def main():
     excel_path = "data.xlsx"
+    username = get_required_env(USERNAME_ENV)
+    password = get_required_env(PASSWORD_ENV)
     workbook, sheet, headers, data_rows = load_rows_from_excel(excel_path)
     if not data_rows:
         print("Tidak ada data pada file Excel.")
@@ -251,8 +267,8 @@ def main():
         page = context.new_page()
 
         page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
-        page.locator("input#email").fill("asembagusjempol@gmail.com")
-        page.locator("input#password").fill("Asembagus*1")
+        page.locator("input#email").fill(username)
+        page.locator("input#password").fill(password)
         page.pause()
 
         failed_rows = []
