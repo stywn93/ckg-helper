@@ -175,23 +175,26 @@ def prepare_registration_page(page) -> None:
 def searchPatient(page, data: dict, row_number: int) -> None:
     prepare_registration_page(page)
 
-    set_search_date(page.locator('[id="Tanggal Pemeriksaan"]'), "2026-05-25")
+    set_search_date(page.locator('[id="Tanggal Pemeriksaan"]'), format_cell_value(data["tgl_pemeriksaan"]))
 
     page.locator("span:has-text('Nomor Tiket')").click()
     page.get_by_text("Nama", exact=True).click()
-    page.locator('input#searchNik').fill("Ahmad")
+    page.locator('input#searchNik').fill(format_cell_value(data["nama_lengkap"]))
     page.keyboard.press("Enter")
     page.wait_for_load_state("networkidle")
-    page.pause()
-    page.locator("button:has-text('Setuju')").nth(0).click()
-    # page.get_by_text("Konfirmasi Hadir", exact=True).click()
+    confirm_button = page.locator("button:has-text('Konfirmasi Hadir')").first
+    try:
+        confirm_button.wait_for(state="visible", timeout=5000)
+    except PlaywrightTimeoutError:
+        raise RuntimeError("Pencarian tidak memberikan hasil atau tombol Konfirmasi Hadir tidak muncul.")
 
-    # page.pause()
+    confirm_button.click()
+    page.pause()
 
 
 
 def main():
-    excel_path = "pendaftaran_umum.xlsx"
+    excel_path = "konfirm_kehadiran.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
     workbook, sheet, headers, data_rows = load_rows_from_excel(excel_path)
