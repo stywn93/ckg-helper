@@ -39,7 +39,6 @@ MONTH_TO_NUMBER = {
     "Des": 12,
 }
 
-
 def is_success_status(value) -> bool:
     return str(value).strip().upper() == "SUCCESS"
 
@@ -73,17 +72,14 @@ def load_rows_from_excel(path: str) -> tuple:
     return workbook, sheet, headers, rows
 
 
-def set_date_range(page, field_selector: str, date_value: str) -> None:
-    print("set_date_range is called")
-    page.pause()
+def select_date_from_picker(page, field_selector: str, date_value: str) -> None:
     year, month, day = date_value.split("-")
     target_year = int(year)
     target_month = int(month)
     month_label = MONTH_LABELS[month]
-    print("parsing date success")
-    page.pause()
+
     page.locator(field_selector).click()
-    print("click success")
+
     popup = page.locator(".mx-datepicker-popup")
     month_btn = popup.locator(".mx-btn-current-month")
     prev_month = popup.locator(".mx-btn-icon-left")
@@ -98,15 +94,12 @@ def set_date_range(page, field_selector: str, date_value: str) -> None:
         else:
             break
 
-    a = 1
+
     while True:
         current_label = month_btn.text_content().strip()
         if current_label == month_label:
             break
-
         current_month = int(MONTH_TO_NUMBER[current_label])
-        a += 1
-
         if target_month < current_month:
             prev_month.click()
         else:
@@ -116,9 +109,10 @@ def set_date_range(page, field_selector: str, date_value: str) -> None:
 
     popup.locator(f'td.cell[title="{date_value}"]').click()
 
-
-def select_date_from_picker2(trigger_locator, date_value: str) -> None:
+def set_search_date(trigger_locator, date_value: str) -> None:
     year, month, day = date_value.split("-")
+    target_year = int(year)
+    target_month = int(month)
     month_label = MONTH_LABELS[month]
 
     trigger_locator.click()
@@ -126,14 +120,28 @@ def select_date_from_picker2(trigger_locator, date_value: str) -> None:
     popup = trigger_locator.page.locator(".mx-datepicker-popup")
     month_btn = popup.locator(".mx-btn-current-month")
     prev_month = popup.locator(".mx-btn-icon-left")
+    next_month = popup.locator(".mx-btn-icon-right")
     year_btn = popup.locator(".mx-btn-current-year")
     prev_year = popup.locator(".mx-btn-icon-double-left")
 
-    while month_btn.text_content().strip() != month_label:
-        prev_month.click()
+    while int(year_btn.text_content().strip()) != year:
+        current_year = int(year_btn.text_content().strip())
+        if target_year < current_year:
+            prev_year.click()
+        else:
+            break
 
-    while year_btn.text_content().strip() != year:
-        prev_year.click()
+    while True:
+        current_label = month_btn.text_content().strip()
+        if current_label == month_label:
+            break
+        current_month = int(MONTH_TO_NUMBER[current_label])
+        if target_month < current_month:
+            prev_month.click()
+        else:
+            next_month.click()
+
+        trigger_locator.page.wait_for_timeout(300)
 
     popup.locator(f'td.cell[title="{date_value}"]').click()
 
@@ -153,7 +161,7 @@ def update_row_status(workbook, sheet, headers: list, excel_path: str, row_numbe
 
 
 def prepare_registration_page(page) -> None:
-    page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
+    page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pendaftaran-individu")
     page.wait_for_load_state("networkidle")
 
     checkbox = page.locator("input[name='verify']")
@@ -163,43 +171,27 @@ def prepare_registration_page(page) -> None:
         page.locator("button:has-text('Setuju')").click()
         page.wait_for_load_state("networkidle")
 
-    sameLocation = page.locator("input[name='sameLocation']")
-    if sameLocation.count() > 0:
-        sameLocation = page.locator("input[name='sameLocation']")
-        sameLocation.set_checked(True, force=True)
-        # page.pause()
-        page.locator("button:has-text('Simpan')").click()
-        page.wait_for_load_state("networkidle")
-    print("hello bro")
-
-
-    # set_date_range(page, ".mx-datepicker.mx-datepicker-range", "2026-05-14")
-    # set_date_range(page, ".mx-datepicker-range .mx-input-wrapper", "2026-05-24")
+    # page.locator('[id="Tanggal Pemeriksaan"]').click()
     # page.pause()
-    # page.get_by_role("button", name="Daftar Baru").click()
 
 
 def register_single_entry(page, data: dict, row_number: int) -> None:
-    # print(f"Memproses baris Excel {row_number}...")
     prepare_registration_page(page)
+
+    set_search_date(page.locator('[id="Tanggal Pemeriksaan"]'), "2026-06-22")
+    page.pause()
 
     nik_input = page.locator("form input#nik")
     nik_input.fill(format_cell_value(data["nik"]))
     page.locator('input#Nama\\ Lengkap').fill(format_cell_value(data["nama_lengkap"]))
 
-    # masih menyisakan PR jika bulannya lebih kecil dari bulan ini
     select_date_from_picker(page, "#Tanggal\\ Lahir .mx-input-wrapper", format_cell_value(data["tgl_lahir"]))
-    # page.get_by_text("Pilih tanggal lahir", exact=True).fill("2010-01-01")
-    # page.pause()
-
-    # page.get_by_text("Pilih jenis kelamin", exact=True).click()
-    # page.get_by_text(format_cell_value(data["gender"]), exact=True).click()
     page.get_by_text("Pilih jenis kelamin", exact=True).click()
     page.locator("div.absolute.top-13.z-2000").get_by_text(
         format_cell_value(data["gender"]),
         exact=True,
     ).click()
-
+    
     page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
 
     panel = page.locator("div:has(> .text-\\[20px\\].font-bold:text('Tanggal Pemeriksaan'))")
@@ -218,7 +210,8 @@ def register_single_entry(page, data: dict, row_number: int) -> None:
         page.locator('input[name="Nama Lengkap Wali"]').fill(format_cell_value(data["nama_wali"]))
 
         page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir").click()
-
+        print("tgl lahir wali picker clicked")
+        # page.pause()
         select_date_from_picker2(
             page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),
             format_cell_value(data["tgl_lahir_wali"]),
@@ -246,7 +239,6 @@ def register_single_entry(page, data: dict, row_number: int) -> None:
     page.get_by_text(format_cell_value(data["kab"]), exact=True).click()
     page.get_by_text(format_cell_value(data["kec"]), exact=True).click()
     page.get_by_text(format_cell_value(data["desa"]), exact=True).click()
-
     page.locator("textarea#detail-domisili").fill(format_cell_value(data["domisili"]))
 
     page.get_by_role("button", name="Selanjutnya").click()
@@ -258,9 +250,8 @@ def register_single_entry(page, data: dict, row_number: int) -> None:
     # page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
     # page.wait_for_load_state("networkidle")
 
-
 def main():
-    excel_path = "data.xlsx"
+    excel_path = "pendaftaran_umum.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
     workbook, sheet, headers, data_rows = load_rows_from_excel(excel_path)
@@ -273,7 +264,7 @@ def main():
         context = browser.new_context(no_viewport=True)
         page = context.new_page()
 
-        page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
+        page.goto("https://sehatindonesiaku.kemkes.go.id/login")
         page.locator("input#email").fill(username)
         page.locator("input#password").fill(password)
         page.pause()
@@ -293,7 +284,6 @@ def main():
 
         context.close()
         browser.close()
-
 
 if __name__ == "__main__":
     main()
