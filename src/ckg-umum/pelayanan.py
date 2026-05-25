@@ -69,9 +69,10 @@ def load_rows_from_excel(path: str) -> tuple:
             empty_rows += 1
             continue
         row_data = dict(zip(headers, row))
-        if is_success_status(row_data.get(STATUS_COLUMN)):
-            skipped_success_rows.append(row_number)
-            continue
+        # skip pengecekan status dulu
+        # if is_success_status(row_data.get(STATUS_COLUMN)):
+        #     skipped_success_rows.append(row_number)
+        #     continue
         rows.append({"row_number": row_number, "data": row_data})
 
     summary = {
@@ -181,6 +182,10 @@ def search_patient(page, data: dict, row_number: int) -> None:
 def do_pemeriksaan(page, data: dict, row_number: int) -> None:
     print("do pemeriksaan started")
     page.locator("button:has-text('Mulai Pemeriksaan')").first.click()
+    page.locator("button:has-text('Simpan')").click()
+    page.locator("tr").filter(has_text="Demografi Dewasa").locator(
+        "button:has-text('Input Data')"
+    ).click()
 
 
     print("end of do_pemeriksaan")
