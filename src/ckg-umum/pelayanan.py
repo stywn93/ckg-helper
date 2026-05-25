@@ -61,20 +61,29 @@ def load_rows_from_excel(path: str) -> tuple:
         headers.append(STATUS_COLUMN)
 
     rows = []
+    skipped_success_rows = []
+    empty_rows = 0
 
     for row_number, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
         if not any(row):
+            empty_rows += 1
             continue
         row_data = dict(zip(headers, row))
         if is_success_status(row_data.get(STATUS_COLUMN)):
+            skipped_success_rows.append(row_number)
             continue
         rows.append({"row_number": row_number, "data": row_data})
 
-    return workbook, sheet, headers, rows
+    summary = {
+        "empty_rows": empty_rows,
+        "skipped_success_rows": skipped_success_rows,
+        "total_data_rows": sheet.max_row - 1,
+    }
+
+    return workbook, sheet, headers, rows, summary
 
 
 def set_date_range(page, field_selector: str, date_value: str) -> None:
-    print("set_date_range is called")
     page.pause()
     year, month, day = date_value.split("-")
     target_year = int(year)
@@ -116,28 +125,6 @@ def set_date_range(page, field_selector: str, date_value: str) -> None:
 
     popup.locator(f'td.cell[title="{date_value}"]').click()
 
-
-def select_date_from_picker2(trigger_locator, date_value: str) -> None:
-    year, month, day = date_value.split("-")
-    month_label = MONTH_LABELS[month]
-
-    trigger_locator.click()
-
-    popup = trigger_locator.page.locator(".mx-datepicker-popup")
-    month_btn = popup.locator(".mx-btn-current-month")
-    prev_month = popup.locator(".mx-btn-icon-left")
-    year_btn = popup.locator(".mx-btn-current-year")
-    prev_year = popup.locator(".mx-btn-icon-double-left")
-
-    while month_btn.text_content().strip() != month_label:
-        prev_month.click()
-
-    while year_btn.text_content().strip() != year:
-        prev_year.click()
-
-    popup.locator(f'td.cell[title="{date_value}"]').click()
-
-
 def format_cell_value(value) -> str:
     if value is None:
         return ""
@@ -175,90 +162,46 @@ def prepare_page(page) -> None:
 
 def search_patient(page, data: dict, row_number: int) -> None:
     prepare_page(page)
+    page.locator("div.mx-input-wrapper").click()
+    batas_awal = format_cell_value(data["batas_awal"])
+    batas_akhir = format_cell_value(data["batas_akhir"])
+    page.locator(f'td.cell[title="{batas_awal}"]').click()
+    page.locator(f'td.cell[title="{batas_akhir}"]').click()
 
-    nik_input = page.locator("form input#nik")
-    nik_input.fill(format_cell_value(data["nik"]))
-    page.locator('input#Nama\\ Lengkap').fill(format_cell_value(data["nama_lengkap"]))
-
-    # masih menyisakan PR jika bulannya lebih kecil dari bulan ini
-    select_date_from_picker(page, "#Tanggal\\ Lahir .mx-input-wrapper", format_cell_value(data["tgl_lahir"]))
-    # page.get_by_text("Pilih tanggal lahir", exact=True).fill("2010-01-01")
-    # page.pause()
-
-    # page.get_by_text("Pilih jenis kelamin", exact=True).click()
-    # page.get_by_text(format_cell_value(data["gender"]), exact=True).click()
-    page.get_by_text("Pilih jenis kelamin", exact=True).click()
-    page.locator("div.absolute.top-13.z-2000").get_by_text(
-        format_cell_value(data["gender"]),
-        exact=True,
-    ).click()
-
-    page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
-
-    panel = page.locator("div:has(> .text-\\[20px\\].font-bold:text('Tanggal Pemeriksaan'))")
-    panel.get_by_role("button", name=format_cell_value(data["tgl_pemeriksaan"])).nth(1).click()
-
-    page.get_by_role("button", name="Selanjutnya").click()
-    btn_recheck = page.locator("button:has-text('Periksa Kembali')").first
-    btn_success = page.locator("button:has-text('Lanjutkan')").first
-    try:
-        btn_recheck.wait_for(state="visible", timeout=3000)
-        btn_recheck.click()
-        btn_recheck.wait_for(state="hidden", timeout=5000)
-        checkbox = page.locator("input[name='noNik']")
-        checkbox.set_checked(True, force=True)
-        page.locator("input#nik\\ wali").fill(format_cell_value(data["nik_wali"]))
-        page.locator('input[name="Nama Lengkap Wali"]').fill(format_cell_value(data["nama_wali"]))
-
-        page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir").click()
-
-        select_date_from_picker2(
-            page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),
-            format_cell_value(data["tgl_lahir_wali"]),
-        )
-
-        page.locator("div:has(> .text-gray-4:text('Pilih Jenis Kelamin'))").click()
-        page.locator(".max-h-\\[250px\\]").get_by_text(format_cell_value(data["gender_wali"]), exact=True).click()
-        page.locator("label").filter(has_text="No. Whatsapp Wali").locator('input[name="Nomor whatsapp"]').fill(
-            format_cell_value(data["no_whatsapp_wali"])
-        )
-        page.get_by_role("button", name="Selanjutnya").click()
-        page.locator("button:has-text('Lanjutkan')").click()
-
-    except PlaywrightTimeoutError:
-        btn_success.click()
-
-    page.get_by_text("Pilih status pernikahan", exact=True).click()
-    page.get_by_text(format_cell_value(data["pernikahan"]), exact=True).click()
-
-    page.get_by_text("Pilih pekerjaan", exact=True).click()
-    page.get_by_text(format_cell_value(data["pekerjaan"]), exact=True).click()
-
-    page.get_by_text("Pilih alamat domisili", exact=True).click()
-    page.get_by_text(format_cell_value(data["prov"]), exact=True).click()
-    page.get_by_text(format_cell_value(data["kab"]), exact=True).click()
-    page.get_by_text(format_cell_value(data["kec"]), exact=True).click()
-    page.get_by_text(format_cell_value(data["desa"]), exact=True).click()
-
-    page.locator("textarea#detail-domisili").fill(format_cell_value(data["domisili"]))
-
-    page.get_by_role("button", name="Selanjutnya").click()
-    page.wait_for_timeout(1500)
-    page.get_by_role("button", name="Daftarkan Tanpa NIK").click()
-    page.wait_for_timeout(1500)
+    page.locator("span:has-text('Nama')").click()
+    page.get_by_text("Nama", exact=True).nth(0).click()
+    page.locator('input#searchNik').fill(format_cell_value(data["nama"]))
+    page.keyboard.press("Enter")
     page.wait_for_load_state("networkidle")
-    page.get_by_role("button", name="Tutup").click()
-    # page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
-    # page.wait_for_load_state("networkidle")
+    page.locator("button:has-text('Mulai')").first.click()
+    page.wait_for_load_state("networkidle")
+    print("end of search_patient")
+    page.pause()
+
+def do_pemeriksaan(page, data: dict, row_number: int) -> None:
+    print("do pemeriksaan started")
+    page.locator("button:has-text('Mulai Pemeriksaan')").first.click()
+
+
+    print("end of do_pemeriksaan")
+    page.pause()
 
 
 def main():
     excel_path = "dataset/pelayanan.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
-    workbook, sheet, headers, data_rows = load_rows_from_excel(excel_path)
+    workbook, sheet, headers, data_rows, excel_summary = load_rows_from_excel(excel_path)
     if not data_rows:
-        print("Tidak ada data pada file Excel.")
+        skipped_success_rows = excel_summary["skipped_success_rows"]
+        if skipped_success_rows:
+            print(
+                "Tidak ada data yang perlu diproses. "
+                f"Baris {skipped_success_rows} dilewati karena status sudah SUCCESS."
+            )
+            print("Kosongkan kolom status untuk memproses ulang baris tersebut.")
+        else:
+            print("Tidak ada data pada file Excel.")
         return
 
     with sync_playwright() as p:
@@ -278,6 +221,8 @@ def main():
             data = row_entry["data"]
             try:
                 search_patient(page, data, index)
+                update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
+                do_pemeriksaan(page, data, index)
                 update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
             except Exception as exc:
                 failed_rows.append(index)
