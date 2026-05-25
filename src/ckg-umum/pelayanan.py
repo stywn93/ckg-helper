@@ -152,7 +152,7 @@ def update_row_status(workbook, sheet, headers: list, excel_path: str, row_numbe
     workbook.save(excel_path)
 
 
-def prepare_registration_page(page) -> None:
+def prepare_page(page) -> None:
     page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
     page.wait_for_load_state("networkidle")
 
@@ -170,18 +170,11 @@ def prepare_registration_page(page) -> None:
         # page.pause()
         page.locator("button:has-text('Simpan')").click()
         page.wait_for_load_state("networkidle")
-    print("hello bro")
+    print("end of prepare_page")
 
 
-    # set_date_range(page, ".mx-datepicker.mx-datepicker-range", "2026-05-14")
-    # set_date_range(page, ".mx-datepicker-range .mx-input-wrapper", "2026-05-24")
-    # page.pause()
-    # page.get_by_role("button", name="Daftar Baru").click()
-
-
-def register_single_entry(page, data: dict, row_number: int) -> None:
-    # print(f"Memproses baris Excel {row_number}...")
-    prepare_registration_page(page)
+def search_patient(page, data: dict, row_number: int) -> None:
+    prepare_page(page)
 
     nik_input = page.locator("form input#nik")
     nik_input.fill(format_cell_value(data["nik"]))
@@ -260,7 +253,7 @@ def register_single_entry(page, data: dict, row_number: int) -> None:
 
 
 def main():
-    excel_path = "data.xlsx"
+    excel_path = "dataset/pelayanan.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
     workbook, sheet, headers, data_rows = load_rows_from_excel(excel_path)
@@ -284,7 +277,7 @@ def main():
             index = row_entry["row_number"]
             data = row_entry["data"]
             try:
-                register_single_entry(page, data, index)
+                search_patient(page, data, index)
                 update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
             except Exception as exc:
                 failed_rows.append(index)

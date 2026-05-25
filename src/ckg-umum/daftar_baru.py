@@ -264,7 +264,7 @@ def register_single_entry(page, data: dict, row_number: int) -> None:
     # page.wait_for_load_state("networkidle")
 
 def main():
-    excel_path = "pendaftaran_umum.xlsx"
+    excel_path = "dataset/pendaftaran_umum.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
     workbook, sheet, headers, data_rows = load_rows_from_excel(excel_path)

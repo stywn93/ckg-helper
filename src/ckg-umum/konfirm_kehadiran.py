@@ -205,7 +205,7 @@ def searchPatient(page, data: dict, row_number: int) -> None:
 
 
 def main():
-    excel_path = "konfirm_kehadiran.xlsx"
+    excel_path = "dataset/konfirm_kehadiran.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
     workbook, sheet, headers, data_rows = load_rows_from_excel(excel_path)
