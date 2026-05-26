@@ -10,6 +10,11 @@ load_dotenv()
 STATUS_COLUMN = "status"
 USERNAME_ENV = "CKG_USERNAME"
 PASSWORD_ENV = "CKG_PASSWORD"
+EXAMINATION_STATUS_OPTIONS = {
+    "1": "Belum Pemeriksaan",
+    "2": "Sedang Pemeriksaan",
+    "3": "Selesai Pemeriksaan",
+}
 MONTH_LABELS = {
     "01": "Jan",
     "02": "Feb",
@@ -42,7 +47,6 @@ MONTH_TO_NUMBER = {
 
 def is_success_status(value) -> bool:
     return str(value).strip().upper() == "SUCCESS"
-
 
 def get_required_env(name: str) -> str:
     value = os.getenv(name)
@@ -133,11 +137,22 @@ def format_cell_value(value) -> str:
         return value.strftime("%Y-%m-%d")
     return str(value)
 
-
 def update_row_status(workbook, sheet, headers: list, excel_path: str, row_number: int, status: str) -> None:
     status_column_index = headers.index(STATUS_COLUMN) + 1
     sheet.cell(row=row_number, column=status_column_index, value=status)
     workbook.save(excel_path)
+
+
+def prompt_examination_status() -> str:
+    print("Pilih status pemeriksaan:")
+    for option_number, option_label in EXAMINATION_STATUS_OPTIONS.items():
+        print(f"{option_number}. {option_label}")
+
+    while True:
+        selected_option = input("Masukkan nomor pilihan (1-3): ").strip()
+        if selected_option in EXAMINATION_STATUS_OPTIONS:
+            return EXAMINATION_STATUS_OPTIONS[selected_option]
+        print("Pilihan tidak valid. Masukkan nomor 1, 2, atau 3.")
 
 
 def prepare_page(page) -> None:
@@ -161,8 +176,9 @@ def prepare_page(page) -> None:
     print("end of prepare_page")
 
 
-def search_patient(page, data: dict, row_number: int) -> None:
+def search_patient(page, data: dict, row_number: int, examination_status: str) -> None:
     prepare_page(page)
+    page.locator("div.cursor-pointer.px-3").filter(has_text=examination_status).click()
     page.locator("div.mx-input-wrapper").click()
     batas_awal = format_cell_value(data["batas_awal"])
     batas_akhir = format_cell_value(data["batas_akhir"])
@@ -177,16 +193,24 @@ def search_patient(page, data: dict, row_number: int) -> None:
     page.locator("button:has-text('Mulai')").first.click()
     page.wait_for_load_state("networkidle")
     print("end of search_patient")
-    page.pause()
 
-def do_pemeriksaan(page, data: dict, row_number: int) -> None:
-    print("do pemeriksaan started")
-    page.locator("button:has-text('Mulai Pemeriksaan')").first.click()
-    page.locator("button:has-text('Simpan')").click()
-    page.locator("tr").filter(has_text="Demografi Dewasa").locator(
-        "button:has-text('Input Data')"
-    ).click()
+def do_demografi_dewasa(page, data: dict, row_number: int) -> None:
+    print("do demografi dewasa started")
+    page.locator('[id="rowfrm000006"]').click()
+    # soal 1
+    page.locator("label").filter(has_text=format_cell_value(data["status_perkawinan"])).click()
+    # jika soal 1 jawabannya selain menikah, maka klik ini
+    # page.locator('[id="sq_101i_0"]').check()
+    if data["status_perkawinan"] != "Menikah":
+        page.locator("label").filter(has_text=format_cell_value(data["rencana_menikah"])).click()
+    # page.locator('[id="sq_100i_0"]').check()
 
+
+    # soal 2 atau 3
+    page.locator("label").filter(has_text=format_cell_value(data["disabilitas"])).click()
+    # page.locator('[id="sq_102i_0"]').check()
+    page.locator("input:has-text('Kirim')").click()
+    # page.pause()
 
     print("end of do_pemeriksaan")
     page.pause()
@@ -196,6 +220,7 @@ def main():
     excel_path = "dataset/pelayanan.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
+    examination_status = prompt_examination_status()
     workbook, sheet, headers, data_rows, excel_summary = load_rows_from_excel(excel_path)
     if not data_rows:
         skipped_success_rows = excel_summary["skipped_success_rows"]
@@ -225,9 +250,9 @@ def main():
             index = row_entry["row_number"]
             data = row_entry["data"]
             try:
-                search_patient(page, data, index)
+                search_patient(page, data, index, examination_status)
                 update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
-                do_pemeriksaan(page, data, index)
+                do_demografi_dewasa(page, data, index)
                 update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
             except Exception as exc:
                 failed_rows.append(index)
