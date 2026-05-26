@@ -200,19 +200,55 @@ def do_demografi_dewasa(page, data: dict, row_number: int) -> None:
     # soal 1
     page.locator("label").filter(has_text=format_cell_value(data["status_perkawinan"])).click()
     # jika soal 1 jawabannya selain menikah, maka klik ini
-    # page.locator('[id="sq_101i_0"]').check()
     if data["status_perkawinan"] != "Menikah":
         page.locator("label").filter(has_text=format_cell_value(data["rencana_menikah"])).click()
-    # page.locator('[id="sq_100i_0"]').check()
-
 
     # soal 2 atau 3
     page.locator("label").filter(has_text=format_cell_value(data["disabilitas"])).click()
-    # page.locator('[id="sq_102i_0"]').check()
     page.locator("input:has-text('Kirim')").click()
-    # page.pause()
 
     print("end of do_pemeriksaan")
+    page.pause()
+def do_risiko_kanker_usus(page, data: dict, row_number: int) -> None:
+    print("do risiko kanker usus started")
+    page.locator('[id="rowfrm000027"]').click()
+    print("end of risiko kanker usus started")
+    page.pause()
+
+def do_risiko_tb(page, data: dict, row_number: int) -> None:
+    print("do risiko tb started")
+    page.locator('[id="rowfrm000180"]').click()
+    print("end of do risiko tb")
+    page.pause()
+
+def do_hati(page, data: dict, row_number: int) -> None:
+    print("do hati started")
+    page.locator('[id="rowfrm000028"]').click()
+    print("end of do hati")
+    page.pause()
+
+def do_keswa(page, data: dict, row_number: int) -> None:
+    print("do keswa started")
+    page.locator('[id="rowfrm000067"]').click()
+    print("end of do keswa")
+    page.pause()
+
+def do_risiko_kanker_paru(page, data: dict, row_number: int) -> None:
+    print("do risiko kanker paru started")
+    page.locator('[id="rowfrm000138"]').click()
+    print("end of risiko kanker paru")
+    page.pause()
+
+def do_perilaku_merokok(page, data: dict, row_number: int) -> None:
+    print("do perilaku merokok started")
+    page.locator('[id="rowfrm000064"]').click()
+    print("end of do perilaku merokok")
+    page.pause()
+
+def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
+    print("do aktivitas fisik started")
+    page.locator('[id="rowfrm000169"]').click()
+    print("end of do aktivitas fisik")
     page.pause()
 
 
