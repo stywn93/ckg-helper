@@ -176,8 +176,9 @@ def prepare_page(page) -> None:
     print("end of prepare_page")
 
 
-def search_patient(page, data: dict, row_number: int, examination_status: str) -> None:
+def search_patient(page, data: dict, row_number: int) -> None:
     prepare_page(page)
+    examination_status = prompt_examination_status()
     page.locator("div.cursor-pointer.px-3").filter(has_text=examination_status).click()
     page.locator("div.mx-input-wrapper").click()
     batas_awal = format_cell_value(data["batas_awal"])
@@ -208,22 +209,46 @@ def do_demografi_dewasa(page, data: dict, row_number: int) -> None:
     page.locator("input:has-text('Kirim')").click()
 
     print("end of do_pemeriksaan")
-    page.pause()
+
 def do_risiko_kanker_usus(page, data: dict, row_number: int) -> None:
     print("do risiko kanker usus started")
     page.locator('[id="rowfrm000027"]').click()
-    print("end of risiko kanker usus started")
-    page.pause()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(has_text=format_cell_value(data["keluarga_kanker_usus"])).click()
+    page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(has_text=format_cell_value(data["merokok"])).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("end of risiko kanker usus")
 
 def do_risiko_tb(page, data: dict, row_number: int) -> None:
     print("do risiko tb started")
     page.locator('[id="rowfrm000180"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["batuk_tidak_sembuh"])).click()
+    page.locator("input:has-text('Kirim')").click()
     print("end of do risiko tb")
-    page.pause()
 
 def do_hati(page, data: dict, row_number: int) -> None:
     print("do hati started")
     page.locator('[id="rowfrm000028"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["hepatitis_b"])).click()
+    page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["ibu_hepatitis_b"])).click()
+    page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["seks_bukan_pasangan"])).click()
+    page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["transfusi_darah"])).click()
+    page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["hemodialisis"])).click()
+    page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["pengguna_narkoba"])).click()
+    page.locator("fieldset[aria-labelledby='sq_106_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["odhiv"])).click()
+    page.locator("fieldset[aria-labelledby='sq_107_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["hepatitis_c"])).click()
+    page.locator("fieldset[aria-labelledby='sq_108_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["kolesterol_tinggi"])).click()
+    page.pause()
+    page.locator("input:has-text('Kirim')").click()
     print("end of do hati")
     page.pause()
 
@@ -256,7 +281,7 @@ def main():
     excel_path = "dataset/pelayanan.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
-    examination_status = prompt_examination_status()
+    # examination_status = prompt_examination_status()
     workbook, sheet, headers, data_rows, excel_summary = load_rows_from_excel(excel_path)
     if not data_rows:
         skipped_success_rows = excel_summary["skipped_success_rows"]
@@ -286,9 +311,12 @@ def main():
             index = row_entry["row_number"]
             data = row_entry["data"]
             try:
-                search_patient(page, data, index, examination_status)
+                search_patient(page, data, index)
                 update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
                 do_demografi_dewasa(page, data, index)
+                do_risiko_kanker_usus(page, data, index)
+                do_risiko_tb(page, data, index)
+                do_hati(page, data, index)
                 update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
             except Exception as exc:
                 failed_rows.append(index)
