@@ -268,9 +268,7 @@ def do_risiko_kanker_paru(page, data: dict, row_number: int) -> None:
     page.locator('[id="rowfrm000138"]').click()
     page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
         has_text=format_cell_value(data["merokok_setahun_terakhir"])).click()
-    if data["merokok_setahun_terakhir"] != "Tidak":
-        print("if condition")
-        page.pause()
+    if data["merokok_setahun_terakhir"] == "Tidak":
         page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
             has_text=format_cell_value(data["merokok_15_tahun"])).click()
         page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
@@ -290,15 +288,31 @@ def do_risiko_kanker_paru(page, data: dict, row_number: int) -> None:
         has_text=format_cell_value(data["gejala_batuk"])).click()
     page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
         has_text=format_cell_value(data["tbc"])).click()
-    page.pause()
     page.locator("input:has-text('Kirim')").click()
-
     print("end of risiko kanker paru")
-    page.pause()
 
 def do_perilaku_merokok(page, data: dict, row_number: int) -> None:
     print("do perilaku merokok started")
     page.locator('[id="rowfrm000064"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["merokok_setahun_terakhir_b"])).click()
+
+    if(data["merokok_setahun_terakhir_b"] == "Ya"):
+        page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=format_cell_value(data["jenis_rokok"])).click()
+        page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill(format_cell_value(data["berapa_tahun"]))
+        page.locator("input[aria-labelledby='sq_103_ariaTitle']").fill(format_cell_value(data["berapa_batang"]))
+
+    elif(data["merokok_setahun_terakhir_b"] == "Tidak"):
+        page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+            has_text=format_cell_value(data["pernah_merokok"])).click()
+        if(data["pernah_merokok"] == "Ya"):
+            page.locator("input[aria-labelledby='sq_105_ariaTitle']").fill(format_cell_value(data["berapa_tahun_sebelumnya"]))
+            page.locator("fieldset[aria-labelledby='sq_106_ariaTitle'] label").filter(
+                has_text=format_cell_value(data["kapan_berhenti"])).click()
+    page.locator("fieldset[aria-labelledby='sq_107_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["terpapar_sebulan_terakhir"])).click()
+    page.locator("input:has-text('Kirim')").click()
     print("end of do perilaku merokok")
     page.pause()
 
@@ -350,7 +364,8 @@ def main():
                 # do_risiko_tb(page, data, index)
                 # do_hati(page, data, index)
                 # do_keswa(page, data, index)
-                do_risiko_kanker_paru(page, data, index)
+                # do_risiko_kanker_paru(page, data, index)
+                do_perilaku_merokok(page, data, index)
                 update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
             except Exception as exc:
                 failed_rows.append(index)
