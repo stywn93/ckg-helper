@@ -314,11 +314,16 @@ def do_perilaku_merokok(page, data: dict, row_number: int) -> None:
         has_text=format_cell_value(data["terpapar_sebulan_terakhir"])).click()
     page.locator("input:has-text('Kirim')").click()
     print("end of do perilaku merokok")
-    page.pause()
 
 def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
     print("do aktivitas fisik started")
     page.locator('[id="rowfrm000169"]').click()
+    page.pause()
+    # page.locator("div[aria-controls='sq_100i_list'").filter(has_text="Ya").click()
+    # page.locator("div[aria-controls='sq_100i_list']").filter(has_text="Ya").click()
+    page.locator("div[aria-controls='sq_100i_list']").click()
+    page.locator("#sq_100i_list [role='option']").filter(has_text="Ya").click()
+    # page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir").click()
     print("end of do aktivitas fisik")
     page.pause()
 
@@ -365,7 +370,8 @@ def main():
                 # do_hati(page, data, index)
                 # do_keswa(page, data, index)
                 # do_risiko_kanker_paru(page, data, index)
-                do_perilaku_merokok(page, data, index)
+                # do_perilaku_merokok(page, data, index)
+                do_aktivitas_fisik(page, data, index)
                 update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
             except Exception as exc:
                 failed_rows.append(index)
