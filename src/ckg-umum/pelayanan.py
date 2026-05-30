@@ -429,12 +429,19 @@ def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
         page.locator("input[aria-labelledby='sq_111_ariaTitle']").fill(
             format_cell_value(data["menit_olahraga"])
         )
-    page.pause()
+    # page.pause()
 
     page.locator("div[aria-controls='sq_112i_list']").click()
     page.locator("#sq_112i .sd-dropdown__value").click()
+    # page.locator("#sq_112i_list [role='option']").filter(
+    #     has_text="Ya").click()
+
+    # print(format_cell_value(data["aktivitas_kerja_berat"]))
+    # page.pause()
+
     page.locator("#sq_112i_list [role='option']").filter(
         has_text=format_cell_value(data["aktivitas_kerja_berat"])).click()
+    # page.pause()
     if data["aktivitas_kerja_berat"] == "Ya":
         page.locator("input[aria-labelledby='sq_113_ariaTitle']").fill(
             format_cell_value(data["hari_kerja_berat"])
@@ -442,7 +449,7 @@ def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
         page.locator("input[aria-labelledby='sq_114_ariaTitle']").fill(
             format_cell_value(data["menit_kerja_berat"])
         )
-    page.pause()
+    # page.pause()
 
     page.locator("div[aria-controls='sq_115i_list']").click()
     page.locator("#sq_115i .sd-dropdown__value").click()
@@ -455,8 +462,8 @@ def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
         page.locator("input[aria-labelledby='sq_117_ariaTitle']").fill(
             format_cell_value(data["menit_olahraga_berat"])
         )
-    page.pause()
-
+    # page.pause()
+    page.locator("input:has-text('Kirim')").click()
     # page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir").click()
     print("end of do aktivitas fisik")
     page.pause()
