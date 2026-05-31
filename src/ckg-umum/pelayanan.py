@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from openpyxl import load_workbook
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
+from playwright_window_layout import launch_chromium_with_layout, pause_with_inspector_layout
 
 load_dotenv()
 
@@ -92,50 +93,6 @@ def load_rows_from_excel(path: str) -> tuple:
 
     return workbook, sheet, headers, rows, summary
 
-
-def set_date_range(page, field_selector: str, date_value: str) -> None:
-    page.pause()
-    year, month, day = date_value.split("-")
-    target_year = int(year)
-    target_month = int(month)
-    month_label = MONTH_LABELS[month]
-    print("parsing date success")
-    page.pause()
-    page.locator(field_selector).click()
-    print("click success")
-    popup = page.locator(".mx-datepicker-popup")
-    month_btn = popup.locator(".mx-btn-current-month")
-    prev_month = popup.locator(".mx-btn-icon-left")
-    next_month = popup.locator(".mx-btn-icon-right")
-    year_btn = popup.locator(".mx-btn-current-year")
-    prev_year = popup.locator(".mx-btn-icon-double-left")
-
-    while int(year_btn.text_content().strip()) != year:
-        current_year = int(year_btn.text_content().strip())
-        if target_year < current_year:
-            prev_year.click()
-        else:
-            break
-
-    a = 1
-    while True:
-        current_label = month_btn.text_content().strip()
-        if current_label == month_label:
-            break
-
-        current_month = int(MONTH_TO_NUMBER[current_label])
-        a += 1
-
-        if target_month < current_month:
-            prev_month.click()
-        else:
-            next_month.click()
-
-        page.wait_for_timeout(300)
-
-    popup.locator(f'td.cell[title="{date_value}"]').click()
-
-
 def format_cell_value(value) -> str:
     if value is None:
         return ""
@@ -179,7 +136,6 @@ def prepare_page(page) -> None:
     if sameLocation.count() > 0:
         sameLocation = page.locator("input[name='sameLocation']")
         sameLocation.set_checked(True, force=True)
-        # page.pause()
         page.locator("button:has-text('Simpan')").click()
         page.wait_for_load_state("networkidle")
     print("end of prepare_page")
@@ -187,8 +143,9 @@ def prepare_page(page) -> None:
 
 def search_patient(page, data: dict, row_number: int) -> None:
     prepare_page(page)
-    examination_status = prompt_examination_status()
-    page.locator("div.cursor-pointer.px-3").filter(has_text=examination_status).click()
+    # examination_status = prompt_examination_status()
+    # page.locator("div.cursor-pointer.px-3").filter(has_text=examination_status).click()
+    page.locator("div.cursor-pointer.px-3").filter(has_text="Sedang Pemeriksaan").click()
     page.locator("div.mx-input-wrapper").click()
     batas_awal = format_cell_value(data["batas_awal"])
     batas_akhir = format_cell_value(data["batas_akhir"])
@@ -381,11 +338,9 @@ def do_perilaku_merokok(page, data: dict, row_number: int) -> None:
 def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
     print("do aktivitas fisik started")
     page.locator('[id="rowfrm000169"]').click()
-    # page.pause()
-    
+
     page.locator("div[aria-controls='sq_100i_list']").click()
     page.locator("#sq_100i_list [role='option']").filter(has_text=format_cell_value(data["aktivitas_domestik"])).click()
-    # page.locator("#sq_100i_list [role='option']").filter(format_cell_value(data["aktivitas_domestik"])).click()
     if data["aktivitas_domestik"] == "Ya":
         page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
             format_cell_value(data["hari_domestik"])
@@ -396,7 +351,6 @@ def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
 
     page.locator("div[aria-controls='sq_103i_list']").click()
     page.locator("#sq_103i .sd-dropdown__value").click()
-    # page.pause()
     page.locator("#sq_103i_list [role='option']").filter(has_text=format_cell_value(data["aktivitas_pekerjaan"])).click()
     if data["aktivitas_pekerjaan"] == "Ya":
         page.locator("input[aria-labelledby='sq_104_ariaTitle']").fill(
@@ -416,7 +370,6 @@ def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
         page.locator("input[aria-labelledby='sq_108_ariaTitle']").fill(
             format_cell_value(data["menit_perjalanan"])
         )
-    # page.pause()
 
     page.locator("div[aria-controls='sq_109i_list']").click()
     page.locator("#sq_109i .sd-dropdown__value").click()
@@ -429,19 +382,12 @@ def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
         page.locator("input[aria-labelledby='sq_111_ariaTitle']").fill(
             format_cell_value(data["menit_olahraga"])
         )
-    # page.pause()
 
     page.locator("div[aria-controls='sq_112i_list']").click()
     page.locator("#sq_112i .sd-dropdown__value").click()
-    # page.locator("#sq_112i_list [role='option']").filter(
-    #     has_text="Ya").click()
-
-    # print(format_cell_value(data["aktivitas_kerja_berat"]))
-    # page.pause()
 
     page.locator("#sq_112i_list [role='option']").filter(
         has_text=format_cell_value(data["aktivitas_kerja_berat"])).click()
-    # page.pause()
     if data["aktivitas_kerja_berat"] == "Ya":
         page.locator("input[aria-labelledby='sq_113_ariaTitle']").fill(
             format_cell_value(data["hari_kerja_berat"])
@@ -449,7 +395,6 @@ def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
         page.locator("input[aria-labelledby='sq_114_ariaTitle']").fill(
             format_cell_value(data["menit_kerja_berat"])
         )
-    # page.pause()
 
     page.locator("div[aria-controls='sq_115i_list']").click()
     page.locator("#sq_115i .sd-dropdown__value").click()
@@ -462,11 +407,8 @@ def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
         page.locator("input[aria-labelledby='sq_117_ariaTitle']").fill(
             format_cell_value(data["menit_olahraga_berat"])
         )
-    # page.pause()
     page.locator("input:has-text('Kirim')").click()
-    # page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir").click()
     print("end of do aktivitas fisik")
-    page.pause()
 
 
 def main():
@@ -491,14 +433,14 @@ def main():
         return
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser, window_layout = launch_chromium_with_layout(p)
         context = browser.new_context(no_viewport=True)
         page = context.new_page()
 
         page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
         page.locator("input#email").fill(username)
         page.locator("input#password").fill(password)
-        page.pause()
+        pause_with_inspector_layout(page, window_layout)
 
         failed_rows = []
 

@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from openpyxl import load_workbook
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+from playwright_window_layout import launch_chromium_with_layout, pause_with_inspector_layout
 
 load_dotenv()
 
@@ -273,14 +274,14 @@ def main():
         return
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser, window_layout = launch_chromium_with_layout(p)
         context = browser.new_context(no_viewport=True)
         page = context.new_page()
 
         page.goto("https://sehatindonesiaku.kemkes.go.id/login")
         page.locator("input#email").fill(username)
         page.locator("input#password").fill(password)
-        page.pause()
+        pause_with_inspector_layout(page, window_layout)
 
         failed_rows = []
 

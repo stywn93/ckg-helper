@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from openpyxl import load_workbook
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+from playwright_window_layout import launch_chromium_with_layout, pause_with_inspector_layout
 
 load_dotenv()
 
@@ -172,7 +173,7 @@ def prepare_registration_page(page) -> None:
         page.wait_for_load_state("networkidle")
 
 
-def searchPatient(page, data: dict, row_number: int) -> None:
+def searchPatient(page, data: dict, row_number: int, window_layout) -> None:
     prepare_registration_page(page)
 
     set_search_date(page.locator('[id="Tanggal Pemeriksaan"]'), format_cell_value(data["tgl_pemeriksaan"]))
@@ -200,7 +201,7 @@ def searchPatient(page, data: dict, row_number: int) -> None:
         page.get_by_role("button", name="Tutup", exact=True).click()
 
     #inspect again
-    page.pause()
+    pause_with_inspector_layout(page, window_layout)
 
 
 
@@ -214,14 +215,14 @@ def main():
         return
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser, window_layout = launch_chromium_with_layout(p)
         context = browser.new_context(no_viewport=True)
         page = context.new_page()
 
         page.goto("https://sehatindonesiaku.kemkes.go.id/login")
         page.locator("input#email").fill(username)
         page.locator("input#password").fill(password)
-        page.pause()
+        pause_with_inspector_layout(page, window_layout)
 
         failed_rows = []
 
@@ -229,7 +230,7 @@ def main():
             index = row_entry["row_number"]
             data = row_entry["data"]
             try:
-                searchPatient(page, data, index)
+                searchPatient(page, data, index, window_layout)
                 update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
             except Exception as exc:
                 failed_rows.append(index)
