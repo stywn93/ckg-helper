@@ -73,16 +73,16 @@ def load_rows_from_excel(path: str) -> tuple:
     empty_rows = 0
 
     for row_number, row in enumerate(
-        sheet.iter_rows(min_row=2, values_only=True), start=2
+            sheet.iter_rows(min_row=2, values_only=True), start=2
     ):
         if not any(row):
             empty_rows += 1
             continue
         row_data = dict(zip(headers, row))
         # skip pengecekan status dulu
-        # if is_success_status(row_data.get(STATUS_COLUMN)):
-        #     skipped_success_rows.append(row_number)
-        #     continue
+        if is_success_status(row_data.get(STATUS_COLUMN)):
+            skipped_success_rows.append(row_number)
+            continue
         rows.append({"row_number": row_number, "data": row_data})
 
     summary = {
@@ -93,6 +93,7 @@ def load_rows_from_excel(path: str) -> tuple:
 
     return workbook, sheet, headers, rows, summary
 
+
 def format_cell_value(value) -> str:
     if value is None:
         return ""
@@ -102,7 +103,7 @@ def format_cell_value(value) -> str:
 
 
 def update_row_status(
-    workbook, sheet, headers: list, excel_path: str, row_number: int, status: str
+        workbook, sheet, headers: list, excel_path: str, row_number: int, status: str
 ) -> None:
     status_column_index = headers.index(STATUS_COLUMN) + 1
     sheet.cell(row=row_number, column=status_column_index, value=status)
@@ -351,7 +352,8 @@ def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
 
     page.locator("div[aria-controls='sq_103i_list']").click()
     page.locator("#sq_103i .sd-dropdown__value").click()
-    page.locator("#sq_103i_list [role='option']").filter(has_text=format_cell_value(data["aktivitas_pekerjaan"])).click()
+    page.locator("#sq_103i_list [role='option']").filter(
+        has_text=format_cell_value(data["aktivitas_pekerjaan"])).click()
     if data["aktivitas_pekerjaan"] == "Ya":
         page.locator("input[aria-labelledby='sq_104_ariaTitle']").fill(
             format_cell_value(data["hari_pekerjaan"])
@@ -362,7 +364,8 @@ def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
 
     page.locator("div[aria-controls='sq_106i_list']").click()
     page.locator("#sq_106i .sd-dropdown__value").click()
-    page.locator("#sq_106i_list [role='option']").filter(has_text=format_cell_value(data["aktivitas_perjalanan"])).click()
+    page.locator("#sq_106i_list [role='option']").filter(
+        has_text=format_cell_value(data["aktivitas_perjalanan"])).click()
     if data["aktivitas_perjalanan"] == "Ya":
         page.locator("input[aria-labelledby='sq_107_ariaTitle']").fill(
             format_cell_value(data["hari_perjalanan"])
@@ -409,6 +412,48 @@ def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
         )
     page.locator("input:has-text('Kirim')").click()
     print("end of do aktivitas fisik")
+
+
+# ---------- Pelayanan Oleh Nakes ------------
+
+def centang_pemeriksaan(page, data: dict, row_number: int) -> None:
+    print("Centang Pemeriksaan")
+    # Gizi Tekanan Darah dan Gula Darah Laki-laki
+    page.locator("input#hasil-lab-0-0").set_checked(False, force=True)
+    page.locator("input#hasil-lab-0-1").set_checked(False, force=True)
+    page.locator("input#hasil-lab-0-2").set_checked(False, force=True)
+    # TB Nakes Dewasa Dan Lansia
+    page.locator("input#hasil-lab-1-0").set_checked(False, force=True)
+    page.locator("input#hasil-lab-1-1").set_checked(False, force=True)
+    # Tropis Terabaiakn
+    page.locator("input#hasil-lab-2-0").set_checked(False, force=True)
+    page.locator("input#hasil-lab-2-1").set_checked(False, force=True)
+    page.locator("input#hasil-lab-2-2").set_checked(False, force=True)
+    # Telinga dan Mata
+    page.locator("input#hasil-lab-3-0").set_checked(False, force=True)
+    # Gigi Dewasa
+    page.locator("input#hasil-lab-4-0").set_checked(False, force=True)
+    page.locator("input#hasil-lab-4-1").set_checked(False, force=True)
+    # PPOK
+    page.locator("input#hasil-lab-5-0").set_checked(False, force=True)
+    # Tata laksana Merokok
+    page.locator("input#hasil-lab-6-0").set_checked(False, force=True)
+    # Laboratorium
+    page.locator("input#hasil-lab-7-0").set_checked(False, force=True)
+    page.locator("input#hasil-lab-7-1").set_checked(False, force=True)
+    page.locator("input#hasil-lab-7-2").set_checked(False, force=True)
+    page.locator("input#hasil-lab-7-3").set_checked(False, force=True)
+    page.locator("input#hasil-lab-7-4").set_checked(False, force=True)
+    # EKG
+    page.locator("input#hasil-lab-8-0").set_checked(False, force=True)
+    # Kanker Usus
+    page.locator("input#hasil-lab-9-0").set_checked(False, force=True)
+    # Kanker Paru
+    page.locator("input#hasil-lab-10-0").set_checked(False, force=True)
+    # Catin
+    page.locator("input#hasil-lab-11-0").set_checked(False, force=True)
+    print("End of Centang Pemeriksaan")
+    page.pause()
 
 
 def main():
@@ -459,7 +504,10 @@ def main():
                 # do_keswa(page, data, index)
                 # do_risiko_kanker_paru(page, data, index)
                 # do_perilaku_merokok(page, data, index)
-                do_aktivitas_fisik(page, data, index)
+                # do_aktivitas_fisik(page, data, index)
+                centang_pemeriksaan(page, data, index)
+                print("Skrining Mandiri Selesai")
+                page.pause()
                 update_row_status(
                     workbook, sheet, headers, excel_path, index, "SUCCESS"
                 )
