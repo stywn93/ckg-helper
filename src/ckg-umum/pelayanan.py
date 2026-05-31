@@ -419,45 +419,47 @@ def centang_pemeriksaan(page, data: dict, row_number: int) -> None:
     print("Centang Pemeriksaan")
     daftar_pemeriksaan = [
         # Gizi Tekanan Darah dan Gula Darah Laki-laki
-        ("input#hasil-lab-0-0", True, False),
-        ("input#hasil-lab-0-1", True, False),
-        ("input#hasil-lab-0-2", False, True),
+        ("input#hasil-lab-0-0", format_cell_value(data["periksa_gizi_laki"]), False),
+        ("input#hasil-lab-0-1", format_cell_value(data["periksa_gula_darah"]), False),
+        ("input#hasil-lab-0-2", format_cell_value(data["periksa_tensi"]), False),
         # TB Nakes Dewasa Dan Lansia
-        ("input#hasil-lab-1-0", False, False),
-        ("input#hasil-lab-1-1", False, True),
+        ("input#hasil-lab-1-0", format_cell_value(data["periksa_risiko_tbc"]), False),
+        ("input#hasil-lab-1-1", format_cell_value(data["periksa_tbc"]), False),
         # Tropis Terabaikan
-        ("input#hasil-lab-2-0", False, False),
-        ("input#hasil-lab-2-1", False, False),
-        ("input#hasil-lab-2-2", False, True),
+        ("input#hasil-lab-2-0", format_cell_value(data["periksa_frambusia"]), False),
+        ("input#hasil-lab-2-1", format_cell_value(data["periksa_kusta"]), False),
+        ("input#hasil-lab-2-2", format_cell_value(data["periksa_skabies"]), False),
         # Telinga dan Mata
-        ("input#hasil-lab-3-0", False, True),
+        ("input#hasil-lab-3-0", format_cell_value(data["periksa_telinga_mata"]), False),
         # Gigi Dewasa
-        ("input#hasil-lab-4-0", False, False),
-        ("input#hasil-lab-4-1", False, True),
+        ("input#hasil-lab-4-0", format_cell_value(data["periksa_karies"]), False),
+        ("input#hasil-lab-4-1", format_cell_value(data["periksa_periodontal"]), False),
         # PPOK
-        ("input#hasil-lab-5-0", False, True),
+        ("input#hasil-lab-5-0", format_cell_value(data["periksa_ppok"]), False),
         # Tata laksana Merokok
-        ("input#hasil-lab-6-0", False, True),
+        ("input#hasil-lab-6-0", format_cell_value(data["periksa_co"]), False),
         # Laboratorium
-        ("input#hasil-lab-7-0", False, False),
-        ("input#hasil-lab-7-1", False, False),
-        ("input#hasil-lab-7-2", False, False),
-        ("input#hasil-lab-7-3", False, False),
-        ("input#hasil-lab-7-4", False, True),
+        ("input#hasil-lab-7-0", format_cell_value(data["periksa_lipid"]), False),
+        ("input#hasil-lab-7-1", format_cell_value(data["periksa_fibrosis"]), False),
+        ("input#hasil-lab-7-2", format_cell_value(data["periksa_hepatitis"]), False),
+        ("input#hasil-lab-7-3", format_cell_value(data["periksa_fungsi_ginjal"]), False),
+        ("input#hasil-lab-7-4", format_cell_value(data["periksa_kerusakan_ginjal"]), False),
         # EKG
-        ("input#hasil-lab-8-0", False, True),
+        ("input#hasil-lab-8-0", format_cell_value(data["periksa_jantung"]), False),
         # Kanker Usus
-        ("input#hasil-lab-9-0", False, True),
+        ("input#hasil-lab-9-0", format_cell_value(data["periksa_kanker_usus"]), False),
         # Kanker Paru
-        ("input#hasil-lab-10-0", False, True),
+        ("input#hasil-lab-10-0", format_cell_value(data["periksa_kanker_paru"]), False),
         # Catin
-        ("input#hasil-lab-11-0", False, True),
+        ("input#hasil-lab-11-0", format_cell_value(data["periksa_hiv"]), False),
+        ("input#hasil-lab-11-0", format_cell_value(data["periksa_sifilis"]), False),
     ]
 
     for selector, checked, pause in daftar_pemeriksaan:
         print("Selector ", selector)
         checkbox = page.locator(selector)
-        if checked is False:
+        if checked is False and checkbox.is_checked():
+            print("if condition 1")
             checkbox.click(force=True)
             page.get_by_role("button", name="Tidak Periksa").click()
         else:
@@ -465,8 +467,6 @@ def centang_pemeriksaan(page, data: dict, row_number: int) -> None:
 
         if pause:
             page.pause()
-
-    page.pause()
 
 
 def main():
@@ -521,7 +521,7 @@ def main():
                 # page.pause()
                 centang_pemeriksaan(page, data, index)
                 print("Skrining Mandiri Selesai")
-                page.pause()
+                # page.pause()
                 update_row_status(
                     workbook, sheet, headers, excel_path, index, "SUCCESS"
                 )
