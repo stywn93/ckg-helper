@@ -47,7 +47,6 @@ MONTH_TO_NUMBER = {
     "Des": 12,
 }
 
-
 def is_success_status(value) -> bool:
     return str(value).strip().upper() == "SUCCESS"
 
@@ -418,41 +417,55 @@ def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
 
 def centang_pemeriksaan(page, data: dict, row_number: int) -> None:
     print("Centang Pemeriksaan")
-    # Gizi Tekanan Darah dan Gula Darah Laki-laki
-    page.locator("input#hasil-lab-0-0").set_checked(False, force=True)
-    page.locator("input#hasil-lab-0-1").set_checked(False, force=True)
-    page.locator("input#hasil-lab-0-2").set_checked(False, force=True)
-    # TB Nakes Dewasa Dan Lansia
-    page.locator("input#hasil-lab-1-0").set_checked(False, force=True)
-    page.locator("input#hasil-lab-1-1").set_checked(False, force=True)
-    # Tropis Terabaiakn
-    page.locator("input#hasil-lab-2-0").set_checked(False, force=True)
-    page.locator("input#hasil-lab-2-1").set_checked(False, force=True)
-    page.locator("input#hasil-lab-2-2").set_checked(False, force=True)
-    # Telinga dan Mata
-    page.locator("input#hasil-lab-3-0").set_checked(False, force=True)
-    # Gigi Dewasa
-    page.locator("input#hasil-lab-4-0").set_checked(False, force=True)
-    page.locator("input#hasil-lab-4-1").set_checked(False, force=True)
-    # PPOK
-    page.locator("input#hasil-lab-5-0").set_checked(False, force=True)
-    # Tata laksana Merokok
-    page.locator("input#hasil-lab-6-0").set_checked(False, force=True)
-    # Laboratorium
-    page.locator("input#hasil-lab-7-0").set_checked(False, force=True)
-    page.locator("input#hasil-lab-7-1").set_checked(False, force=True)
-    page.locator("input#hasil-lab-7-2").set_checked(False, force=True)
-    page.locator("input#hasil-lab-7-3").set_checked(False, force=True)
-    page.locator("input#hasil-lab-7-4").set_checked(False, force=True)
-    # EKG
-    page.locator("input#hasil-lab-8-0").set_checked(False, force=True)
-    # Kanker Usus
-    page.locator("input#hasil-lab-9-0").set_checked(False, force=True)
-    # Kanker Paru
-    page.locator("input#hasil-lab-10-0").set_checked(False, force=True)
-    # Catin
-    page.locator("input#hasil-lab-11-0").set_checked(False, force=True)
-    print("End of Centang Pemeriksaan")
+    daftar_pemeriksaan = [
+        # Gizi Tekanan Darah dan Gula Darah Laki-laki
+        ("input#hasil-lab-0-0", True, False),
+        ("input#hasil-lab-0-1", True, False),
+        ("input#hasil-lab-0-2", False, True),
+        # TB Nakes Dewasa Dan Lansia
+        ("input#hasil-lab-1-0", False, False),
+        ("input#hasil-lab-1-1", False, True),
+        # Tropis Terabaikan
+        ("input#hasil-lab-2-0", False, False),
+        ("input#hasil-lab-2-1", False, False),
+        ("input#hasil-lab-2-2", False, True),
+        # Telinga dan Mata
+        ("input#hasil-lab-3-0", False, True),
+        # Gigi Dewasa
+        ("input#hasil-lab-4-0", False, False),
+        ("input#hasil-lab-4-1", False, True),
+        # PPOK
+        ("input#hasil-lab-5-0", False, True),
+        # Tata laksana Merokok
+        ("input#hasil-lab-6-0", False, True),
+        # Laboratorium
+        ("input#hasil-lab-7-0", False, False),
+        ("input#hasil-lab-7-1", False, False),
+        ("input#hasil-lab-7-2", False, False),
+        ("input#hasil-lab-7-3", False, False),
+        ("input#hasil-lab-7-4", False, True),
+        # EKG
+        ("input#hasil-lab-8-0", False, True),
+        # Kanker Usus
+        ("input#hasil-lab-9-0", False, True),
+        # Kanker Paru
+        ("input#hasil-lab-10-0", False, True),
+        # Catin
+        ("input#hasil-lab-11-0", False, True),
+    ]
+
+    for selector, checked, pause in daftar_pemeriksaan:
+        print("Selector ", selector)
+        checkbox = page.locator(selector)
+        if checked is False:
+            checkbox.click(force=True)
+            page.get_by_role("button", name="Tidak Periksa").click()
+        else:
+            page.locator(selector).set_checked(checked, force=True)
+
+        if pause:
+            page.pause()
+
     page.pause()
 
 
@@ -505,6 +518,7 @@ def main():
                 # do_risiko_kanker_paru(page, data, index)
                 # do_perilaku_merokok(page, data, index)
                 # do_aktivitas_fisik(page, data, index)
+                # page.pause()
                 centang_pemeriksaan(page, data, index)
                 print("Skrining Mandiri Selesai")
                 page.pause()
