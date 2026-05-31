@@ -472,10 +472,9 @@ def centang_pemeriksaan(page, data: dict, row_number: int) -> None:
 def do_gizi_laki(page, data: dict, row_number: int) -> None:
     print("Skrining Gizi Laki dimulai")
     page.locator('[id="rowfrm000093"]').click()
-    page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
+    page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill("70")
+    page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill("170")
+    page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill("90")
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Gizi Laki selesai")
 
@@ -750,6 +749,7 @@ def main():
                 # do_aktivitas_fisik(page, data, index)
                 # page.pause()
                 centang_pemeriksaan(page, data, index)
+                do_gizi_laki(page, data, index)
                 page.pause()
 
                 # page.pause()
