@@ -467,7 +467,237 @@ def centang_pemeriksaan(page, data: dict, row_number: int) -> None:
 
         if pause:
             page.pause()
+    print("Centang Pemeriksaan Selesai")
 
+def do_gizi_laki(page, data: dict, row_number: int) -> None:
+    print("Skrining Gizi Laki dimulai")
+    page.locator('[id="rowfrm000093"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gizi Laki selesai")
+
+def do_gula_darah_dewasa(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_tekanan_darah_dewasa(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_risiko_tb(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_tb(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_frambusia(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_kusta(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_skabies(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_telinga_mata(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_karies(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_periodontal(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_ppok(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_kadar_co(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_lipid(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_fibrosis(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_hepatitis(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_fungsi_ginjal(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_kerusakan_ginjal(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_jantung(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_kanker_usus(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_kanker_paru(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_hiv(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
+
+def do_sifilis(page, data: dict, row_number: int) -> None:
+    print("Skrining Gula Darah Dewasa dimulai")
+    page.locator('[id="rowfrm000256"]').click()
+    page.pause()
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
+    # ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gula Darah Dewasa selesai")
 
 def main():
     excel_path = "dataset/pelayanan.xlsx"
@@ -520,7 +750,8 @@ def main():
                 # do_aktivitas_fisik(page, data, index)
                 # page.pause()
                 centang_pemeriksaan(page, data, index)
-                print("Skrining Mandiri Selesai")
+                page.pause()
+
                 # page.pause()
                 update_row_status(
                     workbook, sheet, headers, excel_path, index, "SUCCESS"
