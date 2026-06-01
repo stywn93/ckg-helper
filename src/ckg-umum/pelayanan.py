@@ -1,5 +1,6 @@
 import os
 import traceback
+import re
 
 from dotenv import load_dotenv
 from openpyxl import load_workbook
@@ -476,6 +477,7 @@ def do_pemeriksaan_check(page, selector: str, checked: bool) -> None:
         checkbox.click(force=True)
         page.get_by_role("button", name="Tidak Periksa").click()
     else:
+        # checkbox.click(force=True)
         page.locator(selector).set_checked(checked, force=True)
 
 def do_gizi_laki(page, data: dict, row_number: int) -> None:
@@ -516,33 +518,76 @@ def do_gula_darah_dewasa(page, data: dict, row_number: int) -> None:
     )
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Gula Darah Dewasa selesai")
-    page.pause()
 
 def do_tekanan_darah_dewasa(page, data: dict, row_number: int) -> None:
     print("Skrining Tekanan Darah Dewasa dimulai")
     do_pemeriksaan_check(page, "input#hasil-lab-0-2", True)
     page.locator('[id="rowfrm000265"]').click()
-    page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["pernah_hipertensi"])
+    ).click()
+    if(data["pernah_hipertensi"] == "Ya"):
+        page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
+            format_cell_value(data["total_bulan_hipertensi"])
+        )
+    page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill(
+        format_cell_value(data["sistolik"])
+    )
+    page.locator("input[aria-labelledby='sq_103_ariaTitle']").fill(
+        format_cell_value(data["diastolik"])
+    )
+    page.locator("input[aria-labelledby='sq_104_ariaTitle']").fill(
+        format_cell_value(data["sistolik_2"])
+    )
+    page.locator("input[aria-labelledby='sq_105_ariaTitle']").fill(
+        format_cell_value(data["diastolik_2"])
+    )
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Tekanan Darah Dewasa selesai")
 
 def do_risiko_tb(page, data: dict, row_number: int) -> None:
     print("Skrining Risiko TB dimulai")
+    do_pemeriksaan_check(page, "input#hasil-lab-1-0", True)
     page.locator('[id="rowfrm000182"]').click()
-    page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["pernah_batuk_tidak_sembuh"])
+    ).click()
+    page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["bb_turun"])
+    ).click()
+    page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["demam_hilang_timbul"])
+    ).click()
+    page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["berkeringat_malam"])
+    ).click()
+    page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["pembesaran_getah_bening"])
+    ).click()
+    page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["radiografi_toraks"])
+    ).click()
+    if(data["radiografi_toraks"] == "Ya"):
+        value = format_cell_value(data["hasil_rontgen"])
+        page.locator(
+            "fieldset[aria-labelledby='sq_106_ariaTitle'] label"
+        ).filter(
+            has_text=re.compile(rf"^{re.escape(value)}$")
+        ).click()
+
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Risiko TB selesai")
+    # page.pause()
 
 def do_tb(page, data: dict, row_number: int) -> None:
     print("Skrining TB dimulai")
-    page.locator('[id="rowfrm000184"]').click()
     page.pause()
+    do_pemeriksaan_check(page, "input#hasil-lab-1-1", True)
+    page.locator('[id="rowfrm000184"]').click()
+    dropdown = page.locator("#sq_100i").click()
+    dropdown.click()
+    # page.locator("#sq_100i [role='option']").filter(has_text=format_cell_value(data["kontak_tbc"])).click()
+    # page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
     # ).click()
@@ -778,10 +823,12 @@ def main():
                 # do_risiko_kanker_paru(page, data, index)
                 # do_perilaku_merokok(page, data, index)
                 # do_aktivitas_fisik(page, data, index)
-                # page.pause()
                 # centang_pemeriksaan(page, data, index)
-                do_gizi_laki(page, data, index)
-                do_gula_darah_dewasa(page, data, index)
+                # do_gizi_laki(page, data, index)
+                # do_gula_darah_dewasa(page, data, index)
+                # do_tekanan_darah_dewasa(page, data, index)
+                do_risiko_tb(page, data, index)
+                do_tb(page, data, index)
                 page.pause()
 
                 # page.pause()
