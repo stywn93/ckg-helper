@@ -469,27 +469,58 @@ def centang_pemeriksaan(page, data: dict, row_number: int) -> None:
             page.pause()
     print("Centang Pemeriksaan Selesai")
 
+def do_pemeriksaan_check(page, selector: str, checked: bool) -> None:
+    checkbox = page.locator(selector)
+    if checked is False and checkbox.is_checked():
+        print("status pemeriksaan is False")
+        checkbox.click(force=True)
+        page.get_by_role("button", name="Tidak Periksa").click()
+    else:
+        page.locator(selector).set_checked(checked, force=True)
+
 def do_gizi_laki(page, data: dict, row_number: int) -> None:
     print("Skrining Gizi Laki dimulai")
+    #butuh perbaikan di sini, seharusnya sebelum klik tombol Input Data, pastikan sudah centang Diperiksa agar bisa diklik
+    do_pemeriksaan_check(page, "input#hasil-lab-0-0", True)
     page.locator('[id="rowfrm000093"]').click()
-    page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill("70")
-    page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill("170")
-    page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill("90")
+
+    page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(format_cell_value(data["berat_badan"]))
+    page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(format_cell_value(data["tinggi_badan"]))
+    page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill(format_cell_value(data["lingkar_perut"]))
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Gizi Laki selesai")
 
 def do_gula_darah_dewasa(page, data: dict, row_number: int) -> None:
     print("Skrining Gula Darah Dewasa dimulai")
+    do_pemeriksaan_check(page, "input#hasil-lab-0-1", True)
     page.locator('[id="rowfrm000256"]').click()
-    page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["pernah_diabetes"])
+    ).click()
+    if(data["pernah_diabetes"] == "Ya"):
+        page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
+            format_cell_value(data["total_bulan_diabetes"])
+        )
+    page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill(
+        format_cell_value(data["gula_darah_sewaktu"])
+    )
+    if (data["pernah_diabetes"] == "Tidak"):
+        page.locator("input[aria-labelledby='sq_103_ariaTitle']").fill(
+            format_cell_value(data["gula_darah_sewaktu_2"])
+        )
+    page.locator("input[aria-labelledby='sq_104_ariaTitle']").fill(
+        format_cell_value(data["gula_darah_puasa"])
+    )
+    page.locator("input[aria-labelledby='sq_105_ariaTitle']").fill(
+        format_cell_value(data["gula_darah_pp"])
+    )
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Gula Darah Dewasa selesai")
+    page.pause()
 
 def do_tekanan_darah_dewasa(page, data: dict, row_number: int) -> None:
     print("Skrining Tekanan Darah Dewasa dimulai")
+    do_pemeriksaan_check(page, "input#hasil-lab-0-2", True)
     page.locator('[id="rowfrm000265"]').click()
     page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -748,8 +779,9 @@ def main():
                 # do_perilaku_merokok(page, data, index)
                 # do_aktivitas_fisik(page, data, index)
                 # page.pause()
-                centang_pemeriksaan(page, data, index)
+                # centang_pemeriksaan(page, data, index)
                 do_gizi_laki(page, data, index)
+                do_gula_darah_dewasa(page, data, index)
                 page.pause()
 
                 # page.pause()
