@@ -625,7 +625,7 @@ def do_frambusia(page, data: dict, row_number: int) -> None:
         page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
             has_text=format_cell_value(data["hasil_pemeriksaan_rdt"])
         ).first.click()
-    page.pause()
+    # page.pause()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Frambusia selesai")
 
@@ -638,7 +638,7 @@ def do_kusta(page, data: dict, row_number: int) -> None:
     if data["bercak_putih"] == "Meragukan":
         page.locator("div[aria-controls='sq_101i_list']").click()
         page.locator("#sq_101i_list [role='option']").filter(has_text=format_cell_value(data["hasil_bta"])).first.click()
-    page.pause()
+    # page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
     # ).click()
@@ -651,7 +651,7 @@ def do_skabies(page, data: dict, row_number: int) -> None:
     page.locator('[id="rowfrm000201"]').click()
     page.locator("div[aria-controls='sq_100i_list']").click()
     page.locator("#sq_100i_list [role='option']").filter(has_text=format_cell_value(data["ada_ruam"])).click()
-    page.pause()
+    # page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
     # ).click()
@@ -711,7 +711,7 @@ def do_karies(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
         has_text=format_cell_value(data["gigi_hilang"])
     ).first.click()
-    page.pause()
+    # page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
     # ).click()
@@ -728,7 +728,7 @@ def do_periodontal(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
         has_text=format_cell_value(data["gigi_goyang"])
     ).first.click()
-    page.pause()
+    # page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
     # ).click()
@@ -755,7 +755,7 @@ def do_ppok(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
         has_text=format_cell_value(data["periksa_spirometri"])
     ).first.click()
-    page.pause()
+    # page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
     # ).click()
@@ -788,7 +788,7 @@ def do_lipid(page, data: dict, row_number: int) -> None:
     page.locator("input[aria-labelledby='sq_103_ariaTitle']").fill(
         format_cell_value(data["trigliserida"])
     )
-    page.pause()
+    # page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
     # ).click()
@@ -805,7 +805,7 @@ def do_fibrosis(page, data: dict, row_number: int) -> None:
     page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
         format_cell_value(data["trombosit"])
     )
-    page.pause()
+    # page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
     # ).click()
@@ -871,7 +871,7 @@ def do_jantung(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
         has_text=format_cell_value(data["pemeriksaan_ekg"])
     ).first.click()
-    page.pause()
+    # page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
     # ).click()
@@ -891,7 +891,7 @@ def do_kanker_usus(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
         has_text=format_cell_value(data["darah_samar"])
     ).first.click()
-    page.pause()
+    # page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
     # ).click()
@@ -926,7 +926,7 @@ def do_kanker_paru(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_107_ariaTitle'] label").filter(
         has_text=format_cell_value(data["foto_torax"])
     ).first.click()
-    page.pause()
+    # page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
     # ).click()
@@ -962,7 +962,7 @@ def do_sifilis(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
         has_text=format_cell_value(data["rapid_test_sifilis"])
     ).first.click()
-    page.pause()
+    # page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
     # ).click()
@@ -1010,37 +1010,36 @@ def main():
                 update_row_status(
                     workbook, sheet, headers, excel_path, index, "SUCCESS"
                 )
-                # do_demografi_dewasa(page, data, index)
-                # do_risiko_kanker_usus(page, data, index)
-                # do_risiko_tb(page, data, index)
+                do_demografi_dewasa(page, data, index)
+                do_risiko_kanker_usus(page, data, index)
+                do_risiko_tb(page, data, index)
                 # do_hati(page, data, index)
-                # do_keswa(page, data, index)
-                # do_risiko_kanker_paru(page, data, index)
-                # do_perilaku_merokok(page, data, index)
-                # do_aktivitas_fisik(page, data, index)
-                # centang_pemeriksaan(page, data, index)
-                # do_gizi_laki(page, data, index)
-                # do_gula_darah_dewasa(page, data, index)
-                # do_tekanan_darah_dewasa(page, data, index)
-                # do_risiko_tb(page, data, index)
-                # do_tb(page, data, index)
-                # do_frambusia(page, data, index)
-                # do_kusta(page, data, index)
-                # do_skabies(page, data, index)
-                # do_telinga_mata(page, data, index)
-                # do_karies(page, data, index)
-                # do_periodontal(page, data, index)
-                # do_ppok(page, data, index)
-                # do_kadar_co(page, data, index)
-                # do_lipid(page, data, index)
-                # do_fibrosis(page, data, index)
-                # do_hepatitis(page, data, index)
-                # do_fungsi_ginjal(page, data, index)
-                # do_kerusakan_ginjal(page, data, index)
-                # do_jantung(page, data, index)
-                # do_kanker_usus(page, data, index)
-                # do_kanker_paru(page, data, index)
-                # do_hiv(page, data, index)
+                do_keswa(page, data, index)
+                do_risiko_kanker_paru(page, data, index)
+                do_perilaku_merokok(page, data, index)
+                do_aktivitas_fisik(page, data, index)
+                do_gizi_laki(page, data, index)
+                do_gula_darah_dewasa(page, data, index)
+                do_tekanan_darah_dewasa(page, data, index)
+                do_risiko_tb(page, data, index)
+                do_tb(page, data, index)
+                do_frambusia(page, data, index)
+                do_kusta(page, data, index)
+                do_skabies(page, data, index)
+                do_telinga_mata(page, data, index)
+                do_karies(page, data, index)
+                do_periodontal(page, data, index)
+                do_ppok(page, data, index)
+                do_kadar_co(page, data, index)
+                do_lipid(page, data, index)
+                do_fibrosis(page, data, index)
+                do_hepatitis(page, data, index)
+                do_fungsi_ginjal(page, data, index)
+                do_kerusakan_ginjal(page, data, index)
+                do_jantung(page, data, index)
+                do_kanker_usus(page, data, index)
+                do_kanker_paru(page, data, index)
+                do_hiv(page, data, index)
                 do_sifilis(page, data, index)
                 page.pause()
 
