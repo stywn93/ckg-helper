@@ -858,16 +858,19 @@ def do_kerusakan_ginjal(page, data: dict, row_number: int) -> None:
     page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
         format_cell_value(data["kreatinin_urin"])
     )
-    page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Kerusakan Ginjal selesai")
 
 def do_jantung(page, data: dict, row_number: int) -> None:
     print("Skrining Jantung dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-8-0']", True)
     page.locator('[id="rowfrm000057"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["ekg"])
+    ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["pemeriksaan_ekg"])
+    ).first.click()
     page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
@@ -982,7 +985,8 @@ def main():
                 # do_fibrosis(page, data, index)
                 # do_hepatitis(page, data, index)
                 # do_fungsi_ginjal(page, data, index)
-                do_kerusakan_ginjal(page, data, index)
+                # do_kerusakan_ginjal(page, data, index)
+                do_jantung(page, data, index)
                 page.pause()
 
                 # page.pause()
