@@ -586,19 +586,28 @@ def do_tb(page, data: dict, row_number: int) -> None:
     print("Skrining TB dimulai")
     do_pemeriksaan_check(page, "label[for='hasil-lab-1-1']", True)
     page.locator('[id="rowfrm000184"]').click()
+
     page.locator("div[aria-controls='sq_100i_list']").click()
     page.locator("#sq_100i_list [role='option']").filter(has_text=format_cell_value(data["kontak_tbc"])).click()
     if data["kontak_tbc"] == "Riwayat kontak serumah" or data["kontak_tbc"] == "Riwayat kontak erat":
-        print("second option here")
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["kontak_tbc"])
-    # ).click()
-
-    # page.locator("#sq_100i [role='option']").filter(has_text=format_cell_value(data["kontak_tbc"])).click()
-    # page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
+        page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=format_cell_value(data["jenis_tbc"])
+        ).click()
+    page.locator("div[aria-controls='sq_102i_list']").click()
+    page.locator("#sq_102i_list [role='option']").filter(has_text=format_cell_value(data["metode_pemeriksaan_tbc"])).click()
+    if data["metode_pemeriksaan_tbc"] == "TCM":
+        page.locator("div[aria-controls='sq_103i_list']").click()
+        page.locator("#sq_103i_list [role='option']").filter(
+            has_text=format_cell_value(data["hasil_pemeriksaan_tbc"])).click()
+    elif data["metode_pemeriksaan_tbc"] == "BTA":
+        page.locator("div[aria-controls='sq_104i_list']").click()
+        page.locator("#sq_104i_list [role='option']").filter(
+            has_text=format_cell_value(data["hasil_pemeriksaan_tbc"])).click()
+    elif data["metode_pemeriksaan_tbc"] == "NPOC":
+        page.locator("div[aria-controls='sq_105i_list']").click()
+        page.locator("#sq_105i_list [role='option']").filter(
+            has_text=format_cell_value(data["hasil_pemeriksaan_tbc"])).click()
+    page.pause()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining TB selesai")
 
