@@ -831,17 +831,33 @@ def do_hepatitis(page, data: dict, row_number: int) -> None:
 
 def do_fungsi_ginjal(page, data: dict, row_number: int) -> None:
     print("Skrining Fungsi Ginjal dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-7-3']", True)
     page.locator('[id="rowfrm000244"]').click()
-    page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
+    page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(
+        format_cell_value(data["kreatinin"])
+    )
+    page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
+        format_cell_value(data["ureum"])
+    )
+    page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill(
+        format_cell_value(data["usia"])
+    )
+    page.locator("input[aria-labelledby='sq_103_ariaTitle']").fill(
+        format_cell_value(data["e_lfg"])
+    )
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Fungsi Ginjal selesai")
 
 def do_kerusakan_ginjal(page, data: dict, row_number: int) -> None:
     print("Skrining Kerusakan Ginjal dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-7-4']", True)
     page.locator('[id="rowfrm000248"]').click()
+    page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(
+        format_cell_value(data["albumin"])
+    )
+    page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
+        format_cell_value(data["kreatinin_urin"])
+    )
     page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
@@ -964,7 +980,9 @@ def main():
                 # do_kadar_co(page, data, index)
                 # do_lipid(page, data, index)
                 # do_fibrosis(page, data, index)
-                do_hepatitis(page, data, index)
+                # do_hepatitis(page, data, index)
+                # do_fungsi_ginjal(page, data, index)
+                do_kerusakan_ginjal(page, data, index)
                 page.pause()
 
                 # page.pause()
