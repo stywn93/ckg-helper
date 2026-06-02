@@ -703,7 +703,14 @@ def do_telinga_mata(page, data: dict, row_number: int) -> None:
 
 def do_karies(page, data: dict, row_number: int) -> None:
     print("Skrining Karies dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-4-0']", True)
     page.locator('[id="rowfrm000055"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["gigi_karies"])
+    ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["gigi_hilang"])
+    ).first.click()
     page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
@@ -713,7 +720,14 @@ def do_karies(page, data: dict, row_number: int) -> None:
 
 def do_periodontal(page, data: dict, row_number: int) -> None:
     print("Skrining Periodontal dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-4-1']", True)
     page.locator('[id="rowfrm000056"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["penyakit_periodontal"])
+    ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["gigi_goyang"])
+    ).first.click()
     page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
@@ -899,7 +913,9 @@ def main():
                 # do_frambusia(page, data, index)
                 # do_kusta(page, data, index)
                 # do_skabies(page, data, index)
-                do_telinga_mata(page, data, index)
+                # do_telinga_mata(page, data, index)
+                # do_karies(page, data, index)
+                do_periodontal(page, data, index)
                 page.pause()
 
                 # page.pause()
