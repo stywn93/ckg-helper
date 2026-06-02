@@ -935,17 +935,33 @@ def do_kanker_paru(page, data: dict, row_number: int) -> None:
 
 def do_hiv(page, data: dict, row_number: int) -> None:
     print("Skrining HIV dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-11-0']", True)
     page.locator('[id="rowfrm000188"]').click()
-    page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["rapid_test"])
+    ).first.click()
+    if data["rapid_test"] == "Reaktif":
+        page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=format_cell_value(data["r2_hiv"])
+        ).first.click()
+        if data["r2_hiv"] == "Reaktif":
+            page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+                has_text=format_cell_value(data["r3_hiv"])
+            ).first.click()
+        elif data["r2_hiv"] == "Non Reaktif":
+            page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+                has_text=format_cell_value(data["r1_hiv_ulang"])
+            ).first.click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining HIV selesai")
 
 def do_sifilis(page, data: dict, row_number: int) -> None:
     print("Skrining Sifilis dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-11-1']", True)
     page.locator('[id="rowfrm000191"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["rapid_test_sifilis"])
+    ).first.click()
     page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
@@ -1023,7 +1039,9 @@ def main():
                 # do_kerusakan_ginjal(page, data, index)
                 # do_jantung(page, data, index)
                 # do_kanker_usus(page, data, index)
-                do_kanker_paru(page, data, index)
+                # do_kanker_paru(page, data, index)
+                # do_hiv(page, data, index)
+                do_sifilis(page, data, index)
                 page.pause()
 
                 # page.pause()
