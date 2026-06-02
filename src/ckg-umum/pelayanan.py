@@ -900,7 +900,32 @@ def do_kanker_usus(page, data: dict, row_number: int) -> None:
 
 def do_kanker_paru(page, data: dict, row_number: int) -> None:
     print("Skrining Kanker Paru dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-10-0']", True)
     page.locator('[id="rowfrm000041"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["kanker_paru"])
+    ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["keluarga_kanker"])
+    ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["riwayat_merokok"])
+    ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["tempat_kerja_karsinogenik"])
+    ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["tempat_tinggal_potensi_tinggi"])
+    ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["lingkungan_tidak_sehat"])
+    ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_106_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["penyakit_paru_kronik"])
+    ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_107_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["foto_torax"])
+    ).first.click()
     page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
@@ -997,7 +1022,8 @@ def main():
                 # do_fungsi_ginjal(page, data, index)
                 # do_kerusakan_ginjal(page, data, index)
                 # do_jantung(page, data, index)
-                do_kanker_usus(page, data, index)
+                # do_kanker_usus(page, data, index)
+                do_kanker_paru(page, data, index)
                 page.pause()
 
                 # page.pause()
