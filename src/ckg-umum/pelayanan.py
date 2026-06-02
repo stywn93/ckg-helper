@@ -764,17 +764,30 @@ def do_ppok(page, data: dict, row_number: int) -> None:
 
 def do_kadar_co(page, data: dict, row_number: int) -> None:
     print("Skrining Kadar CO dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-6-0']", True)
     page.locator('[id="rowfrm000186"]').click()
-    page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
+    page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(
+        format_cell_value(data["kadar_co"])
+    )
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Kadar CO selesai")
 
 def do_lipid(page, data: dict, row_number: int) -> None:
     print("Skrining Lipid dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-7-0']", True)
     page.locator('[id="rowfrm000047"]').click()
+    page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(
+        format_cell_value(data["kolesterol"])
+    )
+    page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
+        format_cell_value(data["hdl"])
+    )
+    page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill(
+        format_cell_value(data["ldl"])
+    )
+    page.locator("input[aria-labelledby='sq_103_ariaTitle']").fill(
+        format_cell_value(data["trigliserida"])
+    )
     page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
@@ -784,7 +797,14 @@ def do_lipid(page, data: dict, row_number: int) -> None:
 
 def do_fibrosis(page, data: dict, row_number: int) -> None:
     print("Skrining Fibrosis dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-7-1']", True)
     page.locator('[id="rowfrm000045"]').click()
+    page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(
+        format_cell_value(data["sgot"])
+    )
+    page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
+        format_cell_value(data["trombosit"])
+    )
     page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
@@ -794,11 +814,18 @@ def do_fibrosis(page, data: dict, row_number: int) -> None:
 
 def do_hepatitis(page, data: dict, row_number: int) -> None:
     print("Skrining Hepatitis dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-7-2']", True)
     page.locator('[id="rowfrm000044"]').click()
-    page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["hepatitis_b"])
+    ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["hepatitis_c"])
+    ).first.click()
+    if data["hepatitis_c"] == "Anti HCV Reaktif":
+        page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=format_cell_value(data["vl_hepatitis_c"])
+        ).first.click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Hepatitis selesai")
 
@@ -933,7 +960,11 @@ def main():
                 # do_telinga_mata(page, data, index)
                 # do_karies(page, data, index)
                 # do_periodontal(page, data, index)
-                do_ppok(page, data, index)
+                # do_ppok(page, data, index)
+                # do_kadar_co(page, data, index)
+                # do_lipid(page, data, index)
+                # do_fibrosis(page, data, index)
+                do_hepatitis(page, data, index)
                 page.pause()
 
                 # page.pause()
