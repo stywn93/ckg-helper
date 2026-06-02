@@ -880,7 +880,17 @@ def do_jantung(page, data: dict, row_number: int) -> None:
 
 def do_kanker_usus(page, data: dict, row_number: int) -> None:
     print("Skrining Kanker Usus dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-9-0']", True)
     page.locator('[id="rowfrm000050"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["bersedia_colok_dubur"])
+    ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["colok_dubur"])
+    ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["darah_samar"])
+    ).first.click()
     page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
@@ -986,7 +996,8 @@ def main():
                 # do_hepatitis(page, data, index)
                 # do_fungsi_ginjal(page, data, index)
                 # do_kerusakan_ginjal(page, data, index)
-                do_jantung(page, data, index)
+                # do_jantung(page, data, index)
+                do_kanker_usus(page, data, index)
                 page.pause()
 
                 # page.pause()
