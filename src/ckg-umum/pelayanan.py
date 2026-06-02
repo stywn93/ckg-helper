@@ -139,7 +139,7 @@ def prepare_page(page) -> None:
         sameLocation.set_checked(True, force=True)
         page.locator("button:has-text('Simpan')").click()
         page.wait_for_load_state("networkidle")
-    print("end of prepare_page")
+    # print("end of prepare_page")
 
 
 def search_patient(page, data: dict, row_number: int) -> None:
@@ -160,7 +160,7 @@ def search_patient(page, data: dict, row_number: int) -> None:
     page.wait_for_load_state("networkidle")
     page.locator("button:has-text('Mulai')").first.click()
     page.wait_for_load_state("networkidle")
-    print("end of search_patient")
+    # print("end of search_patient")
 
 
 def do_demografi_dewasa(page, data: dict, row_number: int) -> None:
@@ -473,14 +473,16 @@ def centang_pemeriksaan(page, data: dict, row_number: int) -> None:
 def do_pemeriksaan_check(page, selector: str, checked: bool) -> None:
     checkbox = page.locator(selector)
     if checked is False and checkbox.is_checked():
-        print("status pemeriksaan is False")
+        # print("status pemeriksaan is False")
         checkbox.click(force=True)
         page.get_by_role("button", name="Tidak Periksa").click()
     elif checked is True:
-        print("status pemeriksaan is True")
-        print("selector ", selector)
+        # print("status pemeriksaan is True")
+        # print("selector ", selector)
         # page.pause()
-        checkbox.click()
+        if checkbox.is_checked() != checked:
+            checkbox.click()
+        # checkbox.click()
         # page.locator(selector).set_checked(checked, force=True)
 
 def do_gizi_laki(page, data: dict, row_number: int) -> None:
@@ -596,7 +598,8 @@ def do_tb(page, data: dict, row_number: int) -> None:
     page.locator("div[aria-controls='sq_102i_list']").click()
     page.locator("#sq_102i_list [role='option']").filter(has_text=format_cell_value(data["metode_pemeriksaan_tbc"])).click()
     if data["metode_pemeriksaan_tbc"] == "TCM":
-        page.locator("div[aria-controls='sq_103i_list']").click()
+        print("TCM")
+        page.locator("div#sq_103i.sd-input.sd-dropdown").click()
         page.locator("#sq_103i_list [role='option']").filter(
             has_text=format_cell_value(data["hasil_pemeriksaan_tbc"])).click()
     elif data["metode_pemeriksaan_tbc"] == "BTA":
@@ -607,7 +610,7 @@ def do_tb(page, data: dict, row_number: int) -> None:
         page.locator("div[aria-controls='sq_105i_list']").click()
         page.locator("#sq_105i_list [role='option']").filter(
             has_text=format_cell_value(data["hasil_pemeriksaan_tbc"])).click()
-    page.pause()
+    # page.pause()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining TB selesai")
 
