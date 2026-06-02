@@ -737,7 +737,24 @@ def do_periodontal(page, data: dict, row_number: int) -> None:
 
 def do_ppok(page, data: dict, row_number: int) -> None:
     print("Skrining PPOK dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-5-0']", True)
     page.locator('[id="rowfrm000101"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["ppok_merokok"])
+    ).first.click()
+    if data["ppok_merokok"] == "Iya":
+        page.locator("div[aria-controls='sq_101i_list']").click()
+        page.locator("#sq_101i_list [role='option']").filter(
+            has_text=format_cell_value(data["bungkus_per_tahun"])).first.click()
+    page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["nafas_pendek"])).first.click()
+    page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["mempunyai_dahak"])).first.click()
+    page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["batuk_tanpa_flu"])).first.click()
+    page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["periksa_spirometri"])
+    ).first.click()
     page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
@@ -915,7 +932,8 @@ def main():
                 # do_skabies(page, data, index)
                 # do_telinga_mata(page, data, index)
                 # do_karies(page, data, index)
-                do_periodontal(page, data, index)
+                # do_periodontal(page, data, index)
+                do_ppok(page, data, index)
                 page.pause()
 
                 # page.pause()
