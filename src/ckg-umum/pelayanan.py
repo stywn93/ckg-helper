@@ -616,11 +616,16 @@ def do_tb(page, data: dict, row_number: int) -> None:
 
 def do_frambusia(page, data: dict, row_number: int) -> None:
     print("Skrining Frambusia dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-2-0']", True)
     page.locator('[id="rowfrm000199"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["ada_papul"])
+    ).click()
+    if data["ada_papul"] == "Suspek frambusia":
+        page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=format_cell_value(data["hasil_pemeriksaan_rdt"])
+        ).first.click()
     page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Frambusia selesai")
 
@@ -848,7 +853,8 @@ def main():
                 # do_gula_darah_dewasa(page, data, index)
                 # do_tekanan_darah_dewasa(page, data, index)
                 # do_risiko_tb(page, data, index)
-                do_tb(page, data, index)
+                # do_tb(page, data, index)
+                do_frambusia(page, data, index)
                 page.pause()
 
                 # page.pause()
