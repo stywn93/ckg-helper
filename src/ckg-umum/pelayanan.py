@@ -476,9 +476,12 @@ def do_pemeriksaan_check(page, selector: str, checked: bool) -> None:
         print("status pemeriksaan is False")
         checkbox.click(force=True)
         page.get_by_role("button", name="Tidak Periksa").click()
-    else:
-        # checkbox.click(force=True)
-        page.locator(selector).set_checked(checked, force=True)
+    elif checked is True:
+        print("status pemeriksaan is True")
+        print("selector ", selector)
+        # page.pause()
+        checkbox.click()
+        # page.locator(selector).set_checked(checked, force=True)
 
 def do_gizi_laki(page, data: dict, row_number: int) -> None:
     print("Skrining Gizi Laki dimulai")
@@ -581,11 +584,16 @@ def do_risiko_tb(page, data: dict, row_number: int) -> None:
 
 def do_tb(page, data: dict, row_number: int) -> None:
     print("Skrining TB dimulai")
-    page.pause()
-    do_pemeriksaan_check(page, "input#hasil-lab-1-1", True)
+    do_pemeriksaan_check(page, "label[for='hasil-lab-1-1']", True)
     page.locator('[id="rowfrm000184"]').click()
-    dropdown = page.locator("#sq_100i").click()
-    dropdown.click()
+    page.locator("div[aria-controls='sq_100i_list']").click()
+    page.locator("#sq_100i_list [role='option']").filter(has_text=format_cell_value(data["kontak_tbc"])).click()
+    if data["kontak_tbc"] == "Riwayat kontak serumah" or data["kontak_tbc"] == "Riwayat kontak erat":
+        print("second option here")
+    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+    #     has_text=format_cell_value(data["kontak_tbc"])
+    # ).click()
+
     # page.locator("#sq_100i [role='option']").filter(has_text=format_cell_value(data["kontak_tbc"])).click()
     # page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -824,10 +832,10 @@ def main():
                 # do_perilaku_merokok(page, data, index)
                 # do_aktivitas_fisik(page, data, index)
                 # centang_pemeriksaan(page, data, index)
-                do_gizi_laki(page, data, index)
-                do_gula_darah_dewasa(page, data, index)
-                do_tekanan_darah_dewasa(page, data, index)
-                do_risiko_tb(page, data, index)
+                # do_gizi_laki(page, data, index)
+                # do_gula_darah_dewasa(page, data, index)
+                # do_tekanan_darah_dewasa(page, data, index)
+                # do_risiko_tb(page, data, index)
                 do_tb(page, data, index)
                 page.pause()
 
