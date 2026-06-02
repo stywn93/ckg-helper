@@ -647,7 +647,10 @@ def do_kusta(page, data: dict, row_number: int) -> None:
 
 def do_skabies(page, data: dict, row_number: int) -> None:
     print("Skrining Skabies dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-2-2']", True)
     page.locator('[id="rowfrm000201"]').click()
+    page.locator("div[aria-controls='sq_100i_list']").click()
+    page.locator("#sq_100i_list [role='option']").filter(has_text=format_cell_value(data["ada_ruam"])).click()
     page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
@@ -861,7 +864,8 @@ def main():
                 # do_risiko_tb(page, data, index)
                 # do_tb(page, data, index)
                 # do_frambusia(page, data, index)
-                do_kusta(page, data, index)
+                # do_kusta(page, data, index)
+                do_skabies(page, data, index)
                 page.pause()
 
                 # page.pause()
