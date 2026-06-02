@@ -660,11 +660,44 @@ def do_skabies(page, data: dict, row_number: int) -> None:
 
 def do_telinga_mata(page, data: dict, row_number: int) -> None:
     print("Skrining Telinga dan Mata dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-3-0']", True)
     page.locator('[id="rowfrm000099"]').click()
-    page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["serumen_impaksi"])
+    ).first.click()
+    page.locator("div[aria-controls='sq_101i_list']").click()
+    page.locator("#sq_101i_list [role='option']").filter(has_text=format_cell_value(data["infeksi_telinga"])).first.click()
+    page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["tajam_pendengaran"])
+    ).first.click()
+    if data["tajam_pendengaran"] == "Curiga gangguan pendengaran":
+        page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=format_cell_value(data["tes_penala"])
+        ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["tajam_penglihatan"])
+    ).first.click()
+    print(data["tajam_penglihatan"])
+    # page.pause()
+    if data["tajam_penglihatan"] == "Curiga gangguan penglihatan (visus <6/12)":
+        page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
+            has_text=format_cell_value(data["hasil_visus"])
+        ).first.click()
+        if data["hasil_visus"] != "Normal (visus 6/6 - 6/12)":
+            page.locator("fieldset[aria-labelledby='sq_106_ariaTitle'] label").filter(
+                has_text=format_cell_value(data["pinhole"])
+            ).first.click()
+            if data["pinhole"] == "Visus membaik":
+                page.locator("fieldset[aria-labelledby='sq_107_ariaTitle'] label").filter(
+                    has_text=format_cell_value(data["hasil_refraksi"])
+                ).first.click()
+            else:
+                page.locator("fieldset[aria-labelledby='sq_108_ariaTitle'] label").filter(
+                    has_text=format_cell_value(data["funduskopi"])
+                ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_109_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["pupil"])
+    ).first.click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Telinga dan Mata selesai")
 
@@ -865,7 +898,8 @@ def main():
                 # do_tb(page, data, index)
                 # do_frambusia(page, data, index)
                 # do_kusta(page, data, index)
-                do_skabies(page, data, index)
+                # do_skabies(page, data, index)
+                do_telinga_mata(page, data, index)
                 page.pause()
 
                 # page.pause()
