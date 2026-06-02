@@ -631,7 +631,13 @@ def do_frambusia(page, data: dict, row_number: int) -> None:
 
 def do_kusta(page, data: dict, row_number: int) -> None:
     print("Skrining Kusta dimulai")
+    do_pemeriksaan_check(page, "label[for='hasil-lab-2-1']", True)
     page.locator('[id="rowfrm000198"]').click()
+    page.locator("div[aria-controls='sq_100i_list']").click()
+    page.locator("#sq_100i_list [role='option']").filter(has_text=format_cell_value(data["bercak_putih"])).click()
+    if data["bercak_putih"] == "Meragukan":
+        page.locator("div[aria-controls='sq_101i_list']").click()
+        page.locator("#sq_101i_list [role='option']").filter(has_text=format_cell_value(data["hasil_bta"])).first.click()
     page.pause()
     # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
     #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
@@ -854,7 +860,8 @@ def main():
                 # do_tekanan_darah_dewasa(page, data, index)
                 # do_risiko_tb(page, data, index)
                 # do_tb(page, data, index)
-                do_frambusia(page, data, index)
+                # do_frambusia(page, data, index)
+                do_kusta(page, data, index)
                 page.pause()
 
                 # page.pause()
