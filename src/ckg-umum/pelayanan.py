@@ -810,9 +810,27 @@ def do_kerusakan_ginjal(page, data: dict, row_number: int) -> None:
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Kerusakan Ginjal selesai")
 
+def do_kanker_payudara(page, data: dict, row_number: int) -> None:
+    print("Skrining Kanker Payudara dimulai")
+    # do_pemeriksaan_check(page, "label[for='hasil-lab-8-0']", True)
+    page.locator('[id="rowfrm000059"]').click()
+    page.locator("div[aria-controls='sq_100i_list']").click()
+    page.locator("#sq_100i_list [role='option']").filter(
+        has_text=format_cell_value(data["pemeriksaan_payudara"])).first.click()
+    if data["pemeriksaan_payudara"] == "SADANIS":
+        page.locator("div[aria-controls='sq_101i_list']").click()
+        page.locator("#sq_101i_list [role='option']").filter(
+            has_text=format_cell_value(data["hasil_sadanis"])).first.click()
+    else:
+        page.locator("div[aria-controls='sq_102i_list']").click()
+        page.locator("#sq_102i_list [role='option']").filter(
+            has_text=format_cell_value(data["hasil_usg_payudara"])).first.click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Kanker Payudara selesai")
+
 def do_jantung(page, data: dict, row_number: int) -> None:
     print("Skrining Jantung dimulai")
-    do_pemeriksaan_check(page, "label[for='hasil-lab-8-0']", True)
+    do_pemeriksaan_check(page, "label[for='hasil-lab-8-0']", True) #butuh penyesuaian berdasarkan siklus hidupnya atau bisa juga tahapan ini dilewati dengan asumsi saat pertama kali dibuka semuanya akan Ya
     page.locator('[id="rowfrm000057"]').click()
     page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
         has_text=format_cell_value(data["ekg"])
