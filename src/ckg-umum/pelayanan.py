@@ -263,6 +263,15 @@ def do_hati(page, data: dict, row_number: int) -> None:
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Hati Selesai")
 
+def do_leher_rahim(page, data: dict, row_number: int) -> None:
+    print("Skrining Kanker Leher Rahim Dimulai")
+    page.locator('[id="rowfrm000088"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["pernah_seks"])
+    ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Kanker Leher Rahim Selesai")
+
 
 def do_keswa(page, data: dict, row_number: int) -> None:
     print("Skrining Kesehatan Jiwa Dimulai")
