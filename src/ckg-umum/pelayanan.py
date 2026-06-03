@@ -184,6 +184,28 @@ def do_demografi_dewasa(page, data: dict, row_number: int) -> None:
 
     print("Skrining Demografi Dewasa Selesai")
 
+def do_demografi_dewasa_perempuan(page, data: dict, row_number: int) -> None:
+    print("Skrining Demografi Dewasa Perempuan Dimulai")
+    page.locator('[id="rowfrm000007"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["status_perkawinan"])
+    ).first.click()
+    if data["status_perkawinan"] != "Menikah":
+        page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=format_cell_value(data["rencana_menikah"])
+        ).first.click()
+
+    page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["sedang_hamil"])
+    ).first.click()
+
+    page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["disabilitas"])
+    ).first.click()
+    page.locator("input:has-text('Kirim')").click()
+
+    print("Skrining Demografi Dewasa Perempuan Selesai")
+
 
 def do_risiko_kanker_usus(page, data: dict, row_number: int) -> None:
     print("Skrining Risiko Kanker Usus Dimulai")
@@ -212,7 +234,7 @@ def do_hati(page, data: dict, row_number: int) -> None:
     print("Skrining Hati Dimulai")
     page.locator('[id="rowfrm000028"]').click()
     page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-        has_text=format_cell_value(data["hepatitis_b"])
+        has_text=format_cell_value(data["hati_hepatitis_b"])
     ).click()
     page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
         has_text=format_cell_value(data["ibu_hepatitis_b"])
@@ -233,7 +255,7 @@ def do_hati(page, data: dict, row_number: int) -> None:
         has_text=format_cell_value(data["odhiv"])
     ).click()
     page.locator("fieldset[aria-labelledby='sq_107_ariaTitle'] label").filter(
-        has_text=format_cell_value(data["hepatitis_c"])
+        has_text=format_cell_value(data["hati_hepatitis_c"])
     ).click()
     page.locator("fieldset[aria-labelledby='sq_108_ariaTitle'] label").filter(
         has_text=format_cell_value(data["kolesterol_tinggi"])
@@ -916,7 +938,7 @@ def main():
                 do_demografi_dewasa(page, data, index)
                 do_risiko_kanker_usus(page, data, index)
                 do_risiko_tb(page, data, index)
-                # do_hati(page, data, index)
+                do_hati(page, data, index)
                 do_keswa(page, data, index)
                 do_risiko_kanker_paru(page, data, index)
                 do_perilaku_merokok(page, data, index)
