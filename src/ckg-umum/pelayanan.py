@@ -828,6 +828,30 @@ def do_kanker_payudara(page, data: dict, row_number: int) -> None:
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Kanker Payudara selesai")
 
+def do_hpv_dna(page, data: dict, row_number: int) -> None:
+    print("Skrining HPV DNA dimulai")
+    # do_pemeriksaan_check(page, "label[for='hasil-lab-8-0']", True)
+    page.locator('[id="rowfrm000061"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["pemeriksaan_hpv_dna"])
+    ).first.click()
+    if data["pemeriksaan_hpv_dna"] == "HPV Positif":
+        page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=format_cell_value(data["hpv_16"])
+        ).first.click()
+        page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=format_cell_value(data["hpv_18"])
+        ).first.click()
+        page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=format_cell_value(data["hpv_52"])
+        ).first.click()
+        page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+            has_text=format_cell_value(data["hpv_enkogenik_lain"])
+        ).first.click()
+
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining HPV DNA selesai")
+
 def do_jantung(page, data: dict, row_number: int) -> None:
     print("Skrining Jantung dimulai")
     do_pemeriksaan_check(page, "label[for='hasil-lab-8-0']", True) #butuh penyesuaian berdasarkan siklus hidupnya atau bisa juga tahapan ini dilewati dengan asumsi saat pertama kali dibuka semuanya akan Ya
