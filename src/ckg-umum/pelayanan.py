@@ -925,6 +925,16 @@ def do_kanker_paru(page, data: dict, row_number: int) -> None:
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Kanker Paru selesai")
 
+def do_catin_perempuan(page, data: dict, row_number: int) -> None:
+    print("Skrining Catin Perempuan dimulai")
+    # do_pemeriksaan_check(page, "label[for='hasil-lab-10-0']", True)
+    page.locator('[id="rowfrm000205"]').click()
+    page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(
+        format_cell_value(data["hemoglobin"])
+    )
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Catin Perempuan selesai")
+
 def do_hiv(page, data: dict, row_number: int) -> None:
     print("Skrining HIV dimulai")
     do_pemeriksaan_check(page, "label[for='hasil-lab-11-0']", True)
