@@ -852,6 +852,19 @@ def do_hpv_dna(page, data: dict, row_number: int) -> None:
     page.locator("input:has-text('Kirim')").click()
     print("Skrining HPV DNA selesai")
 
+def do_inspekulo_iva(page, data: dict, row_number: int) -> None:
+    print("Skrining Inspekulo dan IVA dimulai")
+    # do_pemeriksaan_check(page, "label[for='hasil-lab-8-0']", True)
+    page.locator('[id="rowfrm000060"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["inspekulo"])
+    ).first.click()
+    page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["iva"])
+    ).first.click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Inspekulo dan IVA selesai")
+
 def do_jantung(page, data: dict, row_number: int) -> None:
     print("Skrining Jantung dimulai")
     do_pemeriksaan_check(page, "label[for='hasil-lab-8-0']", True) #butuh penyesuaian berdasarkan siklus hidupnya atau bisa juga tahapan ini dilewati dengan asumsi saat pertama kali dibuka semuanya akan Ya
