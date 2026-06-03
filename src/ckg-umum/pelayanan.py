@@ -164,7 +164,7 @@ def search_patient(page, data: dict, row_number: int) -> None:
 
 
 def do_demografi_dewasa(page, data: dict, row_number: int) -> None:
-    print("do demografi dewasa started")
+    print("Skrining Demografi Dewasa Dimulai")
     page.locator('[id="rowfrm000006"]').click()
     # soal 1
     page.locator("label").filter(
@@ -182,11 +182,11 @@ def do_demografi_dewasa(page, data: dict, row_number: int) -> None:
     ).click()
     page.locator("input:has-text('Kirim')").click()
 
-    print("end of do_pemeriksaan")
+    print("Skrining Demografi Dewasa Selesai")
 
 
 def do_risiko_kanker_usus(page, data: dict, row_number: int) -> None:
-    print("do risiko kanker usus started")
+    print("Skrining Risiko Kanker Usus Dimulai")
     page.locator('[id="rowfrm000027"]').click()
     page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
         has_text=format_cell_value(data["keluarga_kanker_usus"])
@@ -195,21 +195,21 @@ def do_risiko_kanker_usus(page, data: dict, row_number: int) -> None:
         has_text=format_cell_value(data["merokok"])
     ).click()
     page.locator("input:has-text('Kirim')").click()
-    print("end of risiko kanker usus")
+    print("Skrining Risiko Kanker Usus Selesai")
 
 
 def do_risiko_tb(page, data: dict, row_number: int) -> None:
-    print("do risiko tb started")
+    print("Skrining Risiko TB Dimulai")
     page.locator('[id="rowfrm000180"]').click()
     page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
         has_text=format_cell_value(data["batuk_tidak_sembuh"])
     ).click()
     page.locator("input:has-text('Kirim')").click()
-    print("end of do risiko tb")
+    print("Skrining Risiko Kanker Usus Selesai")
 
 
 def do_hati(page, data: dict, row_number: int) -> None:
-    print("do hati started")
+    print("Skrining Hati Dimulai")
     page.locator('[id="rowfrm000028"]').click()
     page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
         has_text=format_cell_value(data["hepatitis_b"])
@@ -239,11 +239,11 @@ def do_hati(page, data: dict, row_number: int) -> None:
         has_text=format_cell_value(data["kolesterol_tinggi"])
     ).click()
     page.locator("input:has-text('Kirim')").click()
-    print("end of do hati")
+    print("Skrining Hati Selesai")
 
 
 def do_keswa(page, data: dict, row_number: int) -> None:
-    print("do keswa started")
+    print("Skrining Kesehatan Jiwa Dimulai")
     page.locator('[id="rowfrm000067"]').click()
     page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
         has_text=format_cell_value(data["tidak_bersemangat"])
@@ -258,11 +258,11 @@ def do_keswa(page, data: dict, row_number: int) -> None:
         has_text=format_cell_value(data["khawatir"])
     ).click()
     page.locator("input:has-text('Kirim')").click()
-    print("end of do keswa")
+    print("Skrining Kesehatan Jiwa Selesai")
 
 
 def do_risiko_kanker_paru(page, data: dict, row_number: int) -> None:
-    print("do risiko kanker paru started")
+    print("Skrining Kanker Paru Dimulai")
     page.locator('[id="rowfrm000138"]').click()
     page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
         has_text=format_cell_value(data["merokok_setahun_terakhir"])
@@ -297,11 +297,11 @@ def do_risiko_kanker_paru(page, data: dict, row_number: int) -> None:
         has_text=format_cell_value(data["tbc"])
     ).click()
     page.locator("input:has-text('Kirim')").click()
-    print("end of risiko kanker paru")
+    print("Skrining Kanker Paru Selesai")
 
 
 def do_perilaku_merokok(page, data: dict, row_number: int) -> None:
-    print("do perilaku merokok started")
+    print("Skrining Perilaku Merokok Dimulai")
     page.locator('[id="rowfrm000064"]').click()
     page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
         has_text=format_cell_value(data["merokok_setahun_terakhir_b"])
@@ -333,11 +333,11 @@ def do_perilaku_merokok(page, data: dict, row_number: int) -> None:
         has_text=format_cell_value(data["terpapar_sebulan_terakhir"])
     ).click()
     page.locator("input:has-text('Kirim')").click()
-    print("end of do perilaku merokok")
+    print("Skrining Perilaku Merokok Selesai")
 
 
 def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
-    print("do aktivitas fisik started")
+    print("Skrining Aktivitas Fisik Dimulai")
     page.locator('[id="rowfrm000169"]').click()
 
     page.locator("div[aria-controls='sq_100i_list']").click()
@@ -411,64 +411,10 @@ def do_aktivitas_fisik(page, data: dict, row_number: int) -> None:
             format_cell_value(data["menit_olahraga_berat"])
         )
     page.locator("input:has-text('Kirim')").click()
-    print("end of do aktivitas fisik")
+    print("Skrining Aktivitas Fisik Selesai")
 
 
 # ---------- Pelayanan Oleh Nakes ------------
-
-def centang_pemeriksaan(page, data: dict, row_number: int) -> None:
-    print("Centang Pemeriksaan")
-    daftar_pemeriksaan = [
-        # Gizi Tekanan Darah dan Gula Darah Laki-laki
-        ("input#hasil-lab-0-0", format_cell_value(data["periksa_gizi_laki"]), False),
-        ("input#hasil-lab-0-1", format_cell_value(data["periksa_gula_darah"]), False),
-        ("input#hasil-lab-0-2", format_cell_value(data["periksa_tensi"]), False),
-        # TB Nakes Dewasa Dan Lansia
-        ("input#hasil-lab-1-0", format_cell_value(data["periksa_risiko_tbc"]), False),
-        ("input#hasil-lab-1-1", format_cell_value(data["periksa_tbc"]), False),
-        # Tropis Terabaikan
-        ("input#hasil-lab-2-0", format_cell_value(data["periksa_frambusia"]), False),
-        ("input#hasil-lab-2-1", format_cell_value(data["periksa_kusta"]), False),
-        ("input#hasil-lab-2-2", format_cell_value(data["periksa_skabies"]), False),
-        # Telinga dan Mata
-        ("input#hasil-lab-3-0", format_cell_value(data["periksa_telinga_mata"]), False),
-        # Gigi Dewasa
-        ("input#hasil-lab-4-0", format_cell_value(data["periksa_karies"]), False),
-        ("input#hasil-lab-4-1", format_cell_value(data["periksa_periodontal"]), False),
-        # PPOK
-        ("input#hasil-lab-5-0", format_cell_value(data["periksa_ppok"]), False),
-        # Tata laksana Merokok
-        ("input#hasil-lab-6-0", format_cell_value(data["periksa_co"]), False),
-        # Laboratorium
-        ("input#hasil-lab-7-0", format_cell_value(data["periksa_lipid"]), False),
-        ("input#hasil-lab-7-1", format_cell_value(data["periksa_fibrosis"]), False),
-        ("input#hasil-lab-7-2", format_cell_value(data["periksa_hepatitis"]), False),
-        ("input#hasil-lab-7-3", format_cell_value(data["periksa_fungsi_ginjal"]), False),
-        ("input#hasil-lab-7-4", format_cell_value(data["periksa_kerusakan_ginjal"]), False),
-        # EKG
-        ("input#hasil-lab-8-0", format_cell_value(data["periksa_jantung"]), False),
-        # Kanker Usus
-        ("input#hasil-lab-9-0", format_cell_value(data["periksa_kanker_usus"]), False),
-        # Kanker Paru
-        ("input#hasil-lab-10-0", format_cell_value(data["periksa_kanker_paru"]), False),
-        # Catin
-        ("input#hasil-lab-11-0", format_cell_value(data["periksa_hiv"]), False),
-        ("input#hasil-lab-11-0", format_cell_value(data["periksa_sifilis"]), False),
-    ]
-
-    for selector, checked, pause in daftar_pemeriksaan:
-        print("Selector ", selector)
-        checkbox = page.locator(selector)
-        if checked is False and checkbox.is_checked():
-            print("if condition 1")
-            checkbox.click(force=True)
-            page.get_by_role("button", name="Tidak Periksa").click()
-        else:
-            page.locator(selector).set_checked(checked, force=True)
-
-        if pause:
-            page.pause()
-    print("Centang Pemeriksaan Selesai")
 
 def do_pemeriksaan_check(page, selector: str, checked: bool) -> None:
     checkbox = page.locator(selector)
@@ -598,7 +544,7 @@ def do_tb(page, data: dict, row_number: int) -> None:
     page.locator("div[aria-controls='sq_102i_list']").click()
     page.locator("#sq_102i_list [role='option']").filter(has_text=format_cell_value(data["metode_pemeriksaan_tbc"])).click()
     if data["metode_pemeriksaan_tbc"] == "TCM":
-        print("TCM")
+        # print("TCM")
         page.locator("div#sq_103i.sd-input.sd-dropdown").click()
         page.locator("#sq_103i_list [role='option']").filter(
             has_text=format_cell_value(data["hasil_pemeriksaan_tbc"])).click()
@@ -638,10 +584,6 @@ def do_kusta(page, data: dict, row_number: int) -> None:
     if data["bercak_putih"] == "Meragukan":
         page.locator("div[aria-controls='sq_101i_list']").click()
         page.locator("#sq_101i_list [role='option']").filter(has_text=format_cell_value(data["hasil_bta"])).first.click()
-    # page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Kusta selesai")
 
@@ -651,10 +593,6 @@ def do_skabies(page, data: dict, row_number: int) -> None:
     page.locator('[id="rowfrm000201"]').click()
     page.locator("div[aria-controls='sq_100i_list']").click()
     page.locator("#sq_100i_list [role='option']").filter(has_text=format_cell_value(data["ada_ruam"])).click()
-    # page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Skabies selesai")
 
@@ -677,7 +615,7 @@ def do_telinga_mata(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
         has_text=format_cell_value(data["tajam_penglihatan"])
     ).first.click()
-    print(data["tajam_penglihatan"])
+    # print(data["tajam_penglihatan"])
     # page.pause()
     if data["tajam_penglihatan"] == "Curiga gangguan penglihatan (visus <6/12)":
         page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
@@ -711,10 +649,6 @@ def do_karies(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
         has_text=format_cell_value(data["gigi_hilang"])
     ).first.click()
-    # page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Karies selesai")
 
@@ -728,10 +662,6 @@ def do_periodontal(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
         has_text=format_cell_value(data["gigi_goyang"])
     ).first.click()
-    # page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Periodontal selesai")
 
@@ -755,10 +685,6 @@ def do_ppok(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
         has_text=format_cell_value(data["periksa_spirometri"])
     ).first.click()
-    # page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining PPOK selesai")
 
@@ -788,10 +714,6 @@ def do_lipid(page, data: dict, row_number: int) -> None:
     page.locator("input[aria-labelledby='sq_103_ariaTitle']").fill(
         format_cell_value(data["trigliserida"])
     )
-    # page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Lipid selesai")
 
@@ -805,10 +727,6 @@ def do_fibrosis(page, data: dict, row_number: int) -> None:
     page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
         format_cell_value(data["trombosit"])
     )
-    # page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Fibrosis selesai")
 
@@ -871,10 +789,6 @@ def do_jantung(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
         has_text=format_cell_value(data["pemeriksaan_ekg"])
     ).first.click()
-    # page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Jantung selesai")
 
@@ -891,10 +805,6 @@ def do_kanker_usus(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
         has_text=format_cell_value(data["darah_samar"])
     ).first.click()
-    # page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Kanker Usus selesai")
 
@@ -926,10 +836,6 @@ def do_kanker_paru(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_107_ariaTitle'] label").filter(
         has_text=format_cell_value(data["foto_torax"])
     ).first.click()
-    # page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Kanker Paru selesai")
 
@@ -962,10 +868,6 @@ def do_sifilis(page, data: dict, row_number: int) -> None:
     page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
         has_text=format_cell_value(data["rapid_test_sifilis"])
     ).first.click()
-    # page.pause()
-    # page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-    #     has_text=format_cell_value(data["batuk_tidak_sembuh"])
-    # ).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Sifilis selesai")
 
@@ -1010,6 +912,7 @@ def main():
                 update_row_status(
                     workbook, sheet, headers, excel_path, index, "SUCCESS"
                 )
+                print("============== Skrining Mandiri Dimulai ==============")
                 do_demografi_dewasa(page, data, index)
                 do_risiko_kanker_usus(page, data, index)
                 do_risiko_tb(page, data, index)
@@ -1018,6 +921,8 @@ def main():
                 do_risiko_kanker_paru(page, data, index)
                 do_perilaku_merokok(page, data, index)
                 do_aktivitas_fisik(page, data, index)
+                print("============== Skrining Mandiri Selesai ==============")
+                print("============== Skrining Oleh Nakes Dimulai ==============")
                 do_gizi_laki(page, data, index)
                 do_gula_darah_dewasa(page, data, index)
                 do_tekanan_darah_dewasa(page, data, index)
@@ -1041,7 +946,8 @@ def main():
                 do_kanker_paru(page, data, index)
                 do_hiv(page, data, index)
                 do_sifilis(page, data, index)
-                page.pause()
+                print("============== Skrining Oleh Nakes Selesai ==============")
+                # page.pause()
 
                 # page.pause()
                 update_row_status(
