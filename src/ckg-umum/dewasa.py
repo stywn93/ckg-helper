@@ -1,6 +1,12 @@
 import os
 import traceback
 import re
+import sys
+from pathlib import Path
+
+HELPERS_DIR = Path(__file__).resolve().parents[1] / "helpers"
+if str(HELPERS_DIR) not in sys.path:
+    sys.path.insert(0, str(HELPERS_DIR))
 
 from dotenv import load_dotenv
 from openpyxl import load_workbook
@@ -8,6 +14,8 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
 from playwright_window_layout import launch_chromium_with_layout, pause_with_inspector_layout
 
+# coba gunakan helper
+from screening_mandiri import ScreeningMandiri
 load_dotenv()
 
 STATUS_COLUMN = "status"
@@ -167,26 +175,26 @@ def search_patient(page, data: dict, row_number: int) -> None:
     # print("end of search_patient")
 
 
-def do_demografi_dewasa(page, data: dict, row_number: int) -> None:
-    print("Skrining Demografi Dewasa Dimulai")
-    page.locator('[id="rowfrm000006"]').click()
-    # soal 1
-    page.locator("label").filter(
-        has_text=format_cell_value(data["status_perkawinan"])
-    ).click()
-    # jika soal 1 jawabannya selain menikah, maka klik ini
-    if data["status_perkawinan"] != "Menikah":
-        page.locator("label").filter(
-            has_text=format_cell_value(data["rencana_menikah"])
-        ).click()
-
-    # soal 2 atau 3
-    page.locator("label").filter(
-        has_text=format_cell_value(data["disabilitas"])
-    ).click()
-    page.locator("input:has-text('Kirim')").click()
-
-    print("Skrining Demografi Dewasa Selesai")
+# def do_demografi_dewasa(page, data: dict, row_number: int) -> None:
+#     print("Skrining Demografi Dewasa Dimulai")
+#     page.locator('[id="rowfrm000006"]').click()
+#     # soal 1
+#     page.locator("label").filter(
+#         has_text=format_cell_value(data["status_perkawinan"])
+#     ).click()
+#     # jika soal 1 jawabannya selain menikah, maka klik ini
+#     if data["status_perkawinan"] != "Menikah":
+#         page.locator("label").filter(
+#             has_text=format_cell_value(data["rencana_menikah"])
+#         ).click()
+#
+#     # soal 2 atau 3
+#     page.locator("label").filter(
+#         has_text=format_cell_value(data["disabilitas"])
+#     ).click()
+#     page.locator("input:has-text('Kirim')").click()
+#
+#     print("Skrining Demografi Dewasa Selesai")
 
 def do_demografi_dewasa_perempuan(page, data: dict, row_number: int) -> None:
     print("Skrining Demografi Dewasa Perempuan Dimulai")
@@ -549,6 +557,22 @@ def do_skilas_depresi(page, data: dict, row_number: int) -> None:
         has_text=format_cell_value(data["2_minggu_sedikit_minat"])).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining SKILAS Gejala Depresi selesai")
+
+def do_gangguan_fungsional(page, data: dict, row_number: int) -> None:
+    print("Skrining Gangguan Fungsional dimulai")
+    page.locator('[id="rowfrm000030"]').click()
+    page.locator("div[aria-controls='sq_100i_list']").click()
+    page.locator("#sq_100i_list [role='option']").filter(
+        has_text=format_cell_value(data["kendali_bab"])).click()
+    page.locator("div[aria-controls='sq_101i_list']").click()
+    page.locator("#sq_101i_list [role='option']").filter(
+        has_text=format_cell_value(data["kendali_bak"])).click()
+    page.locator("div[aria-controls='sq_102i_list']").click()
+    page.locator("#sq_102i_list [role='option']").filter(
+        has_text=format_cell_value(data["membersihkan_diri"])).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining Gangguan Fungsional selesai")
+
 
 def do_gula_darah_dewasa(page, data: dict, row_number: int) -> None:
     print("Skrining Gula Darah Dewasa dimulai")
@@ -1113,7 +1137,9 @@ def main():
                     if gender == "Laki-Laki":
                         print("Skrining Laki-Laki Dewasa")
                         print("============== Skrining Mandiri Dimulai ==============")
-                        do_demografi_dewasa(page, data, index)
+                        ScreeningMandiri(page, format_cell_value).do_demografi_dewasa(data, index)
+                        page.pause()
+                        # do_demografi_dewasa(page, data, index)
                         do_risiko_kanker_usus(page, data, index)
                         do_risiko_tb(page, data, index)
                         do_hati(page, data, index)
