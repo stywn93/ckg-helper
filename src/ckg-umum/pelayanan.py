@@ -483,10 +483,7 @@ def do_pemeriksaan_check(page, selector: str, checked: bool) -> None:
 
 def do_gizi_laki(page, data: dict, row_number: int) -> None:
     print("Skrining Gizi Laki dimulai")
-    #butuh perbaikan di sini, seharusnya sebelum klik tombol Input Data, pastikan sudah centang Diperiksa agar bisa diklik
-    do_pemeriksaan_check(page, "input#hasil-lab-0-0", True)
     page.locator('[id="rowfrm000093"]').click()
-
     page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(format_cell_value(data["berat_badan"]))
     page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(format_cell_value(data["tinggi_badan"]))
     page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill(format_cell_value(data["lingkar_perut"]))
@@ -495,10 +492,7 @@ def do_gizi_laki(page, data: dict, row_number: int) -> None:
 
 def do_gizi_perempuan(page, data: dict, row_number: int) -> None:
     print("Skrining Gizi Perempuan dimulai")
-    #butuh perbaikan di sini, seharusnya sebelum klik tombol Input Data, pastikan sudah centang Diperiksa agar bisa diklik
-    do_pemeriksaan_check(page, "input#hasil-lab-0-0", True)
     page.locator('[id="rowfrm000051"]').click()
-
     page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(format_cell_value(data["berat_badan"]))
     page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(format_cell_value(data["tinggi_badan"]))
     page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill(format_cell_value(data["lingkar_perut"]))
@@ -507,8 +501,6 @@ def do_gizi_perempuan(page, data: dict, row_number: int) -> None:
 
 def do_skilas_penurunan_kognitif(page, data: dict, row_number: int) -> None:
     print("Skrining SKILAS Penurunan Kognitif dimulai")
-    #butuh perbaikan di sini, seharusnya sebelum klik tombol Input Data, pastikan sudah centang Diperiksa agar bisa diklik
-    do_pemeriksaan_check(page, "input#hasil-lab-0-0", True)
     page.locator('[id="rowfrm000029"]').click()
     page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
         has_text=format_cell_value(data["mengingat_3_kata"])
@@ -521,6 +513,42 @@ def do_skilas_penurunan_kognitif(page, data: dict, row_number: int) -> None:
     ).click()
     page.locator("input:has-text('Kirim')").click()
     print("Skrining SKILAS Penurunan Kognitif selesai")
+
+def do_skilas_mobilisasi(page, data: dict, row_number: int) -> None:
+    print("Skrining SKILAS Mobilisasi dimulai")
+    page.locator('[id="rowfrm000032"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["berdiri_di_kursi"])
+    ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining SKILAS Mobilisasi selesai")
+
+def do_skilas_malnutrisi(page, data: dict, row_number: int) -> None:
+    print("Skrining SKILAS Mobilisasi dimulai")
+    page.locator('[id="rowfrm000034"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["berat_badan_berkurang"])
+    ).click()
+    page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["hilang_nafsu_makan"])
+    ).click()
+    page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["lila_kurang_21cm"])
+    ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining SKILAS Mobilisasi selesai")
+
+def do_skilas_depresi(page, data: dict, row_number: int) -> None:
+    print("Skrining SKILAS Gejala Depresi dimulai")
+    page.locator('[id="rowfrm000038"]').click()
+    page.locator("div[aria-controls='sq_100i_list']").click()
+    page.locator("#sq_100i_list [role='option']").filter(
+        has_text=format_cell_value(data["2_minggu_terakhir_sedih"])).click()
+    page.locator("div[aria-controls='sq_101i_list']").click()
+    page.locator("#sq_101i_list [role='option']").filter(
+        has_text=format_cell_value(data["2_minggu_sedikit_minat"])).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining SKILAS Gejala Depresi selesai")
 
 def do_gula_darah_dewasa(page, data: dict, row_number: int) -> None:
     print("Skrining Gula Darah Dewasa dimulai")
