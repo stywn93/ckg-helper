@@ -210,6 +210,21 @@ def do_demografi_dewasa_perempuan(page, data: dict, row_number: int) -> None:
 
     print("Skrining Demografi Dewasa Perempuan Selesai")
 
+def do_demografi_lansia(page, data: dict, row_number: int) -> None:
+    print("Skrining Demografi Lansia Dimulai")
+    page.locator('[id="rowfrm000007"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["status_perkawinan"])
+    ).first.click()
+
+    page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["disabilitas"])
+    ).first.click()
+
+    page.locator("input:has-text('Kirim')").click()
+
+    print("Skrining Demografi Lansia Selesai")
+
 
 def do_risiko_kanker_usus(page, data: dict, row_number: int) -> None:
     print("Skrining Risiko Kanker Usus Dimulai")
@@ -489,6 +504,23 @@ def do_gizi_perempuan(page, data: dict, row_number: int) -> None:
     page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill(format_cell_value(data["lingkar_perut"]))
     page.locator("input:has-text('Kirim')").click()
     print("Skrining Gizi Perempuan selesai")
+
+def do_skilas_penurunan_kognitif(page, data: dict, row_number: int) -> None:
+    print("Skrining SKILAS Penurunan Kognitif dimulai")
+    #butuh perbaikan di sini, seharusnya sebelum klik tombol Input Data, pastikan sudah centang Diperiksa agar bisa diklik
+    do_pemeriksaan_check(page, "input#hasil-lab-0-0", True)
+    page.locator('[id="rowfrm000029"]').click()
+    page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["mengingat_3_kata"])
+    ).click()
+    page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["tanggal_berapa_dimana"])
+    ).click()
+    page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+        has_text=format_cell_value(data["ulangi_3_kata_sebelumnya"])
+    ).click()
+    page.locator("input:has-text('Kirim')").click()
+    print("Skrining SKILAS Penurunan Kognitif selesai")
 
 def do_gula_darah_dewasa(page, data: dict, row_number: int) -> None:
     print("Skrining Gula Darah Dewasa dimulai")
@@ -1130,6 +1162,17 @@ def main():
                         do_hiv(page, data, index)
                         do_sifilis(page, data, index)
                         print("============== Skrining Oleh Nakes Selesai ==============")
+                elif badge.inner_text().strip() == "Lansia":
+                    gender_locator = (
+                        page.locator("div.flex.flex-col.gap-2")
+                        .filter(has_text="Jenis Kelamin")
+                        .locator("div.font-bold")
+                    )
+                    gender = gender_locator.inner_text().strip()
+                    if gender == "Laki-Laki":
+                        print("Skrining Lansia Laki-Laki")
+                    elif gender == "Perempuan":
+                        print("Skrining Lansia Perempuan")
 
                 page.wait_for_load_state("networkidle")
 
