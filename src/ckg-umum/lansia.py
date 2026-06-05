@@ -262,6 +262,7 @@ def main():
                         screening_nakes.do_ad8_ina(data, index)
                         screening_nakes.do_mobilisasi_lanjutan(data, index)
                         screening_nakes.do_malnutrisi_lanjutan(data, index)
+                        screening_nakes.do_depresi_lanjutan(data, index)
                         page.pause()
                         screening_nakes.do_risiko_tb(data, index)
                         screening_nakes.do_tb(data, index)
