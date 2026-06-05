@@ -109,6 +109,21 @@ class ScreeningNakes:
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Gangguan Fungsional selesai")
 
+    def do_mini_cog(self, data: dict, row_number: int) -> None:
+        print("Skrining Mini COG dimulai")
+        self.page.locator('[id="rowfrm000030"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["mini_cog_1"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.formatter(data["mini_cog_2"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["mini_cog_3"])
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Mini COG selesai")
+
     def do_gula_darah_dewasa(self, data: dict, row_number: int) -> None:
         print("Skrining Gula Darah Dewasa dimulai")
         # do_pemeriksaan_check(page, "input#hasil-lab-0-1", True)
