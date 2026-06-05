@@ -256,6 +256,8 @@ def main():
                         screening_nakes.do_skilas_malnutrisi(data, index)
                         screening_nakes.do_skilas_depresi(data, index)
                         screening_nakes.do_gangguan_fungsional(data, index)
+                        screening_nakes.do_mini_cog(data, index)
+                        screening_nakes.do_ad8_ina(data, index)
                         page.pause()
                         screening_nakes.do_risiko_tb(data, index)
                         screening_nakes.do_tb(data, index)

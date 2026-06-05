@@ -124,6 +124,36 @@ class ScreeningNakes:
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Mini COG selesai")
 
+    def do_ad8_ina(self, data: dict, row_number: int) -> None:
+        print("Skrining AD-8 INA dimulai")
+        self.page.locator('[id="rowfrm000031"]').click()
+        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("#sq_100i_list [role='option']").filter(
+            has_text=self.formatter(data["ina_1"])).click()
+        self.page.locator("div[aria-controls='sq_101i_list']").click()
+        self.page.locator("#sq_101i_list [role='option']").filter(
+            has_text=self.formatter(data["ina_2"])).click()
+        self.page.locator("div[aria-controls='sq_102i_list']").click()
+        self.page.locator("#sq_102i_list [role='option']").filter(
+            has_text=self.formatter(data["ina_3"])).click()
+        self.page.locator("div[aria-controls='sq_103i_list']").click()
+        self.page.locator("#sq_103i_list [role='option']").filter(
+            has_text=self.formatter(data["ina_4"])).click()
+        self.page.locator("div[aria-controls='sq_104i_list']").click()
+        self.page.locator("#sq_104i_list [role='option']").filter(
+            has_text=self.formatter(data["ina_5"])).click()
+        self.page.locator("div[aria-controls='sq_105i_list']").click()
+        self.page.locator("#sq_105i_list [role='option']").filter(
+            has_text=self.formatter(data["ina_6"])).click()
+        self.page.locator("div[aria-controls='sq_106i_list']").click()
+        self.page.locator("#sq_106i_list [role='option']").filter(
+            has_text=self.formatter(data["ina_7"])).click()
+        self.page.locator("div[aria-controls='sq_107i_list']").click()
+        self.page.locator("#sq_107i_list [role='option']").filter(
+            has_text=self.formatter(data["ina_8"])).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining AD-8 INA selesai")
+
     def do_gula_darah_dewasa(self, data: dict, row_number: int) -> None:
         print("Skrining Gula Darah Dewasa dimulai")
         # do_pemeriksaan_check(page, "input#hasil-lab-0-1", True)
