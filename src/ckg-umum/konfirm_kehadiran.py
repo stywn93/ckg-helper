@@ -11,120 +11,19 @@ from playwright.sync_api import sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright_window_layout import launch_chromium_with_layout, pause_with_inspector_layout
 
+from date_picker import DatePicker
 from excel import ExcelStatusWorkbook, format_cell_value
 
 load_dotenv()
 
 USERNAME_ENV = "CKG_USERNAME"
 PASSWORD_ENV = "CKG_PASSWORD"
-MONTH_LABELS = {
-    "01": "Jan",
-    "02": "Feb",
-    "03": "Mar",
-    "04": "Apr",
-    "05": "Mei",
-    "06": "Jun",
-    "07": "Jul",
-    "08": "Agt",
-    "09": "Sep",
-    "10": "Okt",
-    "11": "Nov",
-    "12": "Des",
-}
-MONTH_TO_NUMBER = {
-    "Jan": 1,
-    "Feb": 2,
-    "Mar": 3,
-    "Apr": 4,
-    "Mei": 5,
-    "Jun": 6,
-    "Jul": 7,
-    "Agt": 8,
-    "Sep": 9,
-    "Okt": 10,
-    "Nov": 11,
-    "Des": 12,
-}
 
 def get_required_env(name: str) -> str:
     value = os.getenv(name)
     if not value:
         raise RuntimeError(f"Environment variable {name} belum diisi.")
     return value
-
-
-def select_date_from_picker(page, field_selector: str, date_value: str) -> None:
-    year, month, day = date_value.split("-")
-    target_year = int(year)
-    target_month = int(month)
-    month_label = MONTH_LABELS[month]
-
-    page.locator(field_selector).click()
-
-    popup = page.locator(".mx-datepicker-popup")
-    month_btn = popup.locator(".mx-btn-current-month")
-    prev_month = popup.locator(".mx-btn-icon-left")
-    next_month = popup.locator(".mx-btn-icon-right")
-    year_btn = popup.locator(".mx-btn-current-year")
-    prev_year = popup.locator(".mx-btn-icon-double-left")
-
-    while int(year_btn.text_content().strip()) != year:
-        current_year = int(year_btn.text_content().strip())
-        if target_year < current_year:
-            prev_year.click()
-        else:
-            break
-
-
-    while True:
-        current_label = month_btn.text_content().strip()
-        if current_label == month_label:
-            break
-        current_month = int(MONTH_TO_NUMBER[current_label])
-        if target_month < current_month:
-            prev_month.click()
-        else:
-            next_month.click()
-
-        page.wait_for_timeout(300)
-
-    popup.locator(f'td.cell[title="{date_value}"]').click()
-
-def set_search_date(trigger_locator, date_value: str) -> None:
-    year, month, day = date_value.split("-")
-    target_year = int(year)
-    target_month = int(month)
-    month_label = MONTH_LABELS[month]
-
-    trigger_locator.click()
-
-    popup = trigger_locator.page.locator(".mx-datepicker-popup")
-    month_btn = popup.locator(".mx-btn-current-month")
-    prev_month = popup.locator(".mx-btn-icon-left")
-    next_month = popup.locator(".mx-btn-icon-right")
-    year_btn = popup.locator(".mx-btn-current-year")
-    prev_year = popup.locator(".mx-btn-icon-double-left")
-
-    while int(year_btn.text_content().strip()) != year:
-        current_year = int(year_btn.text_content().strip())
-        if target_year < current_year:
-            prev_year.click()
-        else:
-            break
-
-    while True:
-        current_label = month_btn.text_content().strip()
-        if current_label == month_label:
-            break
-        current_month = int(MONTH_TO_NUMBER[current_label])
-        if target_month < current_month:
-            prev_month.click()
-        else:
-            next_month.click()
-
-        trigger_locator.page.wait_for_timeout(300)
-
-    popup.locator(f'td.cell[title="{date_value}"]').click()
 
 
 def prepare_registration_page(page) -> None:
@@ -139,10 +38,13 @@ def prepare_registration_page(page) -> None:
         page.wait_for_load_state("networkidle")
 
 
-def searchPatient(page, data: dict, row_number: int, window_layout) -> None:
+def searchPatient(page, data: dict, row_number: int, window_layout, date_picker: DatePicker) -> None:
     prepare_registration_page(page)
 
-    set_search_date(page.locator('[id="Tanggal Pemeriksaan"]'), format_cell_value(data["tgl_pemeriksaan"]))
+    date_picker.select(
+        page.locator('[id="Tanggal Pemeriksaan"]'),
+        format_cell_value(data["tgl_pemeriksaan"]),
+    )
 
     page.locator("span:has-text('Nomor Tiket')").click()
     page.get_by_text("Nama", exact=True).click()
@@ -192,12 +94,13 @@ def main():
         pause_with_inspector_layout(page, window_layout)
 
         failed_rows = []
+        date_picker = DatePicker()
 
         for row_entry in data_rows:
             index = row_entry["row_number"]
             data = row_entry["data"]
             try:
-                searchPatient(page, data, index, window_layout)
+                searchPatient(page, data, index, window_layout, date_picker)
                 excel.update_status(index, "SUCCESS")
             except Exception as exc:
                 failed_rows.append(index)
