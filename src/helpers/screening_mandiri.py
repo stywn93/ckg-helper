@@ -285,10 +285,10 @@ class ScreeningMandiri:
         self.page.locator("#sq_115i_list [role='option']").filter(
             has_text=self.formatter(data["aktivitas_olahraga_berat"])).click()
         if data["aktivitas_olahraga_berat"] == "Ya":
-            page.locator("input[aria-labelledby='sq_116_ariaTitle']").fill(
+            self.page.locator("input[aria-labelledby='sq_116_ariaTitle']").fill(
                 self.formatter(data["hari_olahraga_berat"])
             )
-            page.locator("input[aria-labelledby='sq_117_ariaTitle']").fill(
+            self.page.locator("input[aria-labelledby='sq_117_ariaTitle']").fill(
                 self.formatter(data["menit_olahraga_berat"])
             )
         self.page.locator("input:has-text('Kirim')").click()
