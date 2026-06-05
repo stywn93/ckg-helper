@@ -4,4 +4,4 @@ __pycache__/
 .env
 todo.md
 ~*
-*.iml
+.idea
