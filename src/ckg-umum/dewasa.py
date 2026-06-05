@@ -14,7 +14,7 @@ from playwright.sync_api import sync_playwright
 from playwright_window_layout import launch_chromium_with_layout, pause_with_inspector_layout
 
 # coba gunakan helper
-from excel import ExcelStatusWorkbook
+from excel import ExcelStatusWorkbook, format_cell_value
 from screening_mandiri import ScreeningMandiri
 from screening_nakes import ScreeningNakes
 load_dotenv()
@@ -61,14 +61,6 @@ def get_required_env(name: str) -> str:
     if not value:
         raise RuntimeError(f"Environment variable {name} belum diisi.")
     return value
-
-
-def format_cell_value(value) -> str:
-    if value is None:
-        return ""
-    if hasattr(value, "strftime"):
-        return value.strftime("%Y-%m-%d")
-    return str(value)
 
 
 def prompt_examination_status() -> str:

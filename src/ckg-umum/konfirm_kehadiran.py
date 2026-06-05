@@ -11,7 +11,7 @@ from playwright.sync_api import sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright_window_layout import launch_chromium_with_layout, pause_with_inspector_layout
 
-from excel import ExcelStatusWorkbook
+from excel import ExcelStatusWorkbook, format_cell_value
 
 load_dotenv()
 
@@ -125,14 +125,6 @@ def set_search_date(trigger_locator, date_value: str) -> None:
         trigger_locator.page.wait_for_timeout(300)
 
     popup.locator(f'td.cell[title="{date_value}"]').click()
-
-
-def format_cell_value(value) -> str:
-    if value is None:
-        return ""
-    if hasattr(value, "strftime"):
-        return value.strftime("%Y-%m-%d")
-    return str(value)
 
 
 def prepare_registration_page(page) -> None:

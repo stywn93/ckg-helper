@@ -1,6 +1,14 @@
 from openpyxl import load_workbook
 
 
+def format_cell_value(value) -> str:
+    if value is None:
+        return ""
+    if hasattr(value, "strftime"):
+        return value.strftime("%Y-%m-%d")
+    return str(value)
+
+
 class ExcelStatusWorkbook:
     def __init__(self, path: str, status_column: str = "status"):
         self.path = path
