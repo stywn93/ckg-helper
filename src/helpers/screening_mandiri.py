@@ -62,6 +62,16 @@ class ScreeningMandiri:
 
         print("Skrining Demografi Lansia Selesai")
 
+    def do_demografi_anak(self, data: dict, row_number: int) -> None:
+        print("Skrining Demografi Anak Dimulai")
+        self.page.locator('[id="rowfrm000106"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["disabilitas"])
+        ).first.click()
+        self.page.locator("input:has-text('Kirim')").click()
+
+        print("Skrining Demografi Anak Selesai")
+
     def do_risiko_kanker_usus(self, data: dict, row_number: int) -> None:
         print("Skrining Risiko Kanker Usus Dimulai")
         self.page.locator('[id="rowfrm000027"]').click()

@@ -183,7 +183,7 @@ def main():
                 badge_text = badge.inner_text().strip()
                 print(badge_text)
                 if badge_text != "Lansia":
-                    excel.update_status(index, "Gagal - ini bukan pasien lansia")
+                    excel.update_status(index, f"Gagal - ini bukan pasien lansia. Ini adalah pasien {badge_text}")
                     page.wait_for_load_state("networkidle")
                     continue
 

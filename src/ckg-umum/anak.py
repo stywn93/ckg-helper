@@ -98,9 +98,9 @@ def prepare_page(page) -> None:
 
 def search_patient(page, data: dict, row_number: int) -> None:
     prepare_page(page)
-    # examination_status = prompt_examination_status()
-    # page.locator("div.cursor-pointer.px-3").filter(has_text=examination_status).click()
-    page.locator("div.cursor-pointer.px-3").filter(has_text="Sedang Pemeriksaan").click()
+    examination_status = prompt_examination_status()
+    page.locator("div.cursor-pointer.px-3").filter(has_text=examination_status).click()
+    # page.locator("div.cursor-pointer.px-3").filter(has_text="Sedang Pemeriksaan").click()
     page.locator("div.mx-input-wrapper").click()
     batas_awal = format_cell_value(data["batas_awal"])
     batas_akhir = format_cell_value(data["batas_akhir"])
@@ -140,7 +140,7 @@ def do_pemeriksaan_check(page, selector: str, checked: bool) -> None:
 
 
 def main():
-    excel_path = PROJECT_ROOT / "dataset" / "dewasa.xlsx"
+    excel_path = PROJECT_ROOT / "dataset" / "lansia.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
     # examination_status = prompt_examination_status()
@@ -162,6 +162,8 @@ def main():
     with sync_playwright() as p:
         browser, window_layout = launch_chromium_with_layout(p)
         context = browser.new_context(no_viewport=True)
+        context.set_default_timeout(30000)  # 30 detik untuk locator click/fill/wait_for/inner_text
+        context.set_default_navigation_timeout(30000)  # 30 detik untuk goto/load/navigation
         page = context.new_page()
 
         page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
@@ -180,12 +182,12 @@ def main():
                 badge.wait_for(state="visible", timeout=15000)
                 badge_text = badge.inner_text().strip()
                 print(badge_text)
-                if badge_text != "Dewasa":
-                    excel.update_status(index, f"Gagal - ini bukan pasien dewasa. Ini adalah pasien {badge_text}")
+                if badge_text != "Lansia":
+                    excel.update_status(index, f"Gagal - ini bukan pasien lansia. Ini adalah pasien {badge_text}")
                     page.wait_for_load_state("networkidle")
                     continue
 
-                if badge_text == "Dewasa":
+                if badge_text == "Lansia":
                     gender_locator = (
                         page.locator("div.flex.flex-col.gap-2")
                         .filter(has_text="Jenis Kelamin")
@@ -193,10 +195,10 @@ def main():
                     )
                     gender = gender_locator.inner_text().strip()
                     if gender == "Laki-Laki":
-                        print("Skrining Laki-Laki Dewasa")
+                        print("Skrining Laki-Laki Lansia")
                         print("============== Skrining Mandiri Dimulai ==============")
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
-                        screening_mandiri.do_demografi_dewasa(data, index)
+                        screening_mandiri.do_demografi_anak(data, index)
                         screening_mandiri.do_risiko_kanker_usus(data, index)
                         screening_mandiri.do_risiko_tb(data, index)
                         screening_mandiri.do_hati(data, index)
@@ -210,6 +212,17 @@ def main():
                         screening_nakes.do_gizi_laki(data, index)
                         screening_nakes.do_gula_darah_dewasa(data, index)
                         screening_nakes.do_tekanan_darah_dewasa(data, index)
+                        screening_nakes.do_skilas_penurunan_kognitif(data, index)
+                        screening_nakes.do_skilas_mobilisasi(data, index)
+                        screening_nakes.do_skilas_malnutrisi(data, index)
+                        screening_nakes.do_skilas_depresi(data, index)
+                        screening_nakes.do_gangguan_fungsional(data, index)
+                        screening_nakes.do_mini_cog(data, index)
+                        screening_nakes.do_ad8_ina(data, index)
+                        screening_nakes.do_mobilisasi_lanjutan(data, index)
+                        screening_nakes.do_malnutrisi_lanjutan(data, index)
+                        screening_nakes.do_depresi_lanjutan(data, index)
+                        # page.pause()
                         screening_nakes.do_risiko_tb(data, index)
                         screening_nakes.do_tb(data, index)
                         screening_nakes.do_frambusia(data, index)
@@ -228,20 +241,17 @@ def main():
                         screening_nakes.do_jantung(data, index)
                         screening_nakes.do_kanker_usus(data, index)
                         screening_nakes.do_kanker_paru(data, index)
-                        screening_nakes.do_hiv(data, index)
-                        screening_nakes.do_sifilis(data, index)
                         print("============== Skrining Oleh Nakes Selesai ==============")
                         excel.update_status(index, "SUCCESS")
                         # page.pause()
                     elif gender == "Perempuan":
-                        print("Skrining Perempuan Dewasa")
+                        print("Skrining Perempuan Lansia")
                         print("============== Skrining Mandiri Dimulai ==============")
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
-                        screening_mandiri.do_demografi_dewasa_perempuan(data, index)
+                        screening_mandiri.do_demografi_lansia(data, index)
                         screening_mandiri.do_risiko_kanker_usus(data, index)
                         screening_mandiri.do_risiko_tb(data, index)
                         screening_mandiri.do_hati(data, index)
-                        screening_mandiri.do_leher_rahim(data, index)
                         screening_mandiri.do_keswa(data, index)
                         screening_mandiri.do_risiko_kanker_paru(data, index)
                         screening_mandiri.do_perilaku_merokok(data, index)
@@ -252,6 +262,17 @@ def main():
                         screening_nakes.do_gizi_perempuan(data, index)
                         screening_nakes.do_gula_darah_dewasa(data, index)
                         screening_nakes.do_tekanan_darah_dewasa(data, index)
+                        screening_nakes.do_skilas_penurunan_kognitif(data, index)
+                        screening_nakes.do_skilas_mobilisasi(data, index)
+                        screening_nakes.do_skilas_malnutrisi(data, index)
+                        screening_nakes.do_skilas_depresi(data, index)
+                        screening_nakes.do_gangguan_fungsional(data, index)
+                        screening_nakes.do_mini_cog(data, index)
+                        screening_nakes.do_ad8_ina(data, index)
+                        screening_nakes.do_mobilisasi_lanjutan(data, index)
+                        screening_nakes.do_malnutrisi_lanjutan(data, index)
+                        screening_nakes.do_depresi_lanjutan(data, index)
+                        # page.pause()
                         screening_nakes.do_risiko_tb(data, index)
                         screening_nakes.do_tb(data, index)
                         screening_nakes.do_frambusia(data, index)
@@ -267,15 +288,9 @@ def main():
                         screening_nakes.do_hepatitis(data, index)
                         screening_nakes.do_fungsi_ginjal_perempuan(data, index)
                         screening_nakes.do_kerusakan_ginjal(data, index)
-                        screening_nakes.do_kanker_payudara(data, index)
-                        screening_nakes.do_hpv_dna(data, index)
-                        screening_nakes.do_inspekulo_iva(data, index)
                         screening_nakes.do_jantung(data, index)
                         screening_nakes.do_kanker_usus(data, index)
                         screening_nakes.do_kanker_paru(data, index)
-                        screening_nakes.do_catin_perempuan(data, index)
-                        screening_nakes.do_hiv(data, index)
-                        screening_nakes.do_sifilis(data, index)
                         print("============== Skrining Oleh Nakes Selesai ==============")
                         excel.update_status(index, "SUCCESS")
 
