@@ -47,7 +47,7 @@ class ScreeningNakes:
         print("Skrining SKILAS Mobilisasi selesai")
 
     def do_skilas_malnutrisi(self, data: dict, row_number: int) -> None:
-        print("Skrining SKILAS Mobilisasi dimulai")
+        print("Skrining SKILAS Malnutrisi dimulai")
         self.page.locator('[id="rowfrm000034"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.formatter(data["berat_badan_berkurang"])
@@ -59,7 +59,7 @@ class ScreeningNakes:
             has_text=self.formatter(data["lila_kurang_21cm"])
         ).click()
         self.page.locator("input:has-text('Kirim')").click()
-        print("Skrining SKILAS Mobilisasi selesai")
+        print("Skrining SKILAS Malnutrisi selesai")
 
     def do_skilas_depresi(self, data: dict, row_number: int) -> None:
         print("Skrining SKILAS Gejala Depresi dimulai")
@@ -75,7 +75,7 @@ class ScreeningNakes:
 
     def do_gangguan_fungsional(self, data: dict, row_number: int) -> None:
         print("Skrining Gangguan Fungsional dimulai")
-        self.page.locator('[id="rowfrm000030"]').click()
+        self.page.locator('[id="rowfrm000040"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
         self.page.locator("#sq_100i_list [role='option']").filter(
             has_text=self.formatter(data["kendali_bab"])).click()
@@ -85,6 +85,27 @@ class ScreeningNakes:
         self.page.locator("div[aria-controls='sq_102i_list']").click()
         self.page.locator("#sq_102i_list [role='option']").filter(
             has_text=self.formatter(data["membersihkan_diri"])).click()
+        self.page.locator("div[aria-controls='sq_103i_list']").click()
+        self.page.locator("#sq_103i_list [role='option']").filter(
+            has_text=self.formatter(data["penggunaan_jamban"])).click()
+        self.page.locator("div[aria-controls='sq_104i_list']").click()
+        self.page.locator("#sq_104i_list [role='option']").filter(
+            has_text=self.formatter(data["makan_minum"])).click()
+        self.page.locator("div[aria-controls='sq_105i_list']").click()
+        self.page.locator("#sq_105i_list [role='option']").filter(
+            has_text=self.formatter(data["berubah_sikap"])).click()
+        self.page.locator("div[aria-controls='sq_106i_list']").click()
+        self.page.locator("#sq_106i_list [role='option']").filter(
+            has_text=self.formatter(data["berpindah"])).click()
+        self.page.locator("div[aria-controls='sq_107i_list']").click()
+        self.page.locator("#sq_107i_list [role='option']").filter(
+            has_text=self.formatter(data["memakai_baju"])).click()
+        self.page.locator("div[aria-controls='sq_108i_list']").click()
+        self.page.locator("#sq_108i_list [role='option']").filter(
+            has_text=self.formatter(data["naik_turun_tangga"])).click()
+        self.page.locator("div[aria-controls='sq_109i_list']").click()
+        self.page.locator("#sq_109i_list [role='option']").filter(
+            has_text=self.formatter(data["mandi"])).click()
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Gangguan Fungsional selesai")
 

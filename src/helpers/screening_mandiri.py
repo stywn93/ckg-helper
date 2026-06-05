@@ -49,7 +49,7 @@ class ScreeningMandiri:
 
     def do_demografi_lansia(self, data: dict, row_number: int) -> None:
         print("Skrining Demografi Lansia Dimulai")
-        self.page.locator('[id="rowfrm000007"]').click()
+        self.page.locator('[id="rowfrm000008"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.formatter(data["status_perkawinan"])
         ).first.click()

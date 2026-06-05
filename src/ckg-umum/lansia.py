@@ -140,7 +140,7 @@ def do_pemeriksaan_check(page, selector: str, checked: bool) -> None:
 
 
 def main():
-    excel_path = PROJECT_ROOT / "dataset" / "dewasa.xlsx"
+    excel_path = PROJECT_ROOT / "dataset" / "lansia.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
     # examination_status = prompt_examination_status()
@@ -180,12 +180,12 @@ def main():
                 badge.wait_for(state="visible", timeout=15000)
                 badge_text = badge.inner_text().strip()
                 print(badge_text)
-                if badge_text != "Dewasa":
-                    excel.update_status(index, "Gagal - ini bukan pasien dewasa")
+                if badge_text != "Lansia":
+                    excel.update_status(index, "Gagal - ini bukan pasien lansia")
                     page.wait_for_load_state("networkidle")
                     continue
 
-                if badge_text == "Dewasa":
+                if badge_text == "Lansia":
                     gender_locator = (
                         page.locator("div.flex.flex-col.gap-2")
                         .filter(has_text="Jenis Kelamin")
@@ -193,10 +193,10 @@ def main():
                     )
                     gender = gender_locator.inner_text().strip()
                     if gender == "Laki-Laki":
-                        print("Skrining Laki-Laki Dewasa")
+                        print("Skrining Laki-Laki Lansia")
                         print("============== Skrining Mandiri Dimulai ==============")
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
-                        screening_mandiri.do_demografi_dewasa(data, index)
+                        screening_mandiri.do_demografi_lansia(data, index)
                         screening_mandiri.do_risiko_kanker_usus(data, index)
                         screening_mandiri.do_risiko_tb(data, index)
                         screening_mandiri.do_hati(data, index)
@@ -234,14 +234,13 @@ def main():
                         excel.update_status(index, "SUCCESS")
                         # page.pause()
                     elif gender == "Perempuan":
-                        print("Skrining Perempuan Dewasa")
+                        print("Skrining Perempuan Lansia")
                         print("============== Skrining Mandiri Dimulai ==============")
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
-                        screening_mandiri.do_demografi_dewasa_perempuan(data, index)
+                        screening_mandiri.do_demografi_lansia(data, index)
                         screening_mandiri.do_risiko_kanker_usus(data, index)
                         screening_mandiri.do_risiko_tb(data, index)
                         screening_mandiri.do_hati(data, index)
-                        screening_mandiri.do_leher_rahim(data, index)
                         screening_mandiri.do_keswa(data, index)
                         screening_mandiri.do_risiko_kanker_paru(data, index)
                         screening_mandiri.do_perilaku_merokok(data, index)
@@ -252,6 +251,12 @@ def main():
                         screening_nakes.do_gizi_perempuan(data, index)
                         screening_nakes.do_gula_darah_dewasa(data, index)
                         screening_nakes.do_tekanan_darah_dewasa(data, index)
+                        screening_nakes.do_skilas_penurunan_kognitif(data, index)
+                        screening_nakes.do_skilas_mobilisasi(data, index)
+                        screening_nakes.do_skilas_malnutrisi(data, index)
+                        screening_nakes.do_skilas_depresi(data, index)
+                        screening_nakes.do_gangguan_fungsional(data, index)
+                        page.pause()
                         screening_nakes.do_risiko_tb(data, index)
                         screening_nakes.do_tb(data, index)
                         screening_nakes.do_frambusia(data, index)
