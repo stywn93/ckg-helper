@@ -9,17 +9,16 @@ if str(HELPERS_DIR) not in sys.path:
     sys.path.insert(0, str(HELPERS_DIR))
 
 from dotenv import load_dotenv
-from openpyxl import load_workbook
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
 from playwright_window_layout import launch_chromium_with_layout, pause_with_inspector_layout
 
 # coba gunakan helper
+from excel import ExcelStatusWorkbook
 from screening_mandiri import ScreeningMandiri
 from screening_nakes import ScreeningNakes
 load_dotenv()
 
-STATUS_COLUMN = "status"
 USERNAME_ENV = "CKG_USERNAME"
 PASSWORD_ENV = "CKG_PASSWORD"
 DEBUG_RAISE_ERRORS_ENV = "CKG_DEBUG_RAISE_ERRORS"
@@ -57,50 +56,11 @@ MONTH_TO_NUMBER = {
     "Des": 12,
 }
 
-def is_success_status(value) -> bool:
-    return str(value).strip().upper() == "SUCCESS"
-
-
 def get_required_env(name: str) -> str:
     value = os.getenv(name)
     if not value:
         raise RuntimeError(f"Environment variable {name} belum diisi.")
     return value
-
-
-def load_rows_from_excel(path: str) -> tuple:
-    workbook = load_workbook(path)
-    sheet = workbook.active
-
-    headers = [cell.value for cell in sheet[1]]
-    if STATUS_COLUMN not in headers:
-        sheet.cell(row=1, column=len(headers) + 1, value=STATUS_COLUMN)
-        headers.append(STATUS_COLUMN)
-
-    rows = []
-    skipped_success_rows = []
-    empty_rows = 0
-
-    for row_number, row in enumerate(
-            sheet.iter_rows(min_row=2, values_only=True), start=2
-    ):
-        if not any(row):
-            empty_rows += 1
-            continue
-        row_data = dict(zip(headers, row))
-        # skip pengecekan status dulu
-        if is_success_status(row_data.get(STATUS_COLUMN)):
-            skipped_success_rows.append(row_number)
-            continue
-        rows.append({"row_number": row_number, "data": row_data})
-
-    summary = {
-        "empty_rows": empty_rows,
-        "skipped_success_rows": skipped_success_rows,
-        "total_data_rows": sheet.max_row - 1,
-    }
-
-    return workbook, sheet, headers, rows, summary
 
 
 def format_cell_value(value) -> str:
@@ -109,14 +69,6 @@ def format_cell_value(value) -> str:
     if hasattr(value, "strftime"):
         return value.strftime("%Y-%m-%d")
     return str(value)
-
-
-def update_row_status(
-        workbook, sheet, headers: list, excel_path: str, row_number: int, status: str
-) -> None:
-    status_column_index = headers.index(STATUS_COLUMN) + 1
-    sheet.cell(row=row_number, column=status_column_index, value=status)
-    workbook.save(excel_path)
 
 
 def prompt_examination_status() -> str:
@@ -199,11 +151,10 @@ def main():
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
     # examination_status = prompt_examination_status()
-    workbook, sheet, headers, data_rows, excel_summary = load_rows_from_excel(
-        excel_path
-    )
+    excel = ExcelStatusWorkbook(excel_path)
+    data_rows = excel.pending_rows()
     if not data_rows:
-        skipped_success_rows = excel_summary["skipped_success_rows"]
+        skipped_success_rows = excel.summary["skipped_success_rows"]
         if skipped_success_rows:
             print(
                 "Tidak ada data yang perlu diproses. "
@@ -234,8 +185,14 @@ def main():
                 search_patient(page, data, index)
                 badge = page.locator("div.border-rd-full.px-3.py-1").first
                 badge.wait_for(state="visible", timeout=15000)
-                print(badge.inner_text().strip())
-                if badge.inner_text().strip() == "Dewasa":
+                badge_text = badge.inner_text().strip()
+                print(badge_text)
+                if badge_text != "Dewasa":
+                    excel.update_status(index, "Gagal - ini bukan pasien dewasa")
+                    page.wait_for_load_state("networkidle")
+                    continue
+
+                if badge_text == "Dewasa":
                     gender_locator = (
                         page.locator("div.flex.flex-col.gap-2")
                         .filter(has_text="Jenis Kelamin")
@@ -281,9 +238,7 @@ def main():
                         screening_nakes.do_hiv(data, index)
                         screening_nakes.do_sifilis(data, index)
                         print("============== Skrining Oleh Nakes Selesai ==============")
-                        update_row_status(
-                            workbook, sheet, headers, excel_path, index, "SUCCESS"
-                        )
+                        excel.update_status(index, "SUCCESS")
                         # page.pause()
                     elif gender == "Perempuan":
                         print("Skrining Perempuan Dewasa")
@@ -329,13 +284,7 @@ def main():
                         screening_nakes.do_hiv(data, index)
                         screening_nakes.do_sifilis(data, index)
                         print("============== Skrining Oleh Nakes Selesai ==============")
-                        update_row_status(
-                            workbook, sheet, headers, excel_path, index, "SUCCESS"
-                        )
-                else:
-                    update_row_status(
-                        workbook, sheet, headers, excel_path, index, "FAILED - BUKAN Dewasa"
-                    )
+                        excel.update_status(index, "SUCCESS")
 
 
                 page.wait_for_load_state("networkidle")
@@ -344,9 +293,7 @@ def main():
             except Exception as exc:
                 failed_rows.append(index)
                 traceback.print_exc()
-                update_row_status(
-                    workbook, sheet, headers, excel_path, index, f"FAILED: {exc}"
-                )
+                excel.update_status(index, f"FAILED: {exc}")
                 if os.getenv(DEBUG_RAISE_ERRORS_ENV) == "1":
                     raise
 
