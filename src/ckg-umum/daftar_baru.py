@@ -1,14 +1,20 @@
 import os
+import sys
+from pathlib import Path
+
+HELPERS_DIR = Path(__file__).resolve().parents[1] / "helpers"
+if str(HELPERS_DIR) not in sys.path:
+    sys.path.insert(0, str(HELPERS_DIR))
 
 from dotenv import load_dotenv
-from openpyxl import load_workbook
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright_window_layout import launch_chromium_with_layout, pause_with_inspector_layout
 
+from excel import ExcelStatusWorkbook
+
 load_dotenv()
 
-STATUS_COLUMN = "status"
 USERNAME_ENV = "CKG_USERNAME"
 PASSWORD_ENV = "CKG_PASSWORD"
 MONTH_LABELS = {
@@ -40,37 +46,11 @@ MONTH_TO_NUMBER = {
     "Des": 12,
 }
 
-def is_success_status(value) -> bool:
-    return str(value).strip().upper() == "SUCCESS"
-
-
 def get_required_env(name: str) -> str:
     value = os.getenv(name)
     if not value:
         raise RuntimeError(f"Environment variable {name} belum diisi.")
     return value
-
-
-def load_rows_from_excel(path: str) -> tuple:
-    workbook = load_workbook(path)
-    sheet = workbook.active
-
-    headers = [cell.value for cell in sheet[1]]
-    if STATUS_COLUMN not in headers:
-        sheet.cell(row=1, column=len(headers) + 1, value=STATUS_COLUMN)
-        headers.append(STATUS_COLUMN)
-
-    rows = []
-
-    for row_number, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
-        if not any(row):
-            continue
-        row_data = dict(zip(headers, row))
-        if is_success_status(row_data.get(STATUS_COLUMN)):
-            continue
-        rows.append({"row_number": row_number, "data": row_data})
-
-    return workbook, sheet, headers, rows
 
 
 def select_date_from_picker(page, field_selector: str, date_value: str) -> None:
@@ -171,12 +151,6 @@ def format_cell_value(value) -> str:
     return str(value)
 
 
-def update_row_status(workbook, sheet, headers: list, excel_path: str, row_number: int, status: str) -> None:
-    status_column_index = headers.index(STATUS_COLUMN) + 1
-    sheet.cell(row=row_number, column=status_column_index, value=status)
-    workbook.save(excel_path)
-
-
 def prepare_registration_page(page) -> None:
     page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pendaftaran-individu")
     page.wait_for_load_state("networkidle")
@@ -268,7 +242,8 @@ def main():
     excel_path = "dataset/pendaftaran_umum.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
-    workbook, sheet, headers, data_rows = load_rows_from_excel(excel_path)
+    excel = ExcelStatusWorkbook(excel_path)
+    data_rows = excel.pending_rows()
     if not data_rows:
         print("Tidak ada data pada file Excel.")
         return
@@ -290,10 +265,10 @@ def main():
             data = row_entry["data"]
             try:
                 register_single_entry(page, data, index)
-                update_row_status(workbook, sheet, headers, excel_path, index, "SUCCESS")
+                excel.update_status(index, "SUCCESS")
             except Exception as exc:
                 failed_rows.append(index)
-                update_row_status(workbook, sheet, headers, excel_path, index, f"FAILED: {exc}")
+                excel.update_status(index, f"FAILED: {exc}")
                 # print(f"Baris Excel {index} gagal diproses: {exc}")
 
         context.close()
