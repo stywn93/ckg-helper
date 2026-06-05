@@ -154,6 +154,81 @@ class ScreeningNakes:
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining AD-8 INA selesai")
 
+    def do_mobilisasi_lanjutan(self, data: dict, row_number: int) -> None:
+        print("Skrining Mobilisasi Lanjutan dimulai")
+        self.page.locator('[id="rowfrm000033"]').click()
+        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("#sq_100i_list [role='option']").filter(
+            has_text=self.formatter(data["sppb_1"])).click()
+        self.page.locator("div[aria-controls='sq_101i_list']").click()
+        self.page.locator("#sq_101i_list [role='option']").filter(
+            has_text=self.formatter(data["sppb_2"])).click()
+        self.page.locator("div[aria-controls='sq_102i_list']").click()
+        self.page.locator("#sq_102i_list [role='option']").filter(
+            has_text=self.formatter(data["sppb_3"])).click()
+        self.page.locator("div[aria-controls='sq_103i_list']").click()
+        self.page.locator("#sq_103i_list [role='option']").filter(
+            has_text=self.formatter(data["sppb_4"])).click()
+        self.page.locator("div[aria-controls='sq_104i_list']").click()
+        self.page.locator("#sq_104i_list [role='option']").filter(
+            has_text=self.formatter(data["sppb_5"])).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Mobilisasi Lanjutan selesai")
+
+    def do_malnutrisi_lanjutan(self, data: dict, row_number: int) -> None:
+        print("Skrining Malnutrisi Lanjutan dimulai")
+        self.page.locator('[id="rowfrm000035"]').click()
+        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("#sq_100i_list [role='option']").filter(
+            has_text=self.formatter(data["mna_sf_1"])).click()
+        self.page.locator("div[aria-controls='sq_101i_list']").click()
+        self.page.locator("#sq_101i_list [role='option']").filter(
+            has_text=self.formatter(data["mna_sf_2"])).click()
+        self.page.locator("div[aria-controls='sq_102i_list']").click()
+        self.page.locator("#sq_102i_list [role='option']").filter(
+            has_text=self.formatter(data["mna_sf_3"])).click()
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=self.formatter(data["mna_sf_4"])
+        ).click()
+        self.page.locator("div[aria-controls='sq_104i_list']").click()
+        self.page.locator("#sq_104i_list [role='option']").filter(
+            has_text=self.formatter(data["mna_sf_5"])).click()
+        self.page.locator("div[aria-controls='sq_105i_list']").click()
+        self.page.locator("#sq_105i_list [role='option']").filter(
+            has_text=self.formatter(data["mna_sf_6"])).click()
+        self.page.locator("div[aria-controls='sq_106i_list']").click()
+        self.page.locator("#sq_106i_list [role='option']").filter(
+            has_text=self.formatter(data["mna_sf_7"])).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Malnutrisi Lanjutan selesai")
+
+    def do_depresi_lanjutan(self, data: dict, row_number: int) -> None:
+        print("Skrining Malnutrisi Lanjutan dimulai")
+        self.page.locator('[id="rowfrm000039"]').click()
+        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("#sq_100i_list [role='option']").filter(
+            has_text=self.formatter(data["mna_sf_1"])).click()
+        self.page.locator("div[aria-controls='sq_101i_list']").click()
+        self.page.locator("#sq_101i_list [role='option']").filter(
+            has_text=self.formatter(data["mna_sf_2"])).click()
+        self.page.locator("div[aria-controls='sq_102i_list']").click()
+        self.page.locator("#sq_102i_list [role='option']").filter(
+            has_text=self.formatter(data["mna_sf_3"])).click()
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=self.formatter(data["mna_sf_4"])
+        ).click()
+        self.page.locator("div[aria-controls='sq_104i_list']").click()
+        self.page.locator("#sq_104i_list [role='option']").filter(
+            has_text=self.formatter(data["mna_sf_5"])).click()
+        self.page.locator("div[aria-controls='sq_105i_list']").click()
+        self.page.locator("#sq_105i_list [role='option']").filter(
+            has_text=self.formatter(data["mna_sf_6"])).click()
+        self.page.locator("div[aria-controls='sq_106i_list']").click()
+        self.page.locator("#sq_106i_list [role='option']").filter(
+            has_text=self.formatter(data["mna_sf_7"])).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Malnutrisi Lanjutan selesai")
+
     def do_gula_darah_dewasa(self, data: dict, row_number: int) -> None:
         print("Skrining Gula Darah Dewasa dimulai")
         # do_pemeriksaan_check(page, "input#hasil-lab-0-1", True)

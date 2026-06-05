@@ -162,6 +162,8 @@ def main():
     with sync_playwright() as p:
         browser, window_layout = launch_chromium_with_layout(p)
         context = browser.new_context(no_viewport=True)
+        context.set_default_timeout(30000)  # 30 detik untuk locator click/fill/wait_for/inner_text
+        context.set_default_navigation_timeout(30000)  # 30 detik untuk goto/load/navigation
         page = context.new_page()
 
         page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
@@ -258,6 +260,8 @@ def main():
                         screening_nakes.do_gangguan_fungsional(data, index)
                         screening_nakes.do_mini_cog(data, index)
                         screening_nakes.do_ad8_ina(data, index)
+                        screening_nakes.do_mobilisasi_lanjutan(data, index)
+                        screening_nakes.do_malnutrisi_lanjutan(data, index)
                         page.pause()
                         screening_nakes.do_risiko_tb(data, index)
                         screening_nakes.do_tb(data, index)
