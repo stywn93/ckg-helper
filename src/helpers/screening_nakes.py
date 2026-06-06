@@ -4,6 +4,46 @@ class ScreeningNakes:
         self.page = page
         self.formatter = formatter
 
+    def do_pertumbuhan_balita(self, data: dict, row_number: int) -> None:
+        print("Skrining Pertumbuhan Balita dan Anak Pra Sekolah dimulai")
+        self.page.locator('[id="rowfrm000016"]').click()
+        self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(self.formatter(data["berat_badan"]))
+        self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.formatter(data["tinggi_badan"]))
+        self.page.locator("div[aria-controls='sq_102i_list']").click()
+        self.page.locator("#sq_102i_list [role='option']").filter(
+            has_text=self.formatter(data["posisi_pengukuran"])).click()
+        self.page.locator("div[aria-controls='sq_103i_list']").click()
+        self.page.locator("#sq_103i_list [role='option']").filter(
+            has_text=self.formatter(data["status_lingkar_kepala"])).click()
+
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Pertumbuhan Balita dan Anak Pra Sekolah selesai")
+
+    def do_kpsp(self, data: dict, row_number: int) -> None:
+        print("Skrining KPSP dimulai")
+        self.page.locator('[id="rowfrm000017"]').click()
+        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("#sq_100i_list [role='option']").filter(
+            has_text=self.formatter(data["hasil_kpsp"])).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining KPSP selesai")
+
+    def do_m_chat_1(self, data: dict, row_number: int) -> None:
+        print("Skrining M CHAT 1 dimulai")
+        self.page.locator('[id="rowfrm000095"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["m_chat_1"])
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining M CHAT 1 selesai")
+
+    def do_m_chat_2(self, data: dict, row_number: int) -> None:
+        print("Skrining M CHAT 2 dimulai")
+        self.page.locator('[id="rowfrm000019"]').click()
+        self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(self.formatter(data["m_chat_2"]))
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining M CHAT 2 selesai")
+
     def do_gizi_laki(self, data: dict, row_number: int) -> None:
         print("Skrining Gizi Laki dimulai")
         self.page.locator('[id="rowfrm000093"]').click()

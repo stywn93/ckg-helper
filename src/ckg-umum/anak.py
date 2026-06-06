@@ -119,6 +119,7 @@ def search_patient(page, data: dict, row_number: int) -> None:
         print(f"Menunggu halaman pemeriksaan tampil... {remaining_seconds} detik")
         page.wait_for_timeout(1000)
     # print("end of search_patient")
+    return examination_status
 
 # ---------- Pelayanan Oleh Nakes ------------
 
@@ -140,10 +141,10 @@ def do_pemeriksaan_check(page, selector: str, checked: bool) -> None:
 
 
 def main():
-    excel_path = PROJECT_ROOT / "dataset" / "lansia.xlsx"
+    excel_path = PROJECT_ROOT / "dataset" / "anak.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
-    # examination_status = prompt_examination_status()
+
     excel = ExcelStatusWorkbook(excel_path)
     data_rows = excel.pending_rows()
     if not data_rows:
@@ -177,17 +178,17 @@ def main():
             index = row_entry["row_number"]
             data = row_entry["data"]
             try:
-                search_patient(page, data, index)
+                examination_status = search_patient(page, data, index)
                 badge = page.locator("div.border-rd-full.px-3.py-1").first
                 badge.wait_for(state="visible", timeout=15000)
                 badge_text = badge.inner_text().strip()
                 print(badge_text)
-                if badge_text != "Lansia":
-                    excel.update_status(index, f"Gagal - ini bukan pasien lansia. Ini adalah pasien {badge_text}")
+                if badge_text != "Bayi Balita":
+                    excel.update_status(index, f"Gagal - ini bukan pasien Bayi Balita. Ini adalah pasien {badge_text}")
                     page.wait_for_load_state("networkidle")
                     continue
 
-                if badge_text == "Lansia":
+                if badge_text == "Bayi Balita":
                     gender_locator = (
                         page.locator("div.flex.flex-col.gap-2")
                         .filter(has_text="Jenis Kelamin")
@@ -195,21 +196,23 @@ def main():
                     )
                     gender = gender_locator.inner_text().strip()
                     if gender == "Laki-Laki":
-                        print("Skrining Laki-Laki Lansia")
+                        print("Skrining Laki-Laki Bayi Balita")
                         print("============== Skrining Mandiri Dimulai ==============")
+                        # sebelum mulai skrining seharusnya klik Mulai Pemeriksaan dahulu, jika tombol tersebut tidak ditemukan maka skip jangan error. Caranya dengan cara mengecek prompt_examination_status yang paling ideal
+                        if examination_status == "Belum Pemeriksaan":
+                            #butuh perbaikan di sini untuk memilih tanggal
+                            page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
+                            page.locator("button.btn-fill-primary:has-text('Simpan')").click()
+                        page.pause()
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
                         screening_mandiri.do_demografi_anak(data, index)
-                        screening_mandiri.do_risiko_kanker_usus(data, index)
-                        screening_mandiri.do_risiko_tb(data, index)
-                        screening_mandiri.do_hati(data, index)
-                        screening_mandiri.do_keswa(data, index)
-                        screening_mandiri.do_risiko_kanker_paru(data, index)
-                        screening_mandiri.do_perilaku_merokok(data, index)
-                        screening_mandiri.do_aktivitas_fisik(data, index)
                         print("============== Skrining Mandiri Selesai ==============")
                         print("============== Skrining Oleh Nakes Dimulai ==============")
                         screening_nakes = ScreeningNakes(page, format_cell_value)
-                        screening_nakes.do_gizi_laki(data, index)
+                        screening_nakes.do_pertumbuhan_balita(data, index)
+                        screening_nakes.do_kpsp(data, index)
+
+
                         screening_nakes.do_gula_darah_dewasa(data, index)
                         screening_nakes.do_tekanan_darah_dewasa(data, index)
                         screening_nakes.do_skilas_penurunan_kognitif(data, index)
@@ -245,7 +248,7 @@ def main():
                         excel.update_status(index, "SUCCESS")
                         # page.pause()
                     elif gender == "Perempuan":
-                        print("Skrining Perempuan Lansia")
+                        print("Skrining Perempuan Bayi Balita")
                         print("============== Skrining Mandiri Dimulai ==============")
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
                         screening_mandiri.do_demografi_lansia(data, index)
