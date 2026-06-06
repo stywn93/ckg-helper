@@ -44,6 +44,39 @@ class ScreeningNakes:
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining M CHAT 2 selesai")
 
+    def do_risiko_tb_anak(self, data: dict, row_number: int) -> None:
+        print("Skrining Risiko TB dimulai")
+        # do_pemeriksaan_check(page, "input#hasil-lab-1-0", True)
+        self.page.locator('[id="rowfrm000175"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["pernah_batuk_tidak_sembuh"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.formatter(data["bb_turun"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["demam_hilang_timbul"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=self.formatter(data["lesu"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+            has_text=self.formatter(data["pembesaran_getah_bening"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
+            has_text=self.formatter(data["radiografi_toraks"])
+        ).click()
+        if (data["radiografi_toraks"] == "Ya"):
+            value = self.formatter(data["hasil_rontgen"])
+            self.page.locator(
+                "fieldset[aria-labelledby='sq_106_ariaTitle'] label"
+            ).filter(
+                has_text=re.compile(rf"^{re.escape(value)}$")
+            ).click()
+
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Risiko TB selesai")
+
     def do_gizi_laki(self, data: dict, row_number: int) -> None:
         print("Skrining Gizi Laki dimulai")
         self.page.locator('[id="rowfrm000093"]').click()

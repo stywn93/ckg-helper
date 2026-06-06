@@ -211,6 +211,8 @@ def main():
                         screening_nakes = ScreeningNakes(page, format_cell_value)
                         screening_nakes.do_pertumbuhan_balita(data, index)
                         screening_nakes.do_kpsp(data, index)
+                        screening_nakes.do_m_chat_1(data, index)
+                        screening_nakes.do_m_chat_2(data, index)
 
 
                         screening_nakes.do_gula_darah_dewasa(data, index)
