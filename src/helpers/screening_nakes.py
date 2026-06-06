@@ -77,6 +77,69 @@ class ScreeningNakes:
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Risiko TB selesai")
 
+    def do_tb_anak(self, data: dict, row_number: int) -> None:
+        print("Skrining TB Anak dimulai")
+        # do_pemeriksaan_check(page, "label[for='hasil-lab-1-1']", True)
+        self.page.locator('[id="rowfrm000178"]').click()
+
+        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("#sq_100i_list [role='option']").filter(has_text=self.formatter(data["kontak_tbc"])).click()
+        if data["kontak_tbc"] == "Riwayat kontak serumah" or data["kontak_tbc"] == "Riwayat kontak erat":
+            self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+                has_text=self.formatter(data["jenis_tbc"])
+            ).click()
+        self.page.locator("div[aria-controls='sq_102i_list']").click()
+        self.page.locator("#sq_102i_list [role='option']").filter(
+            has_text=self.formatter(data["metode_pemeriksaan_tbc"])).click()
+        if data["metode_pemeriksaan_tbc"] == "TCM":
+            # print("TCM")
+            self.page.locator("div#sq_103i.sd-input.sd-dropdown").click()
+            self.page.locator("#sq_103i_list [role='option']").filter(
+                has_text=self.formatter(data["hasil_pemeriksaan_tbc"])).click()
+        elif data["metode_pemeriksaan_tbc"] == "BTA":
+            self.page.locator("div[aria-controls='sq_104i_list']").click()
+            self.page.locator("#sq_104i_list [role='option']").filter(
+                has_text=self.formatter(data["hasil_pemeriksaan_tbc"])).click()
+        elif data["metode_pemeriksaan_tbc"] == "NPOC":
+            self.page.locator("div[aria-controls='sq_105i_list']").click()
+            self.page.locator("#sq_105i_list [role='option']").filter(
+                has_text=self.formatter(data["hasil_pemeriksaan_tbc"])).click()
+        # page.pause()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining TB Anak selesai")
+
+    def do_telinga_mata_anak(self, data: dict, row_number: int) -> None:
+        print("Skrining Telinga dan Mata Anak dimulai")
+        # do_pemeriksaan_check(page, "label[for='hasil-lab-3-0']", True)
+        self.page.locator('[id="rowfrm000085"]').click()
+        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("#sq_100i_list [role='option']").filter(
+            has_text=self.formatter(data["serumen_impaksi"])).first.click()
+        self.page.locator("div[aria-controls='sq_101i_list']").click()
+        self.page.locator("#sq_101i_list [role='option']").filter(
+            has_text=self.formatter(data["infeksi_telinga"])).first.click()
+        self.page.locator("div[aria-controls='sq_102i_list']").click()
+        self.page.locator("#sq_102i_list [role='option']").filter(
+            has_text=self.formatter(data["tes_daya_dengar"])).first.click()
+        self.page.locator("div[aria-controls='sq_103i_list']").click()
+        self.page.locator("#sq_103i_list [role='option']").filter(
+            has_text=self.formatter(data["selaput_mata_merah"])).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+            has_text=self.formatter(data["pupil_putih"])
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Telinga dan Mata Anak selesai")
+
+    def do_periksa_gigi_anak(self, data: dict, row_number: int) -> None:
+        print("Skrining Pemeriksaan Gigi Anak dimulai")
+        # do_pemeriksaan_check(page, "label[for='hasil-lab-3-0']", True)
+        self.page.locator('[id="rowfrm000131"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["jumlah_gigi_karies"])
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Pemeriksaan Gigi Anak selesai")
+
     def do_gizi_laki(self, data: dict, row_number: int) -> None:
         print("Skrining Gizi Laki dimulai")
         self.page.locator('[id="rowfrm000093"]').click()
