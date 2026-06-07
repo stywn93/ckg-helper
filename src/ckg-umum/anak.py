@@ -1,4 +1,5 @@
 import os
+import inspect
 import traceback
 import re
 import sys
@@ -23,6 +24,7 @@ load_dotenv(PROJECT_ROOT / ".env")
 USERNAME_ENV = "CKG_USERNAME"
 PASSWORD_ENV = "CKG_PASSWORD"
 DEBUG_RAISE_ERRORS_ENV = "CKG_DEBUG_RAISE_ERRORS"
+SCREENING_UI_TIMEOUT_MS = int(os.getenv("CKG_SCREENING_UI_TIMEOUT_MS", "2000"))
 EXAMINATION_STATUS_OPTIONS = {
     "1": "Belum Pemeriksaan",
     "2": "Sedang Pemeriksaan",
@@ -56,6 +58,23 @@ MONTH_TO_NUMBER = {
     "Nov": 11,
     "Des": 12,
 }
+CHILD_MANDIRI_SCREENINGS = [
+    "do_demografi_anak",
+]
+CHILD_NAKES_SCREENINGS = [
+    "do_gizi_laki",
+    "do_pertumbuhan_balita",
+    "do_kpsp",
+    "do_m_chat_1",
+    "do_m_chat_2",
+    "do_risiko_tb_anak",
+    "do_tb_anak",
+    "do_frambusia",
+    "do_kusta",
+    "do_skabies",
+    "do_telinga_mata_anak",
+    "do_periksa_gigi_anak",
+]
 
 def get_required_env(name: str) -> str:
     value = os.getenv(name)
@@ -96,7 +115,7 @@ def prepare_page(page) -> None:
     # print("end of prepare_page")
 
 
-def search_patient(page, data: dict, row_number: int) -> None:
+def search_patient(page, data: dict, row_number: int) -> str:
     prepare_page(page)
     examination_status = prompt_examination_status()
     page.locator("div.cursor-pointer.px-3").filter(has_text=examination_status).click()
@@ -138,6 +157,60 @@ def do_pemeriksaan_check(page, selector: str, checked: bool) -> None:
         # checkbox.click()
         # page.locator(selector).set_checked(checked, force=True)
 
+
+def close_active_screening_form(page) -> None:
+    page.keyboard.press("Escape")
+    page.wait_for_timeout(500)
+
+
+def get_screening_form_id(method) -> str | None:
+    try:
+        source = inspect.getsource(method)
+    except OSError:
+        return None
+
+    match = re.search(r"rowfrm\d+", source)
+    if match is None:
+        return None
+    return match.group(0)
+
+
+def is_screening_form_available(page, method) -> bool:
+    form_id = get_screening_form_id(method)
+    if form_id is None:
+        return True
+
+    try:
+        page.locator(f'[id="{form_id}"]').wait_for(
+            state="visible",
+            timeout=SCREENING_UI_TIMEOUT_MS,
+        )
+        return True
+    except PlaywrightTimeoutError:
+        return False
+
+
+def run_screening_steps(screening, method_names: list[str], data: dict, row_number: int, page) -> None:
+    for method_name in method_names:
+        method = getattr(screening, method_name, None)
+        if method is None:
+            print(f"Skip {method_name}: function tidak ditemukan.")
+            continue
+
+        if not is_screening_form_available(page, method):
+            print(
+                f"Skip {method_name}: elemen UI form tidak ditemukan "
+                f"dalam {SCREENING_UI_TIMEOUT_MS} ms."
+            )
+            continue
+
+        try:
+            print(f"Menjalankan {method_name}")
+            method(data, row_number)
+            page.wait_for_load_state("networkidle")
+        except PlaywrightTimeoutError as exc:
+            print(f"Skip {method_name}: elemen UI tidak ditemukan atau tidak tampil. Detail: {exc}")
+            close_active_screening_form(page)
 
 
 def main():
@@ -205,22 +278,11 @@ def main():
                             page.locator("button.btn-fill-primary:has-text('Simpan')").click()
                         # page.pause()
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
-                        screening_mandiri.do_demografi_anak(data, index)
+                        run_screening_steps(screening_mandiri, CHILD_MANDIRI_SCREENINGS, data, index, page)
                         print("============== Skrining Mandiri Selesai ==============")
                         print("============== Skrining Oleh Nakes Dimulai ==============")
                         screening_nakes = ScreeningNakes(page, format_cell_value)
-                        screening_nakes.do_pertumbuhan_balita(data, index)
-                        screening_nakes.do_kpsp(data, index)
-                        screening_nakes.do_m_chat_1(data, index)
-                        screening_nakes.do_m_chat_2(data, index)
-                        screening_nakes.do_risiko_tb_anak(data, index)
-                        screening_nakes.do_tb_anak(data, index)
-                        screening_nakes.do_frambusia(data, index)
-                        screening_nakes.do_kusta(data, index)
-                        screening_nakes.do_skabies(data, index)
-                        screening_nakes.do_telinga_mata_anak(data, index)
-                        screening_nakes.do_periksa_gigi_anak(data, index)
-                        page.pause()
+                        run_screening_steps(screening_nakes, CHILD_NAKES_SCREENINGS, data, index, page)
                         print("============== Skrining Oleh Nakes Selesai ==============")
                         excel.update_status(index, "SUCCESS")
                         # page.pause()
@@ -228,49 +290,11 @@ def main():
                         print("Skrining Perempuan Bayi Balita")
                         print("============== Skrining Mandiri Dimulai ==============")
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
-                        screening_mandiri.do_demografi_lansia(data, index)
-                        screening_mandiri.do_risiko_kanker_usus(data, index)
-                        screening_mandiri.do_risiko_tb(data, index)
-                        screening_mandiri.do_hati(data, index)
-                        screening_mandiri.do_keswa(data, index)
-                        screening_mandiri.do_risiko_kanker_paru(data, index)
-                        screening_mandiri.do_perilaku_merokok(data, index)
-                        screening_mandiri.do_aktivitas_fisik(data, index)
+                        run_screening_steps(screening_mandiri, CHILD_MANDIRI_SCREENINGS, data, index, page)
                         print("============== Skrining Mandiri Selesai ==============")
                         print("============== Skrining Oleh Nakes Dimulai ==============")
                         screening_nakes = ScreeningNakes(page, format_cell_value)
-                        screening_nakes.do_gizi_perempuan(data, index)
-                        screening_nakes.do_gula_darah_dewasa(data, index)
-                        screening_nakes.do_tekanan_darah_dewasa(data, index)
-                        screening_nakes.do_skilas_penurunan_kognitif(data, index)
-                        screening_nakes.do_skilas_mobilisasi(data, index)
-                        screening_nakes.do_skilas_malnutrisi(data, index)
-                        screening_nakes.do_skilas_depresi(data, index)
-                        screening_nakes.do_gangguan_fungsional(data, index)
-                        screening_nakes.do_mini_cog(data, index)
-                        screening_nakes.do_ad8_ina(data, index)
-                        screening_nakes.do_mobilisasi_lanjutan(data, index)
-                        screening_nakes.do_malnutrisi_lanjutan(data, index)
-                        screening_nakes.do_depresi_lanjutan(data, index)
-                        # page.pause()
-                        screening_nakes.do_risiko_tb(data, index)
-                        screening_nakes.do_tb(data, index)
-                        screening_nakes.do_frambusia(data, index)
-                        screening_nakes.do_kusta(data, index)
-                        screening_nakes.do_skabies(data, index)
-                        screening_nakes.do_telinga_mata(data, index)
-                        screening_nakes.do_karies(data, index)
-                        screening_nakes.do_periodontal(data, index)
-                        screening_nakes.do_ppok(data, index)
-                        screening_nakes.do_kadar_co(data, index)
-                        screening_nakes.do_lipid(data, index)
-                        screening_nakes.do_fibrosis(data, index)
-                        screening_nakes.do_hepatitis(data, index)
-                        screening_nakes.do_fungsi_ginjal_perempuan(data, index)
-                        screening_nakes.do_kerusakan_ginjal(data, index)
-                        screening_nakes.do_jantung(data, index)
-                        screening_nakes.do_kanker_usus(data, index)
-                        screening_nakes.do_kanker_paru(data, index)
+                        run_screening_steps(screening_nakes, CHILD_NAKES_SCREENINGS, data, index, page)
                         print("============== Skrining Oleh Nakes Selesai ==============")
                         excel.update_status(index, "SUCCESS")
 
