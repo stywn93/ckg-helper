@@ -62,6 +62,9 @@ CHILD_MANDIRI_SCREENINGS = [
     "do_demografi_anak",
 ]
 CHILD_NAKES_SCREENINGS = [
+    "do_riwayat_imunisasi_hepatitis_b",
+    "do_berat_lahir",
+    "do_jantung_bawaan",
     "do_gizi_laki",
     "do_pertumbuhan_balita",
     "do_kpsp",

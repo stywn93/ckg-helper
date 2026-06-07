@@ -108,6 +108,28 @@ class ScreeningNakes:
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining TB Anak selesai")
 
+    def do_riwayat_imunisasi_hepatitis_b(self, data: dict, row_number: int) -> None:
+        print("Skrining Riwayat Hepatitis B dimulai")
+        self.page.locator('[id="rowfrm000260"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["mendapat_imunisasi_hepatitis_b"])
+        ).click()
+        print("Skrining Riwayat Hepatitis B selesai")
+
+    def do_berat_lahir(self, data: dict, row_number: int) -> None:
+        print("Skrining Berat Lahir dimulai")
+        self.page.locator('[id="rowfrm000010"]').click()
+        self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(self.formatter(data["berat_lahir"]))
+        self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.formatter(data["berat_sekarang"]))
+        print("Skrining Berat Lahir selesai")
+
+    def do_jantung_bawaan(self, data: dict, row_number: int) -> None:
+        print("Skrining Jantung Bawaan dimulai")
+        self.page.locator('[id="rowfrm000011"]').click()
+        self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(self.formatter(data["pjb_tangan_kanan"]))
+        self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.formatter(data["pjb_kaki"]))
+        print("Skrining Jantung Bawaan selesai")
+
     def do_telinga_mata_anak(self, data: dict, row_number: int) -> None:
         print("Skrining Telinga dan Mata Anak dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-3-0']", True)
