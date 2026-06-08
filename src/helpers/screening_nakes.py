@@ -114,6 +114,7 @@ class ScreeningNakes:
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.formatter(data["mendapat_imunisasi_hepatitis_b"])
         ).click()
+        self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Riwayat Hepatitis B selesai")
 
     def do_berat_lahir(self, data: dict, row_number: int) -> None:
@@ -121,6 +122,7 @@ class ScreeningNakes:
         self.page.locator('[id="rowfrm000010"]').click()
         self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(self.formatter(data["berat_lahir"]))
         self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.formatter(data["berat_sekarang"]))
+        self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Berat Lahir selesai")
 
     def do_jantung_bawaan(self, data: dict, row_number: int) -> None:
@@ -128,6 +130,7 @@ class ScreeningNakes:
         self.page.locator('[id="rowfrm000011"]').click()
         self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(self.formatter(data["pjb_tangan_kanan"]))
         self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.formatter(data["pjb_kaki"]))
+        self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Jantung Bawaan selesai")
 
     def do_shk(self, data: dict, row_number: int) -> None:
@@ -142,6 +145,7 @@ class ScreeningNakes:
         self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
             has_text=self.formatter(data["hak"])
         ).click()
+        self.page.locator("input:has-text('Kirim')").click()
         print("Skrining SHK selesai")
 
     def do_darah_tumit(self, data: dict, row_number: int) -> None:
@@ -150,6 +154,7 @@ class ScreeningNakes:
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.formatter(data["darah_tumit"])
         ).click()
+        self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Darah Tumit selesai")
 
     def do_konfirmasi_shk(self, data: dict, row_number: int) -> None:
@@ -176,6 +181,7 @@ class ScreeningNakes:
             self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
                 has_text=self.formatter(data["hasil_konfirm_hak"])
             ).click()
+        self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Konfirmasi SHK selesai")
 
     def do_warna_kulit_dan_tinja(self, data: dict, row_number: int) -> None:
@@ -184,6 +190,7 @@ class ScreeningNakes:
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.formatter(data["dilakukan_edukasi_warna_kulit_dan_tinja"])
         ).click()
+        self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Edukasi Warna Kulit dan Tinja Bayi selesai")
 
     def do_hasil_kramer(self, data: dict, row_number: int) -> None:
@@ -192,6 +199,7 @@ class ScreeningNakes:
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.formatter(data["nilai_hasil_kramer"])
         ).click()
+        self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Hasil Kramer pada Bayi Kuning selesai")
 
     def do_warna_kulit_dan_tinja_28(self, data: dict, row_number: int) -> None:
@@ -207,6 +215,7 @@ class ScreeningNakes:
         self.page.locator("#sq_102i_list [role='option']").filter(
             has_text=self.formatter(data["derajat_warna_tinja"])).click()
 
+        self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Penilaian Warna Kulit dan Tinja 14 - 28 hari selesai")
 
     def do_telinga_mata_anak(self, data: dict, row_number: int) -> None:

@@ -72,6 +72,56 @@ class ScreeningMandiri:
 
         print("Skrining Demografi Anak Selesai")
 
+    def do_risiko_gula_darah_anak(self, data: dict, row_number: int) -> None:
+        print("Skrining Risiko Gula Darah Anak Dimulai")
+        self.page.locator('[id="rowfrm000110"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["pernah_kencing_manis"])
+        ).first.click()
+        if self.formatter(data["pernah_kencing_manis"]) == "Ya":
+            self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.formatter(data["berapa_bulan_diabetes"]))
+        else:
+            self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+                has_text=self.formatter(data["sering_lapar"])
+            ).first.click()
+            self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+                has_text=self.formatter(data["sering_haus"])
+            ).first.click()
+            self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+                has_text=self.formatter(data["penurunan_berat_badan"])
+            ).first.click()
+            self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
+                has_text=self.formatter(data["anggota_keluarga_diabetes"])
+            ).first.click()
+        self.page.locator("input:has-text('Kirim')").click()
+
+        print("Skrining Risiko Gula Darah Anak Selesai")
+
+    def do_imunisasi_rutin_balita(self, data: dict, row_number: int) -> None:
+        print("Skrining Imunisasi Rutin Balita Dimulai")
+        self.page.locator('[id="rowfrm000171"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["pernah_kencing_manis"])
+        ).first.click()
+        if self.formatter(data["pernah_kencing_manis"]) == "Ya":
+            self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.formatter(data["berapa_bulan_diabetes"]))
+        else:
+            self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+                has_text=self.formatter(data["sering_lapar"])
+            ).first.click()
+            self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+                has_text=self.formatter(data["sering_haus"])
+            ).first.click()
+            self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+                has_text=self.formatter(data["penurunan_berat_badan"])
+            ).first.click()
+            self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
+                has_text=self.formatter(data["anggota_keluarga_diabetes"])
+            ).first.click()
+        self.page.locator("input:has-text('Kirim')").click()
+
+        print("Skrining Imunisasi Rutin Balita Selesai")
+
     def do_risiko_kanker_usus(self, data: dict, row_number: int) -> None:
         print("Skrining Risiko Kanker Usus Dimulai")
         self.page.locator('[id="rowfrm000027"]').click()

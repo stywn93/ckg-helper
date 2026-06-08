@@ -60,6 +60,7 @@ MONTH_TO_NUMBER = {
 }
 CHILD_MANDIRI_SCREENINGS = [
     "do_demografi_anak",
+    "do_risiko_gula_darah_anak",
 ]
 CHILD_NAKES_SCREENINGS = [
     "do_riwayat_imunisasi_hepatitis_b",
