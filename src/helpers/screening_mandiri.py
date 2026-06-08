@@ -100,24 +100,69 @@ class ScreeningMandiri:
     def do_imunisasi_rutin_balita(self, data: dict, row_number: int) -> None:
         print("Skrining Imunisasi Rutin Balita Dimulai")
         self.page.locator('[id="rowfrm000171"]').click()
-        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.formatter(data["pernah_kencing_manis"])
-        ).first.click()
-        if self.formatter(data["pernah_kencing_manis"]) == "Ya":
-            self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.formatter(data["berapa_bulan_diabetes"]))
-        else:
-            self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
-                has_text=self.formatter(data["sering_lapar"])
-            ).first.click()
-            self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
-                has_text=self.formatter(data["sering_haus"])
-            ).first.click()
-            self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
-                has_text=self.formatter(data["penurunan_berat_badan"])
-            ).first.click()
-            self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
-                has_text=self.formatter(data["anggota_keluarga_diabetes"])
-            ).first.click()
+        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("#sq_100i_list [role='option']").filter(
+            has_text=self.formatter(data["imunisasi_24_bulan"])).click()
+        if self.formatter(data["imunisasi_24_bulan"]) == "Ya":
+            self.page.locator("div[aria-controls='sq_101i_list']").click()
+            self.page.locator("#sq_101i_list [role='option']").filter(
+                has_text=self.formatter(data["membawa_buku_imunisasi"])).click()
+            if self.formatter(data["membawa_buku_imunisasi"]) == "Ya":
+                self.page.locator("div[aria-controls='sq_102i_list']").click()
+                self.page.locator("#sq_102i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_hepatitis_b"])).click()
+                self.page.locator("div[aria-controls='sq_103i_list']").click()
+                self.page.locator("#sq_103i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_bcg"])).click()
+                self.page.locator("div[aria-controls='sq_104i_list']").click()
+                self.page.locator("#sq_104i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_opv"])).click()
+                self.page.locator("div[aria-controls='sq_105i_list']").click()
+                self.page.locator("#sq_105i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_dpt"])).click()
+                self.page.locator("div[aria-controls='sq_106i_list']").click()
+                self.page.locator("#sq_106i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_opv_2"])).click()
+                self.page.locator("div[aria-controls='sq_107i_list']").click()
+                self.page.locator("#sq_107i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_pcv"])).click()
+                self.page.locator("div[aria-controls='sq_108i_list']").click()
+                self.page.locator("#sq_108i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_rotavirus"])).click()
+                self.page.locator("div[aria-controls='sq_109i_list']").click()
+                self.page.locator("#sq_109i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_dpt_2"])).click()
+                self.page.locator("div[aria-controls='sq_110i_list']").click()
+                self.page.locator("#sq_110i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_opv_3"])).click()
+                self.page.locator("div[aria-controls='sq_111i_list']").click()
+                self.page.locator("#sq_111i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_pcv_2"])).click()
+                self.page.locator("div[aria-controls='sq_112i_list']").click()
+                self.page.locator("#sq_112i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_rotavirus_2"])).click()
+                self.page.locator("div[aria-controls='sq_113i_list']").click()
+                self.page.locator("#sq_113i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_dpt_3"])).click()
+                self.page.locator("div[aria-controls='sq_114i_list']").click()
+                self.page.locator("#sq_114i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_opv_4"])).click()
+                self.page.locator("div[aria-controls='sq_115i_list']").click()
+                self.page.locator("#sq_115i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_rotavirus_3"])).click()
+                self.page.locator("div[aria-controls='sq_116i_list']").click()
+                self.page.locator("#sq_116i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_ipv"])).click()
+                self.page.locator("div[aria-controls='sq_117i_list']").click()
+                self.page.locator("#sq_117i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_campak"])).click()
+                self.page.locator("div[aria-controls='sq_118i_list']").click()
+                self.page.locator("#sq_118i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_dpt_4"])).click()
+                self.page.locator("div[aria-controls='sq_119i_list']").click()
+                self.page.locator("#sq_119i_list [role='option']").filter(
+                    has_text=self.formatter(data["menerima_imunisasi_campak_2"])).click()
+
         self.page.locator("input:has-text('Kirim')").click()
 
         print("Skrining Imunisasi Rutin Balita Selesai")
