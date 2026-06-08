@@ -130,6 +130,36 @@ class ScreeningNakes:
         self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.formatter(data["pjb_kaki"]))
         print("Skrining Jantung Bawaan selesai")
 
+    def do_shk(self, data: dict, row_number: int) -> None:
+        print("Skrining SHK dimulai")
+        self.page.locator('[id="rowfrm000012"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["shk"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.formatter(data["g6pd"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["hak"])
+        ).click()
+        print("Skrining SHK selesai")
+
+    def do_darah_tumit(self, data: dict, row_number: int) -> None:
+        print("Skrining Darah Tumit dimulai")
+        self.page.locator('[id="rowfrm000082"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["darah_tumit"])
+        ).click()
+        print("Skrining Darah Tumit selesai")
+
+    def do_konfirmasi_shk(self, data: dict, row_number: int) -> None:
+        print("Skrining Konfirmasi SHK dimulai")
+        self.page.locator('[id="rowfrm000083"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["darah_tumit"])
+        ).click()
+        print("Skrining Konfirmasi SHK selesai")
+
     def do_telinga_mata_anak(self, data: dict, row_number: int) -> None:
         print("Skrining Telinga dan Mata Anak dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-3-0']", True)
