@@ -156,9 +156,58 @@ class ScreeningNakes:
         print("Skrining Konfirmasi SHK dimulai")
         self.page.locator('[id="rowfrm000083"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.formatter(data["darah_tumit"])
+            has_text=self.formatter(data["dilakukan_konfirmasi_shk"])
         ).click()
+        if self.formatter(data["dilakukan_konfirmasi_shk"]) == "Ya":
+            self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+                has_text=self.formatter(data["hasil_konfirm_shk"])
+            ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["dilakukan_konfirmasi_g6pd"])
+        ).click()
+        if self.formatter(data["dilakukan_konfirmasi_g6pd"]) == "Ya":
+            self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+                has_text=self.formatter(data["hasil_konfirm_g6pd"])
+            ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+            has_text=self.formatter(data["dilakukan_konfirmasi_hak"])
+        ).click()
+        if self.formatter(data["dilakukan_konfirmasi_hak"]) == "Ya":
+            self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
+                has_text=self.formatter(data["hasil_konfirm_hak"])
+            ).click()
         print("Skrining Konfirmasi SHK selesai")
+
+    def do_warna_kulit_dan_tinja(self, data: dict, row_number: int) -> None:
+        print("Skrining Edukasi Warna Kulit dan Tinja Bayi dimulai")
+        self.page.locator('[id="rowfrm000079"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["dilakukan_edukasi_warna_kulit_dan_tinja"])
+        ).click()
+        print("Skrining Edukasi Warna Kulit dan Tinja Bayi selesai")
+
+    def do_hasil_kramer(self, data: dict, row_number: int) -> None:
+        print("Skrining Hasil Kramer pada Bayi Kuning dimulai")
+        self.page.locator('[id="rowfrm000240"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["nilai_hasil_kramer"])
+        ).click()
+        print("Skrining Hasil Kramer pada Bayi Kuning selesai")
+
+    def do_warna_kulit_dan_tinja_28(self, data: dict, row_number: int) -> None:
+        print("Skrining Penilaian Warna Kulit dan Tinja 14 - 28 hari dimulai")
+        self.page.locator('[id="rowfrm000252"]').click()
+        self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(self.formatter(data["tgl_pemeriksaan_kramer"]))
+
+        self.page.locator("div#sq_101i.sd-input.sd-dropdown").click()
+        self.page.locator("#sq_101i_list [role='option']").filter(
+            has_text=self.formatter(data["kramer_bayi_kuning"])).click()
+
+        self.page.locator("div#sq_102i.sd-input.sd-dropdown").click()
+        self.page.locator("#sq_102i_list [role='option']").filter(
+            has_text=self.formatter(data["derajat_warna_tinja"])).click()
+
+        print("Skrining Penilaian Warna Kulit dan Tinja 14 - 28 hari selesai")
 
     def do_telinga_mata_anak(self, data: dict, row_number: int) -> None:
         print("Skrining Telinga dan Mata Anak dimulai")
