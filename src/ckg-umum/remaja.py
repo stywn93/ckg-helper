@@ -59,32 +59,26 @@ MONTH_TO_NUMBER = {
     "Des": 12,
 }
 TEENAGER_MANDIRI_SCREENINGS = [
-    "do_demografi_anak",
     "do_risiko_gula_darah_anak",
-    "do_imunisasi_rutin_balita"
+    "do_risiko_malaria",
+    "do_cemas_anak",
+    "do_gejala_depresi_anak",
+    "do_risiko_hepatitis_sd",
+    "do_risiko_tb_anak"
 ]
 TEENAGER_NAKES_SCREENINGS = [
-    "do_riwayat_imunisasi_hepatitis_b",
-    "do_berat_lahir",
-    "do_jantung_bawaan",
-    "do_darah_tumit",
-    "do_shk",
-    "do_konfirmasi_shk",
-    "do_warna_kulit_dan_tinja",
-    "do_hasil_kramer",
-    "do_warna_kulit_dan_tinja_28",
-    "do_gizi_laki",
-    "do_pertumbuhan_balita",
-    "do_kpsp",
-    "do_m_chat_1",
-    "do_m_chat_2",
+    "do_gizi_anak_sekolah",
+    "do_tekanan_darah_anak_remaja",
+    "do_gula_darah_anak",
+    "do_telinga_mata_anak_sekolah",
     "do_risiko_tb_anak",
     "do_tb_anak",
     "do_frambusia",
     "do_kusta",
     "do_skabies",
-    "do_telinga_mata_anak",
     "do_periksa_gigi_anak",
+    "do_hepatitis_b_7_12",
+    "do_rdt_malaria"
 ]
 
 def get_required_env(name: str) -> str:

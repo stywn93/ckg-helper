@@ -178,9 +178,24 @@ class ScreeningNakes:
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Tekanan Darah Anak dan Remaja selesai")
 
-    def do_telinga_mata_anak(self, data: dict, row_number: int) -> None:
-        print("Skrining Telinga Mata Anak Sekolah dimulai")
+    def do_gula_darah_anak(self, data: dict, row_number: int) -> None:
+        print("Skrining Gula Darah Anak dimulai")
         self.page.locator('[id="rowfrm000195"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["shk"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.formatter(data["g6pd"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["hak"])
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Gula Darah Anak selesai")
+
+    def do_telinga_mata_anak_sekolah(self, data: dict, row_number: int) -> None:
+        print("Skrining Telinga Mata Anak Sekolah dimulai")
+        self.page.locator('[id="rowfrm000137"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.formatter(data["shk"])
         ).click()
