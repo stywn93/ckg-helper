@@ -58,12 +58,12 @@ MONTH_TO_NUMBER = {
     "Nov": 11,
     "Des": 12,
 }
-CHILD_MANDIRI_SCREENINGS = [
+TEENAGER_MANDIRI_SCREENINGS = [
     "do_demografi_anak",
     "do_risiko_gula_darah_anak",
     "do_imunisasi_rutin_balita"
 ]
-CHILD_NAKES_SCREENINGS = [
+TEENAGER_NAKES_SCREENINGS = [
     "do_riwayat_imunisasi_hepatitis_b",
     "do_berat_lahir",
     "do_jantung_bawaan",

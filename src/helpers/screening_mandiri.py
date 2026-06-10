@@ -72,6 +72,56 @@ class ScreeningMandiri:
 
         print("Skrining Demografi Anak Selesai")
 
+    def do_risiko_malaria(self, data: dict, row_number: int) -> None:
+        print("Skrining Risiko Malaria Dimulai")
+        self.page.locator('[id="rowfrm000115"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["disabilitas"])
+        ).first.click()
+        self.page.locator("input:has-text('Kirim')").click()
+
+        print("Skrining Risiko Malaria Selesai")
+
+    def do_cemas_anak(self, data: dict, row_number: int) -> None:
+        print("Skrining Cemas Anak Dimulai")
+        self.page.locator('[id="rowfrm000109"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["disabilitas"])
+        ).first.click()
+        self.page.locator("input:has-text('Kirim')").click()
+
+        print("Skrining Cemas Anak Selesai")
+
+    def do_gejala_depresi_anak(self, data: dict, row_number: int) -> None:
+        print("Skrining Gejala Depresi Anak Dimulai")
+        self.page.locator('[id="rowfrm000124"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["disabilitas"])
+        ).first.click()
+        self.page.locator("input:has-text('Kirim')").click()
+
+        print("Skrining Gejala Depresi Anak Selesai")
+
+    def do_risiko_hepatitis_sd(self, data: dict, row_number: int) -> None:
+        print("Skrining Risiko Hepatitis SD Dimulai")
+        self.page.locator('[id="rowfrm000114"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["disabilitas"])
+        ).first.click()
+        self.page.locator("input:has-text('Kirim')").click()
+
+        print("Skrining Risiko Hepatitis SD Selesai")
+
+    def do_risiko_tb_anak(self, data: dict, row_number: int) -> None:
+        print("Skrining Risiko TB Anak 1-9 Tahun Dimulai")
+        self.page.locator('[id="rowfrm000174"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["disabilitas"])
+        ).first.click()
+        self.page.locator("input:has-text('Kirim')").click()
+
+        print("Skrining Risiko TB Anak 1-9 Tahun Selesai")
+
     def do_risiko_gula_darah_anak(self, data: dict, row_number: int) -> None:
         print("Skrining Risiko Gula Darah Anak Dimulai")
         self.page.locator('[id="rowfrm000110"]').click()

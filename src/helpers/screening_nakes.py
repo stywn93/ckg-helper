@@ -148,6 +148,81 @@ class ScreeningNakes:
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining SHK selesai")
 
+    def do_gizi_anak_sekolah(self, data: dict, row_number: int) -> None:
+        print("Skrining Gizi Anak Sekolah dimulai")
+        self.page.locator('[id="rowfrm000119"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["shk"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.formatter(data["g6pd"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["hak"])
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Gizi Anak Sekolah selesai")
+
+    def do_tekanan_darah_anak_remaja(self, data: dict, row_number: int) -> None:
+        print("Skrining Tekanan Darah Anak dan Remaja dimulai")
+        self.page.locator('[id="rowfrm000266"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["shk"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.formatter(data["g6pd"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["hak"])
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Tekanan Darah Anak dan Remaja selesai")
+
+    def do_telinga_mata_anak(self, data: dict, row_number: int) -> None:
+        print("Skrining Telinga Mata Anak Sekolah dimulai")
+        self.page.locator('[id="rowfrm000195"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["shk"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.formatter(data["g6pd"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["hak"])
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Telinga Mata Anak Sekolah selesai")
+
+    def do_hepatitis_b_7_12(self, data: dict, row_number: int) -> None:
+        print("Skrining Hepatitis B Usia 7-12 Tahun dimulai")
+        self.page.locator('[id="rowfrm000159"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["shk"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.formatter(data["g6pd"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["hak"])
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Hepatitis B Usia 7-12 Tahun selesai")
+
+    def do_rdt_malaria(self, data: dict, row_number: int) -> None:
+        print("Skrining RDT Malaria dimulai")
+        self.page.locator('[id="rowfrm000117"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["shk"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.formatter(data["g6pd"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["hak"])
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining RDT Malaria selesai")
+
     def do_darah_tumit(self, data: dict, row_number: int) -> None:
         print("Skrining Darah Tumit dimulai")
         self.page.locator('[id="rowfrm000082"]').click()
