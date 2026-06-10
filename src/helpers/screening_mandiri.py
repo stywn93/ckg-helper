@@ -76,7 +76,16 @@ class ScreeningMandiri:
         print("Skrining Risiko Malaria Dimulai")
         self.page.locator('[id="rowfrm000115"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.formatter(data["disabilitas"])
+            has_text=self.formatter(data["malaria_1"])
+        ).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.formatter(data["malaria_2"])
+        ).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["malaria_3"])
+        ).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=self.formatter(data["malaria_4"])
         ).first.click()
         self.page.locator("input:has-text('Kirim')").click()
 

@@ -223,7 +223,7 @@ def run_screening_steps(screening, method_names: list[str], data: dict, row_numb
 
 
 def main():
-    excel_path = PROJECT_ROOT / "dataset" / "anak.xlsx"
+    excel_path = PROJECT_ROOT / "dataset" / "remaja.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
 
@@ -265,12 +265,12 @@ def main():
                 badge.wait_for(state="visible", timeout=15000)
                 badge_text = badge.inner_text().strip()
                 print(badge_text)
-                if badge_text != "Bayi Balita":
-                    excel.update_status(index, f"Gagal - ini bukan pasien Bayi Balita. Ini adalah pasien {badge_text}")
+                if badge_text != "Remaja":
+                    excel.update_status(index, f"Gagal - ini bukan pasien Remaja. Ini adalah pasien {badge_text}")
                     page.wait_for_load_state("networkidle")
                     continue
 
-                if badge_text == "Bayi Balita":
+                if badge_text == "Remaja":
                     gender_locator = (
                         page.locator("div.flex.flex-col.gap-2")
                         .filter(has_text="Jenis Kelamin")
@@ -278,7 +278,7 @@ def main():
                     )
                     gender = gender_locator.inner_text().strip()
                     if gender == "Laki-Laki":
-                        print("Skrining Laki-Laki Bayi Balita")
+                        print("Skrining Laki-Laki Remaja")
                         print("============== Skrining Mandiri Dimulai ==============")
                         # sebelum mulai skrining seharusnya klik Mulai Pemeriksaan dahulu, jika tombol tersebut tidak ditemukan maka skip jangan error. Caranya dengan cara mengecek prompt_examination_status yang paling ideal
                         if examination_status == "Belum Pemeriksaan":
@@ -287,23 +287,23 @@ def main():
                             page.locator("button.btn-fill-primary:has-text('Simpan')").click()
                         # page.pause()
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
-                        run_screening_steps(screening_mandiri, CHILD_MANDIRI_SCREENINGS, data, index, page)
+                        run_screening_steps(screening_mandiri, TEENAGER_MANDIRI_SCREENINGS, data, index, page)
                         print("============== Skrining Mandiri Selesai ==============")
                         print("============== Skrining Oleh Nakes Dimulai ==============")
                         screening_nakes = ScreeningNakes(page, format_cell_value)
-                        run_screening_steps(screening_nakes, CHILD_NAKES_SCREENINGS, data, index, page)
+                        run_screening_steps(screening_nakes, TEENAGER_NAKES_SCREENINGS, data, index, page)
                         print("============== Skrining Oleh Nakes Selesai ==============")
                         excel.update_status(index, "SUCCESS")
                         # page.pause()
                     elif gender == "Perempuan":
-                        print("Skrining Perempuan Bayi Balita")
+                        print("Skrining Perempuan Remaja")
                         print("============== Skrining Mandiri Dimulai ==============")
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
-                        run_screening_steps(screening_mandiri, CHILD_MANDIRI_SCREENINGS, data, index, page)
+                        run_screening_steps(screening_mandiri, TEENAGER_MANDIRI_SCREENINGS, data, index, page)
                         print("============== Skrining Mandiri Selesai ==============")
                         print("============== Skrining Oleh Nakes Dimulai ==============")
                         screening_nakes = ScreeningNakes(page, format_cell_value)
-                        run_screening_steps(screening_nakes, CHILD_NAKES_SCREENINGS, data, index, page)
+                        run_screening_steps(screening_nakes, TEENAGER_NAKES_SCREENINGS, data, index, page)
                         print("============== Skrining Oleh Nakes Selesai ==============")
                         excel.update_status(index, "SUCCESS")
 
