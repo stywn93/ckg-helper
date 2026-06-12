@@ -95,7 +95,13 @@ class ScreeningMandiri:
         print("Skrining Cemas Anak Dimulai")
         self.page.locator('[id="rowfrm000109"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.formatter(data["disabilitas"])
+            has_text=self.formatter(data["cemas_1"])
+        ).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.formatter(data["cemas_2"])
+        ).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["cemas_3"])
         ).first.click()
         self.page.locator("input:has-text('Kirim')").click()
 
@@ -105,7 +111,13 @@ class ScreeningMandiri:
         print("Skrining Gejala Depresi Anak Dimulai")
         self.page.locator('[id="rowfrm000124"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.formatter(data["disabilitas"])
+            has_text=self.formatter(data["depresi_1"])
+        ).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.formatter(data["depresi_2"])
+        ).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["depresi_3"])
         ).first.click()
         self.page.locator("input:has-text('Kirim')").click()
 
@@ -115,7 +127,16 @@ class ScreeningMandiri:
         print("Skrining Risiko Hepatitis SD Dimulai")
         self.page.locator('[id="rowfrm000114"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.formatter(data["disabilitas"])
+            has_text=self.formatter(data["hepatitis_sd_1"])
+        ).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.formatter(data["hepatitis_sd_2"])
+        ).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["hepatitis_sd_3"])
+        ).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+            has_text=self.formatter(data["hepatitis_sd_4"])
         ).first.click()
         self.page.locator("input:has-text('Kirim')").click()
 
@@ -125,7 +146,7 @@ class ScreeningMandiri:
         print("Skrining Risiko TB Anak 1-9 Tahun Dimulai")
         self.page.locator('[id="rowfrm000174"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.formatter(data["disabilitas"])
+            has_text=self.formatter(data["risiko_tb_anak"])
         ).first.click()
         self.page.locator("input:has-text('Kirim')").click()
 
