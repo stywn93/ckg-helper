@@ -151,30 +151,17 @@ class ScreeningNakes:
     def do_gizi_anak_sekolah(self, data: dict, row_number: int) -> None:
         print("Skrining Gizi Anak Sekolah dimulai")
         self.page.locator('[id="rowfrm000119"]').click()
-        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.formatter(data["shk"])
-        ).click()
-        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
-            has_text=self.formatter(data["g6pd"])
-        ).click()
-        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
-            has_text=self.formatter(data["hak"])
-        ).click()
+        self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(self.formatter(data["berat_badan"]))
+        self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.formatter(data["tinggi_badan"]))
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Gizi Anak Sekolah selesai")
 
     def do_tekanan_darah_anak_remaja(self, data: dict, row_number: int) -> None:
         print("Skrining Tekanan Darah Anak dan Remaja dimulai")
         self.page.locator('[id="rowfrm000266"]').click()
-        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.formatter(data["shk"])
-        ).click()
-        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
-            has_text=self.formatter(data["g6pd"])
-        ).click()
-        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
-            has_text=self.formatter(data["hak"])
-        ).click()
+        self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(self.formatter(data["sistol"]))
+        self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
+            self.formatter(data["diastol"]))
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Tekanan Darah Anak dan Remaja selesai")
 
@@ -182,14 +169,10 @@ class ScreeningNakes:
         print("Skrining Gula Darah Anak dimulai")
         self.page.locator('[id="rowfrm000195"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.formatter(data["shk"])
+            has_text=self.formatter(data["anak_pernah_diabetes"])
         ).click()
-        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
-            has_text=self.formatter(data["g6pd"])
-        ).click()
-        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
-            has_text=self.formatter(data["hak"])
-        ).click()
+        self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.formatter(data["berapa_bulan_diabetes"]))
+        self.page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill(self.formatter(data["gds"]))
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Gula Darah Anak selesai")
 

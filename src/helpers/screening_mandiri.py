@@ -135,7 +135,7 @@ class ScreeningMandiri:
         self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
             has_text=self.formatter(data["hepatitis_sd_3"])
         ).first.click()
-        self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
             has_text=self.formatter(data["hepatitis_sd_4"])
         ).first.click()
         self.page.locator("input:has-text('Kirim')").click()
