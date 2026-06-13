@@ -25,11 +25,13 @@ USERNAME_ENV = "CKG_USERNAME"
 PASSWORD_ENV = "CKG_PASSWORD"
 DEBUG_RAISE_ERRORS_ENV = "CKG_DEBUG_RAISE_ERRORS"
 SCREENING_UI_TIMEOUT_MS = int(os.getenv("CKG_SCREENING_UI_TIMEOUT_MS", "5000"))
+PATIENT_SEARCH_TIMEOUT_MS = int(os.getenv("CKG_PATIENT_SEARCH_TIMEOUT_MS", "3000"))
 EXAMINATION_STATUS_OPTIONS = {
     "1": "Belum Pemeriksaan",
     "2": "Sedang Pemeriksaan",
     "3": "Selesai Pemeriksaan",
 }
+EXAMINATION_STATUS_SEARCH_ORDER = list(EXAMINATION_STATUS_OPTIONS.values())
 MONTH_LABELS = {
     "01": "Jan",
     "02": "Feb",
@@ -142,18 +144,6 @@ def get_required_env(name: str) -> str:
     return value
 
 
-def prompt_examination_status() -> str:
-    print("Pilih status pemeriksaan:")
-    for option_number, option_label in EXAMINATION_STATUS_OPTIONS.items():
-        print(f"{option_number}. {option_label}")
-
-    while True:
-        selected_option = input("Masukkan nomor pilihan (1-3): ").strip()
-        if selected_option in EXAMINATION_STATUS_OPTIONS:
-            return EXAMINATION_STATUS_OPTIONS[selected_option]
-        print("Pilihan tidak valid. Masukkan nomor 1, 2, atau 3.")
-
-
 def prepare_page(page) -> None:
     page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
     page.wait_for_load_state("networkidle")
@@ -174,11 +164,9 @@ def prepare_page(page) -> None:
     # print("end of prepare_page")
 
 
-def search_patient(page, data: dict, row_number: int) -> None:
+def search_patient_with_status(page, data: dict, examination_status: str) -> None:
     prepare_page(page)
-    # examination_status = prompt_examination_status()
-    # page.locator("div.cursor-pointer.px-3").filter(has_text=examination_status).click()
-    page.locator("div.cursor-pointer.px-3").filter(has_text="Sedang Pemeriksaan").click()
+    page.locator("div.cursor-pointer.px-3").filter(has_text=examination_status).click()
     page.locator("div.mx-input-wrapper").click()
     batas_awal = format_cell_value(data["batas_awal"])
     batas_akhir = format_cell_value(data["batas_akhir"])
@@ -190,13 +178,42 @@ def search_patient(page, data: dict, row_number: int) -> None:
     page.locator("input#searchNik").fill(format_cell_value(data["nama"]))
     page.keyboard.press("Enter")
     page.wait_for_load_state("networkidle")
-    page.locator("button:has-text('Mulai')").first.click()
+    page.locator("button:has-text('Mulai')").first.click(timeout=PATIENT_SEARCH_TIMEOUT_MS)
+
+
+def search_patient(page, data: dict, row_number: int) -> str:
+    last_error = None
+
+    for examination_status in EXAMINATION_STATUS_SEARCH_ORDER:
+        try:
+            print(
+                f"Baris {row_number}: mencari pasien pada status "
+                f"{examination_status}."
+            )
+            search_patient_with_status(page, data, examination_status)
+            print(
+                f"Baris {row_number}: pasien ditemukan pada status "
+                f"{examination_status}."
+            )
+            break
+        except PlaywrightTimeoutError as exc:
+            last_error = exc
+            print(
+                f"Baris {row_number}: pasien tidak ditemukan pada status "
+                f"{examination_status}."
+            )
+    else:
+        raise RuntimeError(
+            "Pasien tidak ditemukan pada semua status pemeriksaan."
+        ) from last_error
+
     page.wait_for_load_state("networkidle")
     page.wait_for_timeout(3000)
     for remaining_seconds in range(3, 0, -1):
         print(f"Menunggu halaman pemeriksaan tampil... {remaining_seconds} detik")
         page.wait_for_timeout(1000)
     # print("end of search_patient")
+    return examination_status
 
 # ---------- Pelayanan Oleh Nakes ------------
 
@@ -275,7 +292,6 @@ def main():
     excel_path = PROJECT_ROOT / "dataset" / "lansia.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
-    # examination_status = prompt_examination_status()
     excel = ExcelStatusWorkbook(excel_path)
     data_rows = excel.pending_rows()
     if not data_rows:
