@@ -222,12 +222,6 @@ class ScreeningNakes:
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.formatter(data["shk"])
         ).click()
-        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
-            has_text=self.formatter(data["g6pd"])
-        ).click()
-        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
-            has_text=self.formatter(data["hak"])
-        ).click()
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Hepatitis B Usia 7-12 Tahun selesai")
 
