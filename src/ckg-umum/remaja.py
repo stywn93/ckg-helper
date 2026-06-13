@@ -25,11 +25,13 @@ USERNAME_ENV = "CKG_USERNAME"
 PASSWORD_ENV = "CKG_PASSWORD"
 DEBUG_RAISE_ERRORS_ENV = "CKG_DEBUG_RAISE_ERRORS"
 SCREENING_UI_TIMEOUT_MS = int(os.getenv("CKG_SCREENING_UI_TIMEOUT_MS", "2000"))
+PATIENT_SEARCH_TIMEOUT_MS = int(os.getenv("CKG_PATIENT_SEARCH_TIMEOUT_MS", "3000"))
 EXAMINATION_STATUS_OPTIONS = {
     "1": "Belum Pemeriksaan",
     "2": "Sedang Pemeriksaan",
     "3": "Selesai Pemeriksaan",
 }
+EXAMINATION_STATUS_SEARCH_ORDER = list(EXAMINATION_STATUS_OPTIONS.values())
 MONTH_LABELS = {
     "01": "Jan",
     "02": "Feb",
@@ -88,18 +90,6 @@ def get_required_env(name: str) -> str:
     return value
 
 
-def prompt_examination_status() -> str:
-    print("Pilih status pemeriksaan:")
-    for option_number, option_label in EXAMINATION_STATUS_OPTIONS.items():
-        print(f"{option_number}. {option_label}")
-
-    while True:
-        selected_option = input("Masukkan nomor pilihan (1-3): ").strip()
-        if selected_option in EXAMINATION_STATUS_OPTIONS:
-            return EXAMINATION_STATUS_OPTIONS[selected_option]
-        print("Pilihan tidak valid. Masukkan nomor 1, 2, atau 3.")
-
-
 def prepare_page(page) -> None:
     page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
     page.wait_for_load_state("networkidle")
@@ -120,27 +110,48 @@ def prepare_page(page) -> None:
     # print("end of prepare_page")
 
 
-def search_patient(page, data: dict, row_number: int) -> str:
+def search_patient_with_status(page, data: dict, examination_status: str) -> None:
     prepare_page(page)
-    try:
-        examination_status = prompt_examination_status()
-        page.locator("div.cursor-pointer.px-3").filter(has_text=examination_status).click()
-        # page.locator("div.cursor-pointer.px-3").filter(has_text="Sedang Pemeriksaan").click()
-        page.locator("div.mx-input-wrapper").click()
-        batas_awal = format_cell_value(data["batas_awal"])
-        batas_akhir = format_cell_value(data["batas_akhir"])
-        page.locator(f'td.cell[title="{batas_awal}"]').click()
-        page.locator(f'td.cell[title="{batas_akhir}"]').click()
-        # tambahkan try and catch di sini
-        # jika berhasil maka klik, jika gagal maka tampilkan ulang examination prompt
-        page.locator("span:has-text('Nama')").click()
-        page.get_by_text("Nama", exact=True).nth(0).click()
-        page.locator("input#searchNik").fill(format_cell_value(data["nama"]))
-        page.keyboard.press("Enter")
-        page.wait_for_load_state("networkidle")
-        page.locator("button:has-text('Mulai')").first.click()
-    except PlaywrightTimeoutError:
-        return False
+    page.locator("div.cursor-pointer.px-3").filter(has_text=examination_status).click()
+    page.locator("div.mx-input-wrapper").click()
+    batas_awal = format_cell_value(data["batas_awal"])
+    batas_akhir = format_cell_value(data["batas_akhir"])
+    page.locator(f'td.cell[title="{batas_awal}"]').click()
+    page.locator(f'td.cell[title="{batas_akhir}"]').click()
+    page.locator("span:has-text('Nama')").click()
+    page.get_by_text("Nama", exact=True).nth(0).click()
+    page.locator("input#searchNik").fill(format_cell_value(data["nama"]))
+    page.keyboard.press("Enter")
+    page.wait_for_load_state("networkidle")
+    page.locator("button:has-text('Mulai')").first.click(timeout=PATIENT_SEARCH_TIMEOUT_MS)
+
+
+def search_patient(page, data: dict, row_number: int) -> str:
+    last_error = None
+
+    for examination_status in EXAMINATION_STATUS_SEARCH_ORDER:
+        try:
+            print(
+                f"Baris {row_number}: mencari pasien pada status "
+                f"{examination_status}."
+            )
+            search_patient_with_status(page, data, examination_status)
+            print(
+                f"Baris {row_number}: pasien ditemukan pada status "
+                f"{examination_status}."
+            )
+            break
+        except PlaywrightTimeoutError as exc:
+            last_error = exc
+            print(
+                f"Baris {row_number}: pasien tidak ditemukan pada status "
+                f"{examination_status}."
+            )
+    else:
+        raise RuntimeError(
+            "Pasien tidak ditemukan pada semua status pemeriksaan."
+        ) from last_error
+
     page.wait_for_load_state("networkidle")
     page.wait_for_timeout(3000)
     for remaining_seconds in range(3, 0, -1):
@@ -280,7 +291,6 @@ def main():
                     if gender == "Laki-Laki":
                         print("Skrining Laki-Laki Remaja")
                         print("============== Skrining Mandiri Dimulai ==============")
-                        # sebelum mulai skrining seharusnya klik Mulai Pemeriksaan dahulu, jika tombol tersebut tidak ditemukan maka skip jangan error. Caranya dengan cara mengecek prompt_examination_status yang paling ideal
                         if examination_status == "Belum Pemeriksaan":
                             #butuh perbaikan di sini untuk memilih tanggal
                             page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
