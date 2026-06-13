@@ -171,7 +171,8 @@ class ScreeningNakes:
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.formatter(data["anak_pernah_diabetes"])
         ).click()
-        self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.formatter(data["berapa_bulan_diabetes"]))
+        if self.formatter(data["anak_pernah_diabetes"]) == "Ya":
+            self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.formatter(data["berapa_bulan_diabetes"]))
         self.page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill(self.formatter(data["gds"]))
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Gula Darah Anak selesai")
@@ -180,13 +181,37 @@ class ScreeningNakes:
         print("Skrining Telinga Mata Anak Sekolah dimulai")
         self.page.locator('[id="rowfrm000137"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.formatter(data["shk"])
+            has_text=self.formatter(data["gangguan_pendengaran_kanan"])
         ).click()
         self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
-            has_text=self.formatter(data["g6pd"])
+            has_text=self.formatter(data["gangguan_pendengaran_kiri"])
         ).click()
         self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
-            has_text=self.formatter(data["hak"])
+            has_text=self.formatter(data["serumen_impaksi_kanan"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=self.formatter(data["serumen_impaksi_kiri"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+            has_text=self.formatter(data["infeksi_telinga_kanan"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
+            has_text=self.formatter(data["infeksi_telinga_kiri"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_106_ariaTitle'] label").filter(
+            has_text=self.formatter(data["selaput_mata_merah_kanan"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_107_ariaTitle'] label").filter(
+            has_text=self.formatter(data["selaput_mata_merah_kiri"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_108_ariaTitle'] label").filter(
+            has_text=self.formatter(data["tajam_penglihatan_kanan"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_109_ariaTitle'] label").filter(
+            has_text=self.formatter(data["tajam_penglihatan_kiri"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_110_ariaTitle'] label").filter(
+            has_text=self.formatter(data["menggunakan_kacamata"])
         ).click()
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Telinga Mata Anak Sekolah selesai")
