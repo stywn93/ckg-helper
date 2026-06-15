@@ -79,7 +79,7 @@ TEENAGER_NAKES_SCREENINGS = [
     "do_kusta",
     "do_skabies",
     "do_periksa_gigi_anak",
-    "do_hepatitis_b_7_12",
+    "do_hepatitis_b_7_12", #belum selesai
     "do_rdt_malaria"
 ]
 

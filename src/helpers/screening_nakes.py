@@ -220,7 +220,7 @@ class ScreeningNakes:
         print("Skrining Hepatitis B Usia 7-12 Tahun dimulai")
         self.page.locator('[id="rowfrm000159"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.formatter(data["shk"])
+            has_text=self.formatter(data["hasil_hepatitis_b"])
         ).click()
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Hepatitis B Usia 7-12 Tahun selesai")
@@ -229,13 +229,7 @@ class ScreeningNakes:
         print("Skrining RDT Malaria dimulai")
         self.page.locator('[id="rowfrm000117"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.formatter(data["shk"])
-        ).click()
-        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
-            has_text=self.formatter(data["g6pd"])
-        ).click()
-        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
-            has_text=self.formatter(data["hak"])
+            has_text=self.formatter(data["hasil_rdt_malaria"])
         ).click()
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining RDT Malaria selesai")
