@@ -13,7 +13,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 from dotenv import load_dotenv
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
-from playwright_window_layout import launch_chromium_with_layout, pause_with_inspector_layout
+from playwright_window_layout import launch_chromium_with_layout
 
 # coba gunakan helper
 from excel import ExcelStatusWorkbook, format_cell_value
@@ -60,6 +60,7 @@ MONTH_TO_NUMBER = {
     "Nov": 11,
     "Des": 12,
 }
+LOGIN_SUCCESS_TIMEOUT_MS = int(os.getenv("CKG_LOGIN_SUCCESS_TIMEOUT_MS", "60000"))
 DEWASA_MANDIRI_LAKI_SCREENINGS = [
     "do_demografi_dewasa",
     "do_risiko_kanker_usus",
@@ -161,6 +162,30 @@ def prepare_page(page) -> None:
         page.locator("button:has-text('Simpan')").click()
         page.wait_for_load_state("networkidle")
     # print("end of prepare_page")
+
+
+def login_and_wait_for_profile(page, username: str, password: str) -> None:
+    page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
+    page.locator("input#email").fill(username)
+    page.locator("input#password").fill(password)
+
+    submit_button = page.locator("button[type='submit']").first
+    if submit_button.count() > 0:
+        submit_button.click()
+    else:
+        page.keyboard.press("Enter")
+
+    try:
+        page.wait_for_url(
+            re.compile(r".*/profile(?:[/?#].*)?$"),
+            timeout=LOGIN_SUCCESS_TIMEOUT_MS,
+        )
+        page.wait_for_load_state("networkidle")
+    except PlaywrightTimeoutError as exc:
+        raise RuntimeError(
+            "Login belum berhasil: halaman tidak redirect ke /profile "
+            f"dalam {LOGIN_SUCCESS_TIMEOUT_MS} ms. URL saat ini: {page.url}"
+        ) from exc
 
 
 def search_patient_with_status(page, data: dict, examination_status: str) -> None:
@@ -307,14 +332,11 @@ def main():
         return
 
     with sync_playwright() as p:
-        browser, window_layout = launch_chromium_with_layout(p)
+        browser, _window_layout = launch_chromium_with_layout(p)
         context = browser.new_context(no_viewport=True)
         page = context.new_page()
 
-        page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
-        page.locator("input#email").fill(username)
-        page.locator("input#password").fill(password)
-        pause_with_inspector_layout(page, window_layout)
+        login_and_wait_for_profile(page, username, password)
 
         failed_rows = []
 
