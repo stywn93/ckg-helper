@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -18,6 +19,7 @@ load_dotenv()
 
 USERNAME_ENV = "CKG_USERNAME"
 PASSWORD_ENV = "CKG_PASSWORD"
+LOGIN_SUCCESS_TIMEOUT_MS = int(os.getenv("CKG_LOGIN_SUCCESS_TIMEOUT_MS", "60000"))
 
 def get_required_env(name: str) -> str:
     value = os.getenv(name)
@@ -36,6 +38,30 @@ def prepare_registration_page(page) -> None:
         checkbox.set_checked(True, force=True)
         page.locator("button:has-text('Setuju')").click()
         page.wait_for_load_state("networkidle")
+
+
+def login_and_wait_for_profile(page, username: str, password: str) -> None:
+    page.goto("https://sehatindonesiaku.kemkes.go.id/login")
+    page.locator("input#email").fill(username)
+    page.locator("input#password").fill(password)
+
+    submit_button = page.locator("button[type='submit']").first
+    if submit_button.count() > 0:
+        submit_button.click()
+    else:
+        page.keyboard.press("Enter")
+
+    try:
+        page.wait_for_url(
+            re.compile(r".*/profile(?:[/?#].*)?$"),
+            timeout=LOGIN_SUCCESS_TIMEOUT_MS,
+        )
+        page.wait_for_load_state("networkidle")
+    except PlaywrightTimeoutError as exc:
+        raise RuntimeError(
+            "Login belum berhasil: halaman tidak redirect ke /profile "
+            f"dalam {LOGIN_SUCCESS_TIMEOUT_MS} ms. URL saat ini: {page.url}"
+        ) from exc
 
 
 def searchPatient(page, data: dict, row_number: int, window_layout, date_picker: DatePicker) -> None:
@@ -88,10 +114,7 @@ def main():
         context = browser.new_context(no_viewport=True)
         page = context.new_page()
 
-        page.goto("https://sehatindonesiaku.kemkes.go.id/login")
-        page.locator("input#email").fill(username)
-        page.locator("input#password").fill(password)
-        pause_with_inspector_layout(page, window_layout)
+        login_and_wait_for_profile(page, username, password)
 
         failed_rows = []
         date_picker = DatePicker()
