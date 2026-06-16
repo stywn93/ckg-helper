@@ -123,6 +123,16 @@ class ScreeningMandiri:
 
         print("Skrining Gejala Depresi Anak Selesai")
 
+    def do_riwayat_imunisasi_rutin_anak_sekolah(self, data: dict, row_number: int) -> None:
+        print("Skrining Riwayat Imunisasi Rutin Anak Sekolah Dimulai")
+        self.page.locator('[id="rowfrm000129"]').click()
+        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("#sq_100i_list [role='option']").filter(
+            has_text=self.formatter(data["memperoleh_imunisasi_polio"])).click()
+        self.page.locator("input:has-text('Kirim')").click()
+
+        print("Skrining Riwayat Imunisasi Rutin Anak Sekolah Selesai")
+
     def do_risiko_hepatitis_sd(self, data: dict, row_number: int) -> None:
         print("Skrining Risiko Hepatitis SD Dimulai")
         self.page.locator('[id="rowfrm000114"]').click()
@@ -327,6 +337,24 @@ class ScreeningMandiri:
         ).click()
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Kesehatan Jiwa Selesai")
+
+    def do_imunisasi_tetanus(self, data: dict, row_number: int) -> None:
+        print("Skrining Imunisasi Tetanus (Status T) Dimulai")
+        self.page.locator('[id="rowfrm000172"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["tidak_bersemangat"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.formatter(data["merasa_tertekan"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["gugup_cemas"])
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=self.formatter(data["khawatir"])
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Imunisasi Tetanus (Status T) Selesai")
 
     def do_risiko_kanker_paru(self, data: dict, row_number: int) -> None:
         print("Skrining Kanker Paru Dimulai")

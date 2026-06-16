@@ -605,6 +605,46 @@ class ScreeningNakes:
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Tekanan Darah Dewasa selesai")
 
+    def do_telinga_mata_18_39(self, data: dict, row_number: int) -> None:
+        print("Skrining Telinga dan Mata (18-39 tahun) dimulai")
+        # do_pemeriksaan_check(page, "input#hasil-lab-0-2", True)
+        self.page.locator('[id="rowfrm000042"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.formatter(data["serumen_impaksi"])
+        ).click()
+        self.page.locator("div[aria-controls='sq_101i_list']").click()
+        self.page.locator("#sq_101i_list [role='option']").filter(
+            has_text=self.formatter(data["infeksi_telinga"])).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.formatter(data["tajam_pendengaran"])
+        ).first.click()
+        if data["tajam_pendengaran"] == "Curiga gangguan pendengaran":
+            self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+                has_text=self.formatter(data["tes_penala"])
+            ).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+            has_text=self.formatter(data["tajam_penglihatan"])
+        ).first.click()
+        if data["tajam_penglihatan"] == "Curiga gangguan penglihatan (visus <6/12)":
+            self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
+                has_text=self.formatter(data["hasil_visus"])
+            ).first.click()
+            if data["hasil_visus"] != "Normal (visus 6/6 - 6/12)":
+                self.page.locator("fieldset[aria-labelledby='sq_106_ariaTitle'] label").filter(
+                    has_text=self.formatter(data["pinhole"])
+                ).first.click()
+                if data["pinhole"] == "Visus membaik":
+                    self.page.locator("fieldset[aria-labelledby='sq_107_ariaTitle'] label").filter(
+                        has_text=self.formatter(data["hasil_refraksi"])
+                    ).first.click()
+                else:
+                    self.page.locator("fieldset[aria-labelledby='sq_108_ariaTitle'] label").filter(
+                        has_text=self.formatter(data["funduskopi"])
+                    ).first.click()
+
+        self.page.locator("input:has-text('Kirim')").click()
+        print("Skrining Telinga dan Mata (18-39 tahun) selesai")
+
     def do_risiko_tb(self, data: dict, row_number: int) -> None:
         print("Skrining Risiko TB dimulai")
         # do_pemeriksaan_check(page, "input#hasil-lab-1-0", True)
@@ -727,8 +767,6 @@ class ScreeningNakes:
         self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
             has_text=self.formatter(data["tajam_penglihatan"])
         ).first.click()
-        # print(data["tajam_penglihatan"])
-        # page.pause()
         if data["tajam_penglihatan"] == "Curiga gangguan penglihatan (visus <6/12)":
             self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
                 has_text=self.formatter(data["hasil_visus"])

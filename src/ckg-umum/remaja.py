@@ -66,6 +66,7 @@ TEENAGER_MANDIRI_SCREENINGS = [
     "do_risiko_malaria",
     "do_cemas_anak",
     "do_gejala_depresi_anak",
+    "do_riwayat_imunisasi_rutin_anak_sekolah",
     "do_risiko_hepatitis_sd",
     "do_risiko_tb_anak"
 ]
