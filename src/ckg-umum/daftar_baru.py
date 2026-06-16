@@ -86,10 +86,17 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     
     page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
 
-    panel = page.locator("div:has(> .text-\\[20px\\].font-bold:text('Tanggal Pemeriksaan'))")
-    panel.get_by_role("button", name=format_cell_value(data["tgl_pemeriksaan"])).nth(1).click()
 
-    page.get_by_role("button", name="Selanjutnya").click()
+    panel = page.locator("div:has(> .text-\\[20px\\].font-bold:text('Tanggal Pemeriksaan'))")
+    tanggal = panel.get_by_role("button", name=format_cell_value(data["tgl_pemeriksaan"])).nth(1)
+    try:
+        tanggal.wait_for(state="visible", timeout=3000)
+        tanggal.click()
+        page.get_by_role("button", name="Selanjutnya").click()
+    except PlaywrightTimeoutError:
+        page.pause()
+        page.get_by_role("button", name="Selanjutnya").click()
+
     btn_recheck = page.locator("button:has-text('Periksa Kembali')").first
     btn_success = page.locator("button:has-text('Lanjutkan')").first
     try:
