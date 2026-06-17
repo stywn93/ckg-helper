@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 # Force PyInstaller to bundle openpyxl since subscripts are run dynamically via runpy
 import openpyxl
 
-
 APP_NAME = "CKG Helper Beta"
 USERNAME_ENV = "CKG_USERNAME"
 PASSWORD_ENV = "CKG_PASSWORD"
@@ -86,6 +85,7 @@ def print_welcome(app_root: Path) -> None:
     print("- Jangan buka file Excel di aplikasi lain saat proses berjalan.")
     print("- Login CKG disimpan otomatis di file .env pada folder ini.")
     print("- Browser Chromium diunduh otomatis sekali saja (butuh internet).")
+    print("Jika ada kendala, silahkan hubungi melalui Telegram @stywn93")
 
 
 def read_env_file(env_path: Path) -> dict[str, str]:
@@ -167,7 +167,7 @@ def ensure_chromium_installed() -> bool:
     print("\nChromium browser belum terpasang.")
     print("CKG Helper perlu mengunduh browser otomatis satu kali saja.")
     print("Ukuran download dapat mencapai ratusan MB, tergantung versi Playwright.")
-    answer = input("Lanjutkan download sekarang? (Y/N): ").strip().lower()
+    answer = input("Lanjutkan download sekarang? (Y/n): ").strip().lower()
     if answer not in {"y", "ya"}:
         print("Dibatalkan. Pilih menu ini lagi saat siap mengunduh Chromium.")
         return False
