@@ -282,9 +282,13 @@ class ScreeningNakes:
     def do_hasil_kramer(self, data: dict, row_number: int) -> None:
         print("Skrining Hasil Kramer pada Bayi Kuning dimulai")
         self.page.locator('[id="rowfrm000240"]').click()
-        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.formatter(data["nilai_hasil_kramer"])
-        ).click()
+        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("#sq_100i_list [role='option']").filter(
+            has_text=self.formatter(data["nilai_hasil_kramer"])).first.click()
+        
+        # self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        #     has_text=self.formatter(data["nilai_hasil_kramer"])
+        # ).click()
         self.page.locator("input:has-text('Kirim')").click()
         print("Skrining Hasil Kramer pada Bayi Kuning selesai")
 

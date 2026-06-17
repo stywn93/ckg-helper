@@ -117,6 +117,7 @@ DEWASA_NAKES_PEREMPUAN_SCREENINGS = [
     "do_kusta",
     "do_skabies",
     "do_telinga_mata",
+    "do_telinga_mata_18_39",
     "do_karies",
     "do_periodontal",
     "do_ppok",
@@ -344,7 +345,8 @@ def main():
             index = row_entry["row_number"]
             data = row_entry["data"]
             try:
-                search_patient(page, data, index)
+                examination_status = search_patient(page, data, index)
+                # search_patient(page, data, index)
                 badge = page.locator("div.border-rd-full.px-3.py-1").first
                 badge.wait_for(state="visible", timeout=15000)
                 badge_text = badge.inner_text().strip()
@@ -364,6 +366,10 @@ def main():
                     if gender == "Laki-Laki":
                         print("Skrining Laki-Laki Dewasa")
                         print("============== Skrining Mandiri Dimulai ==============")
+                        if examination_status == "Belum Pemeriksaan":
+                            #butuh perbaikan di sini untuk memilih tanggal
+                            page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
+                            page.locator("button.btn-fill-primary:has-text('Simpan')").click()
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
                         run_screening_steps(
                             screening_mandiri, DEWASA_MANDIRI_LAKI_SCREENINGS, data, index, page
@@ -380,6 +386,11 @@ def main():
                     elif gender == "Perempuan":
                         print("Skrining Perempuan Dewasa")
                         print("============== Skrining Mandiri Dimulai ==============")
+                        if examination_status == "Belum Pemeriksaan":
+                            #butuh perbaikan di sini untuk memilih tanggal
+                            page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
+                            page.locator("button.btn-fill-primary:has-text('Simpan')").click()
+                            print("Mulai Pemeriksaan dan Simpan berhasil diklik")
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
                         run_screening_steps(
                             screening_mandiri, DEWASA_MANDIRI_PEREMPUAN_SCREENINGS, data, index, page
