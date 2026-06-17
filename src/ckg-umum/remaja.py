@@ -328,6 +328,10 @@ def main():
                     elif gender == "Perempuan":
                         print("Skrining Perempuan Remaja")
                         print("============== Skrining Mandiri Dimulai ==============")
+                        if examination_status == "Belum Pemeriksaan":
+                            #butuh perbaikan di sini untuk memilih tanggal
+                            page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
+                            page.locator("button.btn-fill-primary:has-text('Simpan')").click()
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
                         run_screening_steps(screening_mandiri, TEENAGER_MANDIRI_SCREENINGS, data, index, page)
                         print("============== Skrining Mandiri Selesai ==============")
