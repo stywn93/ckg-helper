@@ -2,6 +2,72 @@
 
 CKG-Helper adalah tool otomatisasi untuk skrining kesehatan pada platform Sehat Indonesia Ku (CKG) milik Kementerian Kesehatan Indonesia. Tool ini menggunakan Playwright untuk mengotomatisasi proses skrining kesehatan untuk berbagai kategori pasien.
 
+## Beta: Penggunaan Tanpa Install Python
+
+Untuk pengguna non-teknis, gunakan paket beta hasil build untuk Windows atau macOS. Pengguna cukup menjalankan aplikasi terminal dan memilih menu.
+
+Menu yang tersedia:
+
+```text
+1. Pendaftaran Baru
+2. Konfirmasi Kehadiran
+3. CKG Umum Anak
+4. CKG Umum Remaja
+5. CKG Umum Dewasa
+6. CKG Umum Lansia
+0. Keluar
+```
+
+Isi folder release:
+
+```text
+ckg-helper atau ckg-helper.exe
+Jalankan CKG Helper.command / Jalankan CKG Helper.bat
+dataset/
+.env.example
+browsers/          (dibuat otomatis saat pertama kali download Chromium)
+.env               (dibuat otomatis saat pertama kali login)
+```
+
+Cara menjalankan:
+
+- **Cara termudah:** double-click `Jalankan CKG Helper.command` (macOS) atau `Jalankan CKG Helper.bat` (Windows)
+- Windows (manual): buka Command Prompt atau PowerShell di folder release, lalu jalankan `.\ckg-helper.exe`
+- macOS (manual): buka Terminal di folder release, lalu jalankan `./ckg-helper`
+
+Saat pertama kali dijalankan:
+
+- Jika file `.env` belum ada, aplikasi akan meminta username dan password CKG lalu menyimpannya di `.env`.
+- Jika Chromium Playwright belum terpasang, aplikasi akan meminta izin untuk mengunduh Chromium otomatis satu kali.
+- File Excel harus berada di folder `dataset/` yang satu folder dengan aplikasi.
+- Kolom `status` pada Excel akan diperbarui selama proses berjalan.
+
+Catatan beta:
+
+- Paket Windows dan macOS harus dibuat terpisah pada sistem operasi masing-masing.
+- Download Chromium pertama kali membutuhkan koneksi internet dan disimpan di folder `browsers/` pada folder aplikasi.
+- Jangan buka file Excel yang sedang diproses di Microsoft Excel/Numbers karena aplikasi perlu menulis status ke file tersebut.
+
+### Troubleshooting rilis
+
+**macOS — aplikasi tidak bisa dibuka (Gatekeeper)**
+
+Jika macOS memblokir aplikasi dari developer tidak dikenal:
+
+1. Buka Terminal di folder `dist/`
+2. Jalankan: `xattr -cr "Jalankan CKG Helper.command" ckg-helper`
+3. Coba double-click launcher lagi
+
+Atau: System Settings → Privacy & Security → Allow.
+
+**Windows — SmartScreen memblokir**
+
+Klik "More info" → "Run anyway" pada peringatan SmartScreen.
+
+**Download Chromium gagal**
+
+Periksa koneksi internet, proxy/firewall kantor, atau antivirus. Hapus folder `browsers/` lalu jalankan ulang dan pilih download lagi.
+
 ## 📋 Fitur
 
 - **Otomatisasi Skrining Kesehatan**: Mengotomatisasi proses skrining untuk berbagai kategori pasien
@@ -40,7 +106,29 @@ CKG-Helper/
         └── screening_nakes.py    # Class untuk skrining oleh nakes
 ```
 
-## 🚀 Instalasi
+## Build Paket Beta
+
+Install dependency build:
+
+```bash
+pip install -r requirements-build.txt
+```
+
+Build macOS:
+
+```bash
+./scripts/build_macos.sh
+```
+
+Build Windows:
+
+```powershell
+.\scripts\build_windows.ps1
+```
+
+Hasil build ada di folder `dist/`. Folder `dataset/` akan disalin ke `dist/dataset/` supaya file Excel tetap bisa diedit dan ditulis statusnya.
+
+## 🚀 Instalasi Developer
 
 ### Prasyarat
 
@@ -91,7 +179,13 @@ CKG_SCREENING_UI_TIMEOUT_MS=5000  # Timeout untuk elemen UI (default: 2000-5000 
 CKG_DEBUG_RAISE_ERRORS=0          # Set ke 1 untuk raise errors saat debugging
 ```
 
-## 📖 Penggunaan
+## 📖 Penggunaan Developer
+
+### Launcher Terminal
+
+```bash
+python ckg_helper.py
+```
 
 ### Menjalankan Skrining untuk Setiap Kategori
 
