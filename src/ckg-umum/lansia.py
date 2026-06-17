@@ -347,7 +347,7 @@ def main():
             index = row_entry["row_number"]
             data = row_entry["data"]
             try:
-                search_patient(page, data, index)
+                examination_status = search_patient(page, data, index)
                 badge = page.locator("div.border-rd-full.px-3.py-1").first
                 badge.wait_for(state="visible", timeout=15000)
                 badge_text = badge.inner_text().strip()
@@ -367,6 +367,10 @@ def main():
                     if gender == "Laki-Laki":
                         print("Skrining Laki-Laki Lansia")
                         print("============== Skrining Mandiri Dimulai ==============")
+                        if examination_status == "Belum Pemeriksaan":
+                            #butuh perbaikan di sini untuk memilih tanggal
+                            page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
+                            page.locator("button.btn-fill-primary:has-text('Simpan')").click()
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
                         run_screening_steps(screening_mandiri, LANSIA_MANDIRI_SCREENINGS, data, index, page)
                         print("============== Skrining Mandiri Selesai ==============")
@@ -379,6 +383,10 @@ def main():
                     elif gender == "Perempuan":
                         print("Skrining Perempuan Lansia")
                         print("============== Skrining Mandiri Dimulai ==============")
+                        if examination_status == "Belum Pemeriksaan":
+                            #butuh perbaikan di sini untuk memilih tanggal
+                            page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
+                            page.locator("button.btn-fill-primary:has-text('Simpan')").click()
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
                         run_screening_steps(screening_mandiri, LANSIA_MANDIRI_SCREENINGS, data, index, page)
                         print("============== Skrining Mandiri Selesai ==============")
