@@ -2,8 +2,12 @@ __pycache__/
 *.py[cod]
 .venv/
 .env
-todo.md
+
 ~*
 .idea/
+.envasb
+todo.md
 working.md
 remaja-unused.md
+AGENTS.md
+docs/agent-workflow.md
