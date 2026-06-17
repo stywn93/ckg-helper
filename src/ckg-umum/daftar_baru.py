@@ -15,7 +15,9 @@ from playwright_window_layout import launch_chromium_with_layout
 from date_picker import DatePicker
 from excel import ExcelStatusWorkbook, format_cell_value
 
-load_dotenv()
+PROJECT_ROOT = Path(os.getenv("CKG_PROJECT_ROOT", Path(__file__).resolve().parents[2]))
+
+load_dotenv(PROJECT_ROOT / ".env")
 
 USERNAME_ENV = "CKG_USERNAME"
 PASSWORD_ENV = "CKG_PASSWORD"
@@ -147,7 +149,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     # page.wait_for_load_state("networkidle")
 
 def main():
-    excel_path = "dataset/pendaftaran_umum.xlsx"
+    excel_path = PROJECT_ROOT / "dataset" / "pendaftaran_umum.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
     excel = ExcelStatusWorkbook(excel_path)

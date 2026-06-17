@@ -1,7 +1,6 @@
 import platform
 import subprocess
 import threading
-import tkinter as tk
 from dataclasses import dataclass
 
 
@@ -30,11 +29,17 @@ class PlaywrightWindowLayout:
 
 
 def get_playwright_window_layout() -> PlaywrightWindowLayout:
-    root = tk.Tk()
-    root.withdraw()
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-    root.destroy()
+    try:
+        import tkinter as tk
+        root = tk.Tk()
+        root.withdraw()
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        root.destroy()
+    except ImportError:
+        # Fallback to standard 1920x1080 resolution if tkinter is not installed
+        screen_width = 1920
+        screen_height = 1080
 
     browser_width = int(screen_width * 2 / 3)
     inspector_width = screen_width - browser_width
