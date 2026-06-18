@@ -94,10 +94,15 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     try:
         tanggal.wait_for(state="visible", timeout=3000)
         tanggal.click()
-        page.get_by_role("button", name="Selanjutnya").click()
+        print("try condition fulfilled")
+        selanjutnya = page.get_by_role("button", name="Selanjutnya").click()
+        print(selanjutnya)
+        page.pause()
     except PlaywrightTimeoutError:
+        print("exception condition fulfilled")
         page.pause()
         page.get_by_role("button", name="Selanjutnya").click()
+        page.get_by_role("button", name="Lanjut", exact=True).click()
 
     btn_recheck = page.locator("button:has-text('Periksa Kembali')").first
     btn_success = page.locator("button:has-text('Lanjutkan')").first
@@ -141,8 +146,13 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
 
     page.get_by_role("button", name="Selanjutnya").click()
     page.wait_for_timeout(1500)
-    page.get_by_role("button", name="Daftarkan Tanpa NIK").click()
-    page.wait_for_timeout(1500)
+    try:
+        page.get_by_role("button", name="Daftarkan Tanpa NIK").click(timeout=5000)
+    except:
+        page.get_by_role("button", name="Pilih", exact=True).click()
+        page.wait_for_timeout(1500)
+        page.get_by_role("button", name="Daftarkan dengan NIK").click()
+        page.wait_for_timeout(1500)
     page.wait_for_load_state("networkidle")
     page.get_by_role("button", name="Tutup").click()
     # page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
