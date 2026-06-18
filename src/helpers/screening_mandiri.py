@@ -10,7 +10,7 @@ class ScreeningMandiri:
 
         self.page.locator("label").filter(
             has_text=self.formatter(data["status_perkawinan"])
-        ).click()
+        ).first.click()
 
         if data["status_perkawinan"] != "Menikah":
             self.page.locator("label").filter(

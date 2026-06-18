@@ -1,7 +1,9 @@
 import os
 import re
 import sys
+import time
 from pathlib import Path
+
 
 HELPERS_DIR = Path(__file__).resolve().parents[1] / "helpers"
 if str(HELPERS_DIR) not in sys.path:
@@ -14,7 +16,7 @@ from playwright_window_layout import launch_chromium_with_layout
 
 from date_picker import DatePicker
 from excel import ExcelStatusWorkbook, format_cell_value
-
+from custom_exceptions import SkipRowException
 PROJECT_ROOT = Path(os.getenv("CKG_PROJECT_ROOT", Path(__file__).resolve().parents[2]))
 
 load_dotenv(PROJECT_ROOT / ".env")
@@ -68,48 +70,26 @@ def login_and_wait_for_profile(page, username: str, password: str) -> None:
             f"dalam {LOGIN_SUCCESS_TIMEOUT_MS} ms. URL saat ini: {page.url}"
         ) from exc
 
+def wait_for_first_visible(page, locators_dict, timeout=5000):
+    """
+    Waits for the first element in the dict to become visible.
+    Returns the key of the element that became visible.
+    """
+    start_time = time.time()
+    while time.time() - start_time < (timeout / 1000):
+        for key, locator in locators_dict.items():
+            if locator.is_visible():
+                return key
+        time.sleep(0.5)
+    raise PlaywrightTimeoutError("None of the expected buttons appeared")
 
-def register_single_entry(page, data: dict, row_number: int, date_picker: DatePicker) -> None:
-    prepare_registration_page(page)
-
-    nik_input = page.locator("form input#nik")
-    nik_input.fill(format_cell_value(data["nik"]))
-    page.locator('input#Nama\\ Lengkap').fill(format_cell_value(data["nama_lengkap"]))
-
-    date_picker.select(
-        page.locator("#Tanggal\\ Lahir .mx-input-wrapper"),
-        format_cell_value(data["tgl_lahir"]),
-    )
-    page.get_by_text("Pilih jenis kelamin", exact=True).click()
-    page.locator("div.absolute.top-13.z-2000").get_by_text(
-        format_cell_value(data["gender"]),
-        exact=True,
-    ).click()
-    
-    page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
-
-
-    panel = page.locator("div:has(> .text-\\[20px\\].font-bold:text('Tanggal Pemeriksaan'))")
-    tanggal = panel.get_by_role("button", name=format_cell_value(data["tgl_pemeriksaan"])).nth(1)
-    try:
-        tanggal.wait_for(state="visible", timeout=3000)
-        tanggal.click()
-        print("try condition fulfilled")
-        selanjutnya = page.get_by_role("button", name="Selanjutnya").click()
-        print(selanjutnya)
-        page.pause()
-    except PlaywrightTimeoutError:
-        print("exception condition fulfilled")
-        page.pause()
-        page.get_by_role("button", name="Selanjutnya").click()
-        page.get_by_role("button", name="Lanjut", exact=True).click()
-
+def handle_periksa_kembali(page, data: dict, date_picker: DatePicker) -> None:
     btn_recheck = page.locator("button:has-text('Periksa Kembali')").first
     btn_success = page.locator("button:has-text('Lanjutkan')").first
     try:
         btn_recheck.wait_for(state="visible", timeout=3000)
         btn_recheck.click()
-        btn_recheck.wait_for(state="hidden", timeout=5000)
+        btn_recheck.wait_for(state="hidden", timeout=3000)
         checkbox = page.locator("input[name='noNik']")
         checkbox.set_checked(True, force=True)
         page.locator("input#nik\\ wali").fill(format_cell_value(data["nik_wali"]))
@@ -131,6 +111,111 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     except PlaywrightTimeoutError:
         btn_success.click()
 
+def register_single_entry(page, data: dict, row_number: int, date_picker: DatePicker) -> None:
+    prepare_registration_page(page)
+
+    nik_input = page.locator("form input#nik")
+    nik_input.fill(format_cell_value(data["nik"]))
+    page.locator('input#Nama\\ Lengkap').fill(format_cell_value(data["nama_lengkap"]))
+
+    date_picker.select(
+        page.locator("#Tanggal\\ Lahir .mx-input-wrapper"),
+        format_cell_value(data["tgl_lahir"]),
+    )
+    page.get_by_text("Pilih jenis kelamin", exact=True).click()
+    page.locator("div.absolute.top-13.z-2000").get_by_text(
+        format_cell_value(data["gender"]),
+        exact=True,
+    ).click()
+    
+    page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
+    print("Silahkan pilih tanggal pemeriksaan lalu tunggu, maks 5 detik...")
+    page.wait_for_timeout(5000)
+    page.get_by_role("button", name="Selanjutnya").click()
+
+    # ===================
+    locators = {
+        "periksa_kembali" : page.locator("button:has-text('Periksa Kembali')").first,
+        "quota_penuh" : page.get_by_role("button", name="Lanjut", exact=True)
+    }
+
+    found = wait_for_first_visible(page, locators)
+
+    if found == "periksa_kembali":
+        handle_periksa_kembali(page, data, date_picker)
+    elif found == "quota_penuh":
+        btnQuotaPenuh = page.get_by_role("button", name="Lanjut", exact=True)
+        try:
+            btnQuotaPenuh.wait_for(state="visible", timeout=3000)
+            btnQuotaPenuh.click()
+            next_found = wait_for_first_visible(page, {
+                "cari_individu": page.get_by_role("button", name="Cari Individu", exact=True),
+                "lanjutkan": page.get_by_role("button", name="Lanjutkan", exact=True),
+            })
+            if next_found == "cari_individu":
+                print("pasien ini sudah menerima CKG")
+                raise SkipRowException("Pasien ini sudah menerima CKG")
+            else:
+                page.get_by_role("button", name="Lanjutkan", exact=True).click()
+                # print("belum dilaksanakan CKG")
+        except PlaywrightTimeoutError as exc:
+            print("Info: Quota hari terpilih masih tersedia, melanjutkan...")
+            handle_periksa_kembali(page, data, date_picker)
+            pass
+
+    # ===================
+
+    # btnQuotaPenuh = page.get_by_role("button", name="Lanjut", exact=True)
+    # try:
+    #     btnQuotaPenuh.wait_for(state="visible", timeout=3000)
+    #     btnQuotaPenuh.click()
+    #     btnQuotaPenuh.wait_for(state="hidden", timeout=3000)
+    # except PlaywrightTimeoutError as exc:
+    #     print("Info: Quota hari terpilih masih tersedia, melanjutkan...")
+    #     pass
+
+    # panel = page.locator("div:has(> .text-\\[20px\\].font-bold:text('Tanggal Pemeriksaan'))")
+    # tanggal = panel.get_by_role("button", name=format_cell_value(data["tgl_pemeriksaan"])).nth(1)
+    # try:
+    #     tanggal.wait_for(state="visible", timeout=3000)
+    #     tanggal.click()
+    #     # print("try condition fulfilled")
+    #     selanjutnya = page.get_by_role("button", name="Selanjutnya").click()
+    #     print(selanjutnya)
+    #     page.pause()
+    # except PlaywrightTimeoutError:
+    #     print("exception condition fulfilled")
+    #     page.pause()
+    #     page.get_by_role("button", name="Selanjutnya").click()
+    #     page.get_by_role("button", name="Lanjut", exact=True).click()
+
+    # btn_recheck = page.locator("button:has-text('Periksa Kembali')").first
+    # btn_success = page.locator("button:has-text('Lanjutkan')").first
+    # try:
+    #     btn_recheck.wait_for(state="visible", timeout=3000)
+    #     btn_recheck.click()
+    #     btn_recheck.wait_for(state="hidden", timeout=3000)
+    #     checkbox = page.locator("input[name='noNik']")
+    #     checkbox.set_checked(True, force=True)
+    #     page.locator("input#nik\\ wali").fill(format_cell_value(data["nik_wali"]))
+    #     page.locator('input[name="Nama Lengkap Wali"]').fill(format_cell_value(data["nama_wali"]))
+    #
+    #     date_picker.select(
+    #         page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),
+    #         format_cell_value(data["tgl_lahir_wali"]),
+    #     )
+    #
+    #     page.locator("div:has(> .text-gray-4:text('Pilih Jenis Kelamin'))").click()
+    #     page.locator(".max-h-\\[250px\\]").get_by_text(format_cell_value(data["gender_wali"]), exact=True).click()
+    #     page.locator("label").filter(has_text="No. Whatsapp Wali").locator('input[name="Nomor whatsapp"]').fill(
+    #         format_cell_value(data["no_whatsapp_wali"])
+    #     )
+    #     page.get_by_role("button", name="Selanjutnya").click()
+    #     page.locator("button:has-text('Lanjutkan')").click()
+    #
+    # except PlaywrightTimeoutError:
+    #     btn_success.click()
+
     page.get_by_text("Pilih status pernikahan", exact=True).click()
     page.get_by_text(format_cell_value(data["pernikahan"]), exact=True).click()
 
@@ -145,15 +230,19 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     page.locator("textarea#detail-domisili").fill(format_cell_value(data["domisili"]))
 
     page.get_by_role("button", name="Selanjutnya").click()
+    print("Mohon tunggu sedang memastikan ulang data...")
     page.wait_for_timeout(1500)
     try:
         page.get_by_role("button", name="Daftarkan Tanpa NIK").click(timeout=5000)
     except:
         page.get_by_role("button", name="Pilih", exact=True).click()
+        print("Tombol ditemukan, silahkan tunggu...")
         page.wait_for_timeout(1500)
         page.get_by_role("button", name="Daftarkan dengan NIK").click()
+        print("Pendaftaran dengan NIK berhasil, tunggu Nomor Tiket muncul...")
         page.wait_for_timeout(1500)
     page.wait_for_load_state("networkidle")
+    print("============ Pendaftaran Berhasil ===========")
     page.get_by_role("button", name="Tutup").click()
     # page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
     # page.wait_for_load_state("networkidle")
@@ -184,6 +273,8 @@ def main():
             try:
                 register_single_entry(page, data, index, date_picker)
                 excel.update_status(index, "SUCCESS")
+            except SkipRowException as exc:
+                excel.update_status(index, f"SKIPPED: {str(exc)}")
             except Exception as exc:
                 failed_rows.append(index)
                 excel.update_status(index, f"FAILED: {exc}")
