@@ -283,11 +283,11 @@ def main():
     excel = ExcelStatusWorkbook(excel_path)
     data_rows = excel.pending_rows()
     if not data_rows:
-        skipped_success_rows = excel.summary["skipped_success_rows"]
-        if skipped_success_rows:
+        skipped_rows = excel.summary["skipped_rows"]
+        if skipped_rows:
             print(
                 f"{Colors.WARNING}Tidak ada data yang perlu diproses. "
-                f"Baris {skipped_success_rows} dilewati karena status sudah SUCCESS.{Colors.ENDC}"
+                f"Baris {skipped_rows} dilewati karena status sudah selesai.{Colors.ENDC}"
             )
             print(f"{Colors.OKCYAN}Kosongkan kolom status untuk memproses ulang baris tersebut.{Colors.ENDC}")
         else:

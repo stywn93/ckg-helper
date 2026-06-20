@@ -19,7 +19,7 @@ class ExcelStatusWorkbook:
         self._ensure_status_column()
         self.summary = {
             "empty_rows": 0,
-            "skipped_success_rows": [],
+            "skipped_rows": [],
             "total_data_rows": self.sheet.max_row - 1,
         }
 
@@ -31,7 +31,7 @@ class ExcelStatusWorkbook:
     def pending_rows(self) -> list[dict]:
         rows = []
         self.summary["empty_rows"] = 0
-        self.summary["skipped_success_rows"] = []
+        self.summary["skipped_rows"] = []
 
         for row_number, row in enumerate(self.sheet.iter_rows(min_row=2, values_only=True), start=2):
             if not any(row):
@@ -39,8 +39,9 @@ class ExcelStatusWorkbook:
                 continue
 
             data = dict(zip(self.headers, row))
-            if str(data.get(self.status_column)).strip().upper() == "SUCCESS":
-                self.summary["skipped_success_rows"].append(row_number)
+            status = str(data.get(self.status_column)).strip().upper()
+            if status in ["SUCCESS", "PASIEN INI SUDAH MENERIMA CKG"]:
+                self.summary["skipped_rows"].append(row_number)
                 continue
 
             rows.append({"row_number": row_number, "data": data})
