@@ -8,6 +8,17 @@ from pathlib import Path
 HELPERS_DIR = Path(__file__).resolve().parents[1] / "helpers"
 if str(HELPERS_DIR) not in sys.path:
     sys.path.insert(0, str(HELPERS_DIR))
+class Colors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 PROJECT_ROOT = Path(os.getenv("CKG_PROJECT_ROOT", Path(__file__).resolve().parents[2]))
 
 from dotenv import load_dotenv
@@ -212,20 +223,20 @@ def search_patient(page, data: dict, row_number: int) -> str:
     for examination_status in EXAMINATION_STATUS_SEARCH_ORDER:
         try:
             print(
-                f"Baris {row_number}: mencari pasien pada status "
-                f"{examination_status}."
+                f"{Colors.OKCYAN}Baris {row_number}: mencari pasien pada status "
+                f"{examination_status}.{Colors.ENDC}"
             )
             search_patient_with_status(page, data, examination_status)
             print(
-                f"Baris {row_number}: pasien ditemukan pada status "
-                f"{examination_status}."
+                f"{Colors.OKGREEN}Baris {row_number}: pasien ditemukan pada status "
+                f"{examination_status}.{Colors.ENDC}"
             )
             break
         except PlaywrightTimeoutError as exc:
             last_error = exc
             print(
-                f"Baris {row_number}: pasien tidak ditemukan pada status "
-                f"{examination_status}."
+                f"{Colors.WARNING}Baris {row_number}: pasien tidak ditemukan pada status "
+                f"{examination_status}.{Colors.ENDC}"
             )
     else:
         raise RuntimeError(
@@ -235,7 +246,7 @@ def search_patient(page, data: dict, row_number: int) -> str:
     page.wait_for_load_state("networkidle")
     page.wait_for_timeout(3000)
     for remaining_seconds in range(3, 0, -1):
-        print(f"Menunggu halaman pemeriksaan tampil... {remaining_seconds} detik")
+        print(f"{Colors.OKCYAN}Menunggu halaman pemeriksaan tampil... {remaining_seconds} detik{Colors.ENDC}")
         page.wait_for_timeout(1000)
     # print("end of search_patient")
     return examination_status
@@ -294,22 +305,22 @@ def run_screening_steps(screening, method_names: list[str], data: dict, row_numb
     for method_name in method_names:
         method = getattr(screening, method_name, None)
         if method is None:
-            print(f"Skip {method_name}: function tidak ditemukan.")
+            print(f"{Colors.WARNING}Skip {method_name}: function tidak ditemukan.{Colors.ENDC}")
             continue
 
         if not is_screening_form_available(page, method):
             print(
-                f"Skip {method_name}: elemen UI form tidak ditemukan "
-                f"dalam {SCREENING_UI_TIMEOUT_MS} ms."
+                f"{Colors.WARNING}Skip {method_name}: elemen UI form tidak ditemukan "
+                f"dalam {SCREENING_UI_TIMEOUT_MS} ms.{Colors.ENDC}"
             )
             continue
 
         try:
-            print(f"Menjalankan {method_name}")
+            print(f"{Colors.OKCYAN}Menjalankan {method_name}{Colors.ENDC}")
             method(data, row_number)
             page.wait_for_load_state("networkidle")
         except PlaywrightTimeoutError as exc:
-            print(f"Skip {method_name}: elemen UI tidak ditemukan atau tidak tampil. Detail: {exc}")
+            print(f"{Colors.WARNING}Skip {method_name}: elemen UI tidak ditemukan atau tidak tampil. Detail: {exc}{Colors.ENDC}")
             close_active_screening_form(page)
 
 
@@ -323,12 +334,12 @@ def main():
         skipped_success_rows = excel.summary["skipped_success_rows"]
         if skipped_success_rows:
             print(
-                "Tidak ada data yang perlu diproses. "
-                f"Baris {skipped_success_rows} dilewati karena status sudah SUCCESS."
+                f"{Colors.WARNING}Tidak ada data yang perlu diproses. "
+                f"Baris {skipped_success_rows} dilewati karena status sudah SUCCESS.{Colors.ENDC}"
             )
-            print("Kosongkan kolom status untuk memproses ulang baris tersebut.")
+            print(f"{Colors.OKCYAN}Kosongkan kolom status untuk memproses ulang baris tersebut.{Colors.ENDC}")
         else:
-            print("Tidak ada data pada file Excel.")
+            print(f"{Colors.WARNING}Tidak ada data pada file Excel.{Colors.ENDC}")
             print("")
         return
 
@@ -365,35 +376,35 @@ def main():
                     )
                     gender = gender_locator.inner_text().strip()
                     if gender == "Laki-Laki":
-                        print("Skrining Laki-Laki Lansia")
-                        print("============== Skrining Mandiri Dimulai ==============")
+                        print(f"{Colors.OKCYAN}Skrining Laki-Laki Lansia{Colors.ENDC}")
+                        print(f"{Colors.BOLD}============== Skrining Mandiri Dimulai =============={Colors.ENDC}")
                         if examination_status == "Belum Pemeriksaan":
                             #butuh perbaikan di sini untuk memilih tanggal
                             page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
                             page.locator("button.btn-fill-primary:has-text('Simpan')").click()
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
                         run_screening_steps(screening_mandiri, LANSIA_MANDIRI_SCREENINGS, data, index, page)
-                        print("============== Skrining Mandiri Selesai ==============")
-                        print("============== Skrining Oleh Nakes Dimulai ==============")
+                        print(f"{Colors.BOLD}============== Skrining Mandiri Selesai =============={Colors.ENDC}")
+                        print(f"{Colors.BOLD}============== Skrining Oleh Nakes Dimulai =============={Colors.ENDC}")
                         screening_nakes = ScreeningNakes(page, format_cell_value)
                         run_screening_steps(screening_nakes, LANSIA_NAKES_LAKI_SCREENINGS, data, index, page)
-                        print("============== Skrining Oleh Nakes Selesai ==============")
+                        print(f"{Colors.BOLD}============== Skrining Oleh Nakes Selesai =============={Colors.ENDC}")
                         excel.update_status(index, "SUCCESS")
                         # page.pause()
                     elif gender == "Perempuan":
-                        print("Skrining Perempuan Lansia")
-                        print("============== Skrining Mandiri Dimulai ==============")
+                        print(f"{Colors.OKCYAN}Skrining Perempuan Lansia{Colors.ENDC}")
+                        print(f"{Colors.BOLD}============== Skrining Mandiri Dimulai =============={Colors.ENDC}")
                         if examination_status == "Belum Pemeriksaan":
                             #butuh perbaikan di sini untuk memilih tanggal
                             page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
                             page.locator("button.btn-fill-primary:has-text('Simpan')").click()
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
                         run_screening_steps(screening_mandiri, LANSIA_MANDIRI_SCREENINGS, data, index, page)
-                        print("============== Skrining Mandiri Selesai ==============")
-                        print("============== Skrining Oleh Nakes Dimulai ==============")
+                        print(f"{Colors.BOLD}============== Skrining Mandiri Selesai =============={Colors.ENDC}")
+                        print(f"{Colors.BOLD}============== Skrining Oleh Nakes Dimulai =============={Colors.ENDC}")
                         screening_nakes = ScreeningNakes(page, format_cell_value)
                         run_screening_steps(screening_nakes, LANSIA_NAKES_PEREMPUAN_SCREENINGS, data, index, page)
-                        print("============== Skrining Oleh Nakes Selesai ==============")
+                        print(f"{Colors.BOLD}============== Skrining Oleh Nakes Selesai =============={Colors.ENDC}")
                         excel.update_status(index, "SUCCESS")
 
 

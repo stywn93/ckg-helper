@@ -17,6 +17,17 @@ from playwright_window_layout import launch_chromium_with_layout
 from date_picker import DatePicker
 from excel import ExcelStatusWorkbook, format_cell_value
 from custom_exceptions import SkipRowException
+class Colors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 PROJECT_ROOT = Path(os.getenv("CKG_PROJECT_ROOT", Path(__file__).resolve().parents[2]))
 
 load_dotenv(PROJECT_ROOT / ".env")
@@ -113,7 +124,9 @@ def handle_periksa_kembali(page, data: dict, date_picker: DatePicker) -> None:
 
 def register_single_entry(page, data: dict, row_number: int, date_picker: DatePicker) -> None:
     prepare_registration_page(page)
-
+    print()
+    print(f"{Colors.BOLD}======================={Colors.ENDC}")
+    print(f"{Colors.OKBLUE}Nama : {format_cell_value(data['nama_lengkap'])}{Colors.ENDC}")
     nik_input = page.locator("form input#nik")
     nik_input.fill(format_cell_value(data["nik"]))
     page.locator('input#Nama\\ Lengkap').fill(format_cell_value(data["nama_lengkap"]))
@@ -129,8 +142,11 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     ).click()
     
     page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
-    print("Silahkan pilih tanggal pemeriksaan lalu tunggu, maks 5 detik...")
-    page.wait_for_timeout(5000)
+    print(f"{Colors.OKCYAN}Silahkan pilih tanggal pemeriksaan lalu tunggu...{Colors.ENDC}")
+    page.wait_for_timeout(2500)
+    for remaining_seconds in range(5, 0, -1):
+        print(".")
+        page.wait_for_timeout(1000)
     page.get_by_role("button", name="Selanjutnya").click()
 
     # ===================
@@ -153,13 +169,13 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
                 "lanjutkan": page.get_by_role("button", name="Lanjutkan", exact=True),
             })
             if next_found == "cari_individu":
-                print("pasien ini sudah menerima CKG")
+                print(f"{Colors.WARNING}pasien ini sudah menerima CKG{Colors.ENDC}")
                 raise SkipRowException("Pasien ini sudah menerima CKG")
             else:
                 page.get_by_role("button", name="Lanjutkan", exact=True).click()
                 # print("belum dilaksanakan CKG")
         except PlaywrightTimeoutError as exc:
-            print("Info: Quota hari terpilih masih tersedia, melanjutkan...")
+            print(f"{Colors.OKCYAN}Info: Quota hari terpilih masih tersedia, melanjutkan...{Colors.ENDC}")
             handle_periksa_kembali(page, data, date_picker)
             pass
 
@@ -230,19 +246,26 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     page.locator("textarea#detail-domisili").fill(format_cell_value(data["domisili"]))
 
     page.get_by_role("button", name="Selanjutnya").click()
-    print("Mohon tunggu sedang memastikan ulang data...")
+    print(f"{Colors.OKCYAN}Mohon tunggu sedang menunggu respon dari server CKG secara lengkap...{Colors.ENDC}")
     page.wait_for_timeout(1500)
     try:
         page.get_by_role("button", name="Daftarkan Tanpa NIK").click(timeout=5000)
+        print(f"{Colors.OKGREEN}Pendaftaran tanpa NIK berhasil, tunggu Nomor Tiket muncul...{Colors.ENDC}")
     except:
         page.get_by_role("button", name="Pilih", exact=True).click()
-        print("Tombol ditemukan, silahkan tunggu...")
-        page.wait_for_timeout(1500)
+        print(f"{Colors.OKCYAN}Tombol ditemukan, silahkan tunggu...{Colors.ENDC}")
+        # page.wait_for_timeout(1500)
         page.get_by_role("button", name="Daftarkan dengan NIK").click()
-        print("Pendaftaran dengan NIK berhasil, tunggu Nomor Tiket muncul...")
+        try:
+            page.get_by_role("button", name="Ok", exact=True).click(timeout=2000)
+            print(f"{Colors.FAIL}{Colors.BOLD}DUKCAPIL NOTICE{Colors.ENDC}")
+            raise SkipRowException("DUKCAPIL NOTICE")
+        except PlaywrightTimeoutError as exc:
+            pass
+        print(f"{Colors.OKGREEN}Pendaftaran dengan NIK berhasil, tunggu Nomor Tiket muncul...{Colors.ENDC}")
         page.wait_for_timeout(1500)
     page.wait_for_load_state("networkidle")
-    print("============ Pendaftaran Berhasil ===========")
+    print(f"{Colors.OKGREEN}{Colors.BOLD}============ Pendaftaran Berhasil ==========={Colors.ENDC}")
     page.get_by_role("button", name="Tutup").click()
     # page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
     # page.wait_for_load_state("networkidle")
@@ -254,7 +277,7 @@ def main():
     excel = ExcelStatusWorkbook(excel_path)
     data_rows = excel.pending_rows()
     if not data_rows:
-        print("Tidak ada data pada file Excel.")
+        print(f"{Colors.WARNING}Tidak ada data pada file Excel.{Colors.ENDC}")
         return
 
     with sync_playwright() as p:
@@ -274,12 +297,13 @@ def main():
                 register_single_entry(page, data, index, date_picker)
                 excel.update_status(index, "SUCCESS")
             except SkipRowException as exc:
-                excel.update_status(index, f"SKIPPED: {str(exc)}")
+                # excel.update_status(index, f"SKIPPED: {str(exc)}")
+                excel.update_status(index, str(exc))
             except Exception as exc:
                 failed_rows.append(index)
                 excel.update_status(index, f"FAILED: {exc}")
                 # print(f"Baris Excel {index} gagal diproses: {exc}")
-
+        print(f"{Colors.OKCYAN}Pendaftaran selesai, silahkan buka kembali file Excel Anda. Jika ditemukan DUKCAPIL NOTICE maka jalankan kembali agar diproses ulang.{Colors.ENDC}")
         context.close()
         browser.close()
 

@@ -15,6 +15,17 @@ from playwright_window_layout import launch_chromium_with_layout, pause_with_ins
 from date_picker import DatePicker
 from excel import ExcelStatusWorkbook, format_cell_value
 
+class Colors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 PROJECT_ROOT = Path(os.getenv("CKG_PROJECT_ROOT", Path(__file__).resolve().parents[2]))
 
 load_dotenv(PROJECT_ROOT / ".env")
@@ -68,6 +79,7 @@ def login_and_wait_for_profile(page, username: str, password: str) -> None:
 
 def searchPatient(page, data: dict, row_number: int, window_layout, date_picker: DatePicker) -> None:
     prepare_registration_page(page)
+    print(f"{Colors.OKCYAN}Memulai proses pencarian...{Colors.ENDC}")
 
     date_picker.select(
         page.locator('[id="Tanggal Pemeriksaan"]'),
@@ -84,7 +96,6 @@ def searchPatient(page, data: dict, row_number: int, window_layout, date_picker:
         confirm_button.wait_for(state="visible", timeout=3000)
     except PlaywrightTimeoutError:
         raise RuntimeError("Pencarian tidak memberikan hasil atau tombol Konfirmasi Hadir tidak muncul.")
-
     confirm_button.click()
     checkbox = page.locator("input[name='verify']")
     if checkbox.count() > 0:
@@ -97,7 +108,7 @@ def searchPatient(page, data: dict, row_number: int, window_layout, date_picker:
         page.get_by_role("button", name="Tutup", exact=True).click()
 
     #inspect again
-    pause_with_inspector_layout(page, window_layout)
+    # pause_with_inspector_layout(page, window_layout)
 
 
 
@@ -108,7 +119,7 @@ def main():
     excel = ExcelStatusWorkbook(excel_path)
     data_rows = excel.pending_rows()
     if not data_rows:
-        print("Tidak ada data pada file Excel.")
+        print(f"{Colors.WARNING}Tidak ada data pada file Excel.{Colors.ENDC}")
         return
 
     with sync_playwright() as p:
