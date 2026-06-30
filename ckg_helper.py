@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 # Force PyInstaller to bundle openpyxl since subscripts are run dynamically via runpy
 import openpyxl
 
-APP_NAME = "CKG Helper Beta"
+APP_NAME = "CKG Helper Beta 0.2.3"
 USERNAME_ENV = "CKG_USERNAME"
 PASSWORD_ENV = "CKG_PASSWORD"
 
@@ -84,8 +84,7 @@ def print_welcome(app_root: Path) -> None:
     print(f"- Folder data Excel: {app_root / 'dataset'}")
     print("- Jangan buka file Excel di aplikasi lain saat proses berjalan.")
     print("- Login CKG disimpan otomatis di file .env pada folder ini.")
-    print("- Browser Chromium diunduh otomatis sekali saja (butuh internet).")
-    print("Jika ada kendala, silahkan hubungi melalui Telegram @stywn93")
+    print("- Jika ada kendala, silahkan hubungi melalui Telegram @stywn93")
 
 
 def read_env_file(env_path: Path) -> dict[str, str]:
