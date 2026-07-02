@@ -20,11 +20,16 @@ cp .env.example dist/.env.example
 cp "scripts/Jalankan CKG Helper.command" "dist/Jalankan CKG Helper.command"
 chmod +x "dist/Jalankan CKG Helper.command"
 
+rm -rf dist/kamus
+mkdir -p dist/kamus
+cp docs/skrining-nakes.pdf docs/skrining-mandiri.pdf dist/kamus/
+
 echo ""
 echo "Build selesai:"
 echo "  dist/ckg-helper"
 echo "  dist/Jalankan CKG Helper.command"
 echo "  dist/dataset/"
+echo "  dist/kamus/"
 echo ""
 echo "Jalankan dengan double-click:"
 echo "  dist/Jalankan CKG Helper.command"
