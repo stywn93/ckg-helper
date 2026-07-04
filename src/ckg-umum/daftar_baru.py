@@ -3,6 +3,8 @@ import re
 import sys
 import time
 from pathlib import Path
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 HELPERS_DIR = Path(__file__).resolve().parents[1] / "helpers"
@@ -122,6 +124,18 @@ def handle_periksa_kembali(page, data: dict, date_picker: DatePicker) -> None:
     except PlaywrightTimeoutError:
         btn_success.click()
 
+def isi_data_wali(page, data: dict, date_picker: DatePicker) -> None:
+    page.locator("input#nik\\ wali").fill(format_cell_value(data["nik_wali"]))
+    page.locator('input[name="Nama Lengkap Wali"]').fill(format_cell_value(data["nama_wali"]))
+
+    date_picker.select(page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),format_cell_value(data["tgl_lahir_wali"]),)
+
+    page.locator("div:has(> .text-gray-4:text('Pilih Jenis Kelamin'))").click()
+    page.locator(".max-h-\\[250px\\]").get_by_text(format_cell_value(data["gender_wali"]), exact=True).click()
+    page.locator("label").filter(has_text="No. Whatsapp Wali").locator('input[name="Nomor whatsapp"]').fill(
+        format_cell_value(data["no_whatsapp_wali"])
+    )
+
 def register_single_entry(page, data: dict, row_number: int, date_picker: DatePicker) -> None:
     prepare_registration_page(page)
     print()
@@ -142,12 +156,43 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     ).click()
     
     page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
-    print(f"{Colors.OKCYAN}Silahkan pilih tanggal pemeriksaan lalu tunggu...{Colors.ENDC}")
-    page.wait_for_timeout(2500)
-    for remaining_seconds in range(5, 0, -1):
-        print(".")
-        page.wait_for_timeout(1000)
+
+    # Select a specific day button by exact day number (avoids "1" matching "11", "12"...)
+    dob = datetime.strptime(format_cell_value(data['tgl_lahir']), "%Y-%m-%d")
+    today = datetime.now(ZoneInfo("Asia/Jakarta"))
+
+    # Raw day difference
+    # if diff > 21915 or diff < 2191 then do isi data wali
+    diff = today.date() - dob.date()
+    print(f"Total days: {diff.days}")
+
+    day = datetime.now().day
+    day_button = page.locator("button").filter(
+        has=page.locator("span.font-bold", has_text=re.compile(rf"^{day}$"))
+    )
+    day_button.click()
+    if diff.days > 21915 or diff.days < 2191:
+        print("try to call isi data wali")
+        isi_data_wali(page, data, date_picker)
     page.get_by_role("button", name="Selanjutnya").click()
+
+
+
+    # Opsi 1 jika sudah menerima CKG
+
+    # Opsi 2 jika belum menerima CKG
+    next_found = wait_for_first_visible(page, {
+        "cari_individu": page.get_by_role("button", name="Cari Individu", exact=True),
+        "lanjutkan": page.get_by_role("button", name="Lanjutkan", exact=True),
+    })
+    if next_found == "cari_individu":
+        print(f"{Colors.WARNING}pasien ini sudah menerima CKG{Colors.ENDC}")
+        # raise SkipRowException("Pasien ini sudah menerima CKG")
+    else:
+        print(f"{Colors.WARNING}pasien belum menerima CKG{Colors.ENDC}")
+        # page.get_by_role("button", name="Lanjutkan", exact=True).click()
+
+    page.pause()
 
     # ===================
     locators = {

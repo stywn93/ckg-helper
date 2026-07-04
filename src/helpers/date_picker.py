@@ -16,7 +16,7 @@ class DatePicker:
 
         trigger_locator.click()
         page = trigger_locator.page
-        popup = page.locator(".mx-datepicker-popup")
+        popup = page.locator(".mx-datepicker-popup").last
 
         month_btn = popup.locator(".mx-btn-current-month")
         year_btn = popup.locator(".mx-btn-current-year")
