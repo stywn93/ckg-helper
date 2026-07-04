@@ -164,118 +164,72 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     # Raw day difference
     # if diff > 21915 or diff < 2191 then do isi data wali
     diff = today.date() - dob.date()
-    print(f"Total days: {diff.days}")
+    # print(f"Total days: {diff.days}")
 
     day = datetime.now().day
+    # day = 7
     day_button = page.locator("button").filter(
         has=page.locator("span.font-bold", has_text=re.compile(rf"^{day}$"))
     )
     day_button.click()
     if diff.days > 21915 or diff.days < 2191:
-        print("try to call isi data wali")
+        # print("try to call isi data wali")
         isi_data_wali(page, data, date_picker)
     page.get_by_role("button", name="Selanjutnya").click()
+    # page.pause()
 
 
 
     # Opsi 1 jika sudah menerima CKG
-
     # Opsi 2 jika belum menerima CKG
-    next_found = wait_for_first_visible(page, {
-        "cari_individu": page.get_by_role("button", name="Cari Individu", exact=True),
-        "lanjutkan": page.get_by_role("button", name="Lanjutkan", exact=True),
-    })
-    if next_found == "cari_individu":
-        print(f"{Colors.WARNING}pasien ini sudah menerima CKG{Colors.ENDC}")
-        # raise SkipRowException("Pasien ini sudah menerima CKG")
-    else:
-        print(f"{Colors.WARNING}pasien belum menerima CKG{Colors.ENDC}")
-        # page.get_by_role("button", name="Lanjutkan", exact=True).click()
-
-    page.pause()
-
-    # ===================
     locators = {
-        "periksa_kembali" : page.locator("button:has-text('Periksa Kembali')").first,
-        "quota_penuh" : page.get_by_role("button", name="Lanjut", exact=True)
+        "quota_habis" : page.get_by_role("button", name="Lanjut", exact=True),
+        "cari_individu": page.get_by_role("button", name="Cari Individu", exact=True), #jika sudah menerima CKG
+        "lanjutkan": page.get_by_role("button", name="Lanjutkan", exact=True), #jika NIK valid dan belum menerima CKG
+        "periksa_kembali": page.get_by_role("button", name="Periksa Kembali", exact=True), #jika NIK tidak valid
     }
 
     found = wait_for_first_visible(page, locators)
+    print(found)
+    # page.pause()
+    if found == "quota_habis":
+        print("Quota Pemeriksaan habis")
+        locators["quota_habis"].click()
+        # page.pause()
+        next_found = wait_for_first_visible(page, locators)
+        print(f"next_found : {next_found}")
+        if next_found == "periksa_kembali":
+            locators["periksa_kembali"].click()
+            page.locator("input#tidak-punya-nik[type='checkbox']").click(force=True)
+            page.get_by_role("button", name="Selanjutnya", exact=True).click()
+            next_found_2 = wait_for_first_visible(page, locators)
+            if(next_found_2 == "quota_habis"):
+                locators["quota_habis"].click()
+                next_found_3 = wait_for_first_visible(page, locators)
+                if(next_found_3 == "lanjutkan"):
+                    locators["lanjutkan"].click()
+            elif next_found_2 == "lanjutkan":
+                locators["lanjutkan"].click()
+        elif next_found == "cari_individu":
+            print(f"{Colors.WARNING}pasien ini sudah menerima CKG{Colors.ENDC}")
+            raise SkipRowException("Pasien ini sudah menerima CKG")
+        elif next_found == "lanjutkan":
+            locators["lanjutkan"].click()
+        # print(f"next_found {next_found}")
+    elif found == "periksa_kembali":
+        locators["periksa_kembali"].click()
+        page.locator("input#tidak-punya-nik[type='checkbox']").click(force=True)
+        page.get_by_role("button", name="Selanjutnya", exact=True).click()
+        next_found = wait_for_first_visible(page, locators)
+        if next_found == "lanjutkan":
+            locators["lanjutkan"].click()
+    elif found == "cari_individu":
+        print(f"{Colors.WARNING}pasien ini sudah menerima CKG{Colors.ENDC}")
+        raise SkipRowException("Pasien ini sudah menerima CKG")
+    else:
+        print(f"{Colors.WARNING}pasien belum menerima CKG{Colors.ENDC}")
+        page.get_by_role("button", name="Lanjutkan", exact=True).click()
 
-    if found == "periksa_kembali":
-        handle_periksa_kembali(page, data, date_picker)
-    elif found == "quota_penuh":
-        btnQuotaPenuh = page.get_by_role("button", name="Lanjut", exact=True)
-        try:
-            btnQuotaPenuh.wait_for(state="visible", timeout=3000)
-            btnQuotaPenuh.click()
-            next_found = wait_for_first_visible(page, {
-                "cari_individu": page.get_by_role("button", name="Cari Individu", exact=True),
-                "lanjutkan": page.get_by_role("button", name="Lanjutkan", exact=True),
-            })
-            if next_found == "cari_individu":
-                print(f"{Colors.WARNING}pasien ini sudah menerima CKG{Colors.ENDC}")
-                raise SkipRowException("Pasien ini sudah menerima CKG")
-            else:
-                page.get_by_role("button", name="Lanjutkan", exact=True).click()
-                # print("belum dilaksanakan CKG")
-        except PlaywrightTimeoutError as exc:
-            print(f"{Colors.OKCYAN}Info: Quota hari terpilih masih tersedia, melanjutkan...{Colors.ENDC}")
-            handle_periksa_kembali(page, data, date_picker)
-            pass
-
-    # ===================
-
-    # btnQuotaPenuh = page.get_by_role("button", name="Lanjut", exact=True)
-    # try:
-    #     btnQuotaPenuh.wait_for(state="visible", timeout=3000)
-    #     btnQuotaPenuh.click()
-    #     btnQuotaPenuh.wait_for(state="hidden", timeout=3000)
-    # except PlaywrightTimeoutError as exc:
-    #     print("Info: Quota hari terpilih masih tersedia, melanjutkan...")
-    #     pass
-
-    # panel = page.locator("div:has(> .text-\\[20px\\].font-bold:text('Tanggal Pemeriksaan'))")
-    # tanggal = panel.get_by_role("button", name=format_cell_value(data["tgl_pemeriksaan"])).nth(1)
-    # try:
-    #     tanggal.wait_for(state="visible", timeout=3000)
-    #     tanggal.click()
-    #     # print("try condition fulfilled")
-    #     selanjutnya = page.get_by_role("button", name="Selanjutnya").click()
-    #     print(selanjutnya)
-    #     page.pause()
-    # except PlaywrightTimeoutError:
-    #     print("exception condition fulfilled")
-    #     page.pause()
-    #     page.get_by_role("button", name="Selanjutnya").click()
-    #     page.get_by_role("button", name="Lanjut", exact=True).click()
-
-    # btn_recheck = page.locator("button:has-text('Periksa Kembali')").first
-    # btn_success = page.locator("button:has-text('Lanjutkan')").first
-    # try:
-    #     btn_recheck.wait_for(state="visible", timeout=3000)
-    #     btn_recheck.click()
-    #     btn_recheck.wait_for(state="hidden", timeout=3000)
-    #     checkbox = page.locator("input[name='noNik']")
-    #     checkbox.set_checked(True, force=True)
-    #     page.locator("input#nik\\ wali").fill(format_cell_value(data["nik_wali"]))
-    #     page.locator('input[name="Nama Lengkap Wali"]').fill(format_cell_value(data["nama_wali"]))
-    #
-    #     date_picker.select(
-    #         page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),
-    #         format_cell_value(data["tgl_lahir_wali"]),
-    #     )
-    #
-    #     page.locator("div:has(> .text-gray-4:text('Pilih Jenis Kelamin'))").click()
-    #     page.locator(".max-h-\\[250px\\]").get_by_text(format_cell_value(data["gender_wali"]), exact=True).click()
-    #     page.locator("label").filter(has_text="No. Whatsapp Wali").locator('input[name="Nomor whatsapp"]').fill(
-    #         format_cell_value(data["no_whatsapp_wali"])
-    #     )
-    #     page.get_by_role("button", name="Selanjutnya").click()
-    #     page.locator("button:has-text('Lanjutkan')").click()
-    #
-    # except PlaywrightTimeoutError:
-    #     btn_success.click()
 
     page.get_by_text("Pilih status pernikahan", exact=True).click()
     page.get_by_text(format_cell_value(data["pernikahan"]), exact=True).click()
@@ -292,15 +246,28 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
 
     page.get_by_role("button", name="Selanjutnya").click()
     print(f"{Colors.OKCYAN}Mohon tunggu sedang menunggu respon dari server CKG secara lengkap...{Colors.ENDC}")
+    # page.pause()
     page.wait_for_timeout(1500)
+    # Seharusnya menunggu apakah tombol pilih muncul
+    # jika tombol pilih muncul maka klik tombol pilih
+    # jika tombol pilih di-klik maka klik Daftarkan dengan NIK
+    # jika Daftarkan dengan NIK diklik, maka tunggu respon
+    # jika ada tombol Ok, maka Raise Exception
+    # jika tidak muncul maka klik Daftarkan tanpa NIK
+
     try:
         page.get_by_role("button", name="Daftarkan Tanpa NIK").click(timeout=5000)
+        try:
+            ok_button = page.get_by_role("button", name="Ok", exact=True)
+            ok_button.click()
+        except:
+            raise SkipRowException("Ada error dari respon server CKG")
         print(f"{Colors.OKGREEN}Pendaftaran tanpa NIK berhasil, tunggu Nomor Tiket muncul...{Colors.ENDC}")
     except:
         page.get_by_role("button", name="Pilih", exact=True).click()
         print(f"{Colors.OKCYAN}Tombol ditemukan, silahkan tunggu...{Colors.ENDC}")
-        # page.wait_for_timeout(1500)
         page.get_by_role("button", name="Daftarkan dengan NIK").click()
+        page.pause()
         try:
             page.get_by_role("button", name="Ok", exact=True).click(timeout=2000)
             print(f"{Colors.FAIL}{Colors.BOLD}DUKCAPIL NOTICE{Colors.ENDC}")
@@ -309,6 +276,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
             pass
         print(f"{Colors.OKGREEN}Pendaftaran dengan NIK berhasil, tunggu Nomor Tiket muncul...{Colors.ENDC}")
         page.wait_for_timeout(1500)
+
     page.wait_for_load_state("networkidle")
     print(f"{Colors.OKGREEN}{Colors.BOLD}============ Pendaftaran Berhasil ==========={Colors.ENDC}")
     page.get_by_role("button", name="Tutup").click()
