@@ -255,33 +255,35 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     # jika ada tombol Ok, maka Raise Exception
     # jika tidak muncul maka klik Daftarkan tanpa NIK
 
-    try:
-        page.get_by_role("button", name="Daftarkan Tanpa NIK").click(timeout=5000)
-        try:
-            ok_button = page.get_by_role("button", name="Ok", exact=True)
-            ok_button.click()
-        except:
-            raise SkipRowException("Ada error dari respon server CKG")
-        print(f"{Colors.OKGREEN}Pendaftaran tanpa NIK berhasil, tunggu Nomor Tiket muncul...{Colors.ENDC}")
-    except:
-        page.get_by_role("button", name="Pilih", exact=True).click()
-        print(f"{Colors.OKCYAN}Tombol ditemukan, silahkan tunggu...{Colors.ENDC}")
+    locators = {
+        "dengan_nik": page.get_by_role("button", name="Pilih"),
+        "tanpa_nik": page.get_by_role("button", name="Daftarkan tanpa NIK")
+    }
+    nik_found = wait_for_first_visible(page, locators)
+    print(f"nik_found = {nik_found}")
+    if(nik_found == "dengan_nik"):
+        locators["dengan_nik"].click()
+        print(f"{Colors.OKCYAN}NIK ditemukan, silahkan tunggu...{Colors.ENDC}")
         page.get_by_role("button", name="Daftarkan dengan NIK").click()
-        page.pause()
-        try:
-            page.get_by_role("button", name="Ok", exact=True).click(timeout=2000)
-            print(f"{Colors.FAIL}{Colors.BOLD}DUKCAPIL NOTICE{Colors.ENDC}")
-            raise SkipRowException("DUKCAPIL NOTICE")
-        except PlaywrightTimeoutError as exc:
-            pass
-        print(f"{Colors.OKGREEN}Pendaftaran dengan NIK berhasil, tunggu Nomor Tiket muncul...{Colors.ENDC}")
-        page.wait_for_timeout(1500)
+
+
+    elif(nik_found == "tanpa_nik"):
+        locators["tanpa_nik"].click()
 
     page.wait_for_load_state("networkidle")
-    print(f"{Colors.OKGREEN}{Colors.BOLD}============ Pendaftaran Berhasil ==========={Colors.ENDC}")
-    page.get_by_role("button", name="Tutup").click()
-    # page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
-    # page.wait_for_load_state("networkidle")
+
+    locators = {
+        "exception": page.get_by_role("button", name="Ok", exact=True),
+        "tutup": page.get_by_role("button", name="Tutup")
+    }
+    exception_found = wait_for_first_visible(page, locators)
+    if (exception_found == "exception"):
+        locators["exception"].click()
+        raise SkipRowException("Ada error dari Server CKG")
+    else:
+        locators["tutup"].click()
+        print(f"{Colors.OKGREEN}{Colors.BOLD}============ Pendaftaran Berhasil ==========={Colors.ENDC}")
+
 
 def main():
     excel_path = PROJECT_ROOT / "dataset" / "pendaftaran_umum.xlsx"
