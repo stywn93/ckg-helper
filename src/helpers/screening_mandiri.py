@@ -1,7 +1,37 @@
 class ScreeningMandiri:
+    _SCREENING_KEYS = {
+        "do_demografi_dewasa": "skrining_demografi_dewasa",
+        "do_demografi_dewasa_perempuan": "skrining_demografi_dewasa",
+        "do_demografi_lansia": "skrining_demografi_lansia",
+        "do_demografi_anak": "skrining_demografi_anak",
+        "do_risiko_malaria": "skrining_risiko_malaria",
+        "do_cemas_anak": "skrining_cemas_anak",
+        "do_gejala_depresi_anak": "skrining_gejala_depresi_anak",
+        "do_riwayat_imunisasi_rutin_anak_sekolah": "skrining_imunisasi_rutin_anak_sekolah",
+        "do_risiko_hepatitis_sd": "skrining_risiko_hepatitis_sd",
+        "do_risiko_tb_anak": "skrining_risiko_tb_anak",
+        "do_risiko_gula_darah_anak": "skrining_risiko_gula_darah_anak",
+        "do_imunisasi_rutin_balita": "skrining_imunisasi_rutin_balita",
+        "do_risiko_kanker_usus": "skrining_risiko_kanker_usus",
+        "do_risiko_tb": "skrining_risiko_tb",
+        "do_hati": "skrining_hati",
+        "do_leher_rahim": "skrining_leher_rahim",
+        "do_keswa": "skrining_keswa",
+        "do_imunisasi_tetanus": "skrining_imunisasi_tetanus",
+        "do_risiko_kanker_paru": "skrining_risiko_kanker_paru",
+        "do_perilaku_merokok": "skrining_perilaku_merokok",
+        "do_aktivitas_fisik": "skrining_aktivitas_fisik",
+    }
+
     def __init__(self, page, formatter):
         self.page = page
         self.formatter = formatter
+
+    def _should_run(self, data:dict, key: str) -> bool:
+        value = data.get(key)
+        if value is None or str(value).strip() == "":
+            return False
+        return self.formatter(value) == "Ya"
 
     def required(self, data: dict, key: str) -> str:
         value = data.get(key)
@@ -9,7 +39,12 @@ class ScreeningMandiri:
             raise ValueError(f"kolom {key} tidak boleh kosong")
         return self.formatter(value)
 
+
     def do_demografi_dewasa(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_demografi_dewasa"]):
+            print("Skrining Demografi Dewasa Dilewati (Tidak Aktif)")
+            return
+
         print("Skrining Demografi Dewasa Dimulai")
 
         self.page.locator('[id="rowfrm000006"]').click()
