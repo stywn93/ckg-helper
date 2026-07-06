@@ -1,9 +1,9 @@
 class ScreeningMandiri:
     _SCREENING_KEYS = {
-        "do_demografi_dewasa": "skrining_demografi_dewasa",
-        "do_demografi_dewasa_perempuan": "skrining_demografi_dewasa",
-        "do_demografi_lansia": "skrining_demografi_lansia",
-        "do_demografi_anak": "skrining_demografi_anak",
+        "do_demografi_dewasa": "skrining_demografi",
+        "do_demografi_dewasa_perempuan": "skrining_demografi",
+        "do_demografi_lansia": "skrining_demografi",
+        "do_demografi_anak": "skrining_demografi",
         "do_risiko_malaria": "skrining_risiko_malaria",
         "do_cemas_anak": "skrining_cemas_anak",
         "do_gejala_depresi_anak": "skrining_gejala_depresi_anak",
@@ -12,13 +12,13 @@ class ScreeningMandiri:
         "do_risiko_tb_anak": "skrining_risiko_tb_anak",
         "do_risiko_gula_darah_anak": "skrining_risiko_gula_darah_anak",
         "do_imunisasi_rutin_balita": "skrining_imunisasi_rutin_balita",
-        "do_risiko_kanker_usus": "skrining_risiko_kanker_usus",
+        "do_risiko_kanker_usus": "skrining_kanker_usus",
         "do_risiko_tb": "skrining_risiko_tb",
         "do_hati": "skrining_hati",
-        "do_leher_rahim": "skrining_leher_rahim",
-        "do_keswa": "skrining_keswa",
+        "do_leher_rahim": "skrining_kanker_leher_rahim",
+        "do_keswa": "skrining_kesehatan_jiwa",
         "do_imunisasi_tetanus": "skrining_imunisasi_tetanus",
-        "do_risiko_kanker_paru": "skrining_risiko_kanker_paru",
+        "do_risiko_kanker_paru": "skrining_kanker_paru",
         "do_perilaku_merokok": "skrining_perilaku_merokok",
         "do_aktivitas_fisik": "skrining_aktivitas_fisik",
     }
@@ -46,13 +46,10 @@ class ScreeningMandiri:
             return
 
         print("Skrining Demografi Dewasa Dimulai")
-
         self.page.locator('[id="rowfrm000006"]').click()
-
         self.page.locator("label").filter(
             has_text=self.required(data, "status_perkawinan")
         ).first.click()
-
         if data["status_perkawinan"] != "Menikah":
             self.page.locator("label").filter(
                 has_text=self.required(data, "rencana_menikah")
@@ -67,6 +64,9 @@ class ScreeningMandiri:
         print("Skrining Demografi Dewasa Selesai")
 
     def do_demografi_dewasa_perempuan(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_demografi_dewasa_perempuan"]):
+            print("Skrining Demografi Dewasa Dilewati (Tidak Aktif)")
+            return
         print("Skrining Demografi Dewasa Perempuan Dimulai")
         self.page.locator('[id="rowfrm000007"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -89,6 +89,9 @@ class ScreeningMandiri:
         print("Skrining Demografi Dewasa Perempuan Selesai")
 
     def do_demografi_lansia(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_demografi_lansia"]):
+            print("Skrining Demografi Lansia Dilewati (Tidak Aktif)")
+            return
         print("Skrining Demografi Lansia Dimulai")
         self.page.locator('[id="rowfrm000008"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -104,6 +107,9 @@ class ScreeningMandiri:
         print("Skrining Demografi Lansia Selesai")
 
     def do_demografi_anak(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_demografi_anak"]):
+            print("Skrining Demografi Dewasa Dilewati (Tidak Aktif)")
+            return
         print("Skrining Demografi Anak Dimulai")
         self.page.locator('[id="rowfrm000106"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -114,6 +120,9 @@ class ScreeningMandiri:
         print("Skrining Demografi Anak Selesai")
 
     def do_risiko_malaria(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_risiko_malaria"]):
+            print("Skrining Risiko Malaria Dilewati (Tidak Aktif)")
+            return
         print("Skrining Risiko Malaria Dimulai")
         self.page.locator('[id="rowfrm000115"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -133,6 +142,9 @@ class ScreeningMandiri:
         print("Skrining Risiko Malaria Selesai")
 
     def do_cemas_anak(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_cemas_anak"]):
+            print("Skrining Cemas Anak Dilewati (Tidak Aktif)")
+            return
         print("Skrining Cemas Anak Dimulai")
         self.page.locator('[id="rowfrm000109"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -149,6 +161,9 @@ class ScreeningMandiri:
         print("Skrining Cemas Anak Selesai")
 
     def do_gejala_depresi_anak(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_gejala_depresi_anak"]):
+            print("Skrining Gejala Depresi Anak Dilewati (Tidak Aktif)")
+            return
         print("Skrining Gejala Depresi Anak Dimulai")
         self.page.locator('[id="rowfrm000124"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -165,6 +180,9 @@ class ScreeningMandiri:
         print("Skrining Gejala Depresi Anak Selesai")
 
     def do_riwayat_imunisasi_rutin_anak_sekolah(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_riwayat_imunisasi_rutin_anak_sekolah"]):
+            print("Skrining Riwayat Imunisasi Rutin Anak Sekolah Dilewati (Tidak Aktif)")
+            return
         print("Skrining Riwayat Imunisasi Rutin Anak Sekolah Dimulai")
         self.page.locator('[id="rowfrm000129"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
@@ -175,6 +193,9 @@ class ScreeningMandiri:
         print("Skrining Riwayat Imunisasi Rutin Anak Sekolah Selesai")
 
     def do_risiko_hepatitis_sd(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_risiko_hepatitis_sd"]):
+            print("Skrining Risiko Hepatitis SD Dilewati (Tidak Aktif)")
+            return
         print("Skrining Risiko Hepatitis SD Dimulai")
         self.page.locator('[id="rowfrm000114"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -194,6 +215,9 @@ class ScreeningMandiri:
         print("Skrining Risiko Hepatitis SD Selesai")
 
     def do_risiko_tb_anak(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_risiko_tb_anak"]):
+            print("Skrining Risiko TB Anak Dilewati (Tidak Aktif)")
+            return
         print("Skrining Risiko TB Anak 1-9 Tahun Dimulai")
         self.page.locator('[id="rowfrm000174"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -204,6 +228,9 @@ class ScreeningMandiri:
         print("Skrining Risiko TB Anak 1-9 Tahun Selesai")
 
     def do_risiko_gula_darah_anak(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_risiko_gula_darah_anak"]):
+            print("Skrining Risiko Gula Darah Anak Dilewati (Tidak Aktif)")
+            return
         print("Skrining Risiko Gula Darah Anak Dimulai")
         self.page.locator('[id="rowfrm000110"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -229,6 +256,9 @@ class ScreeningMandiri:
         print("Skrining Risiko Gula Darah Anak Selesai")
 
     def do_imunisasi_rutin_balita(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_imunisasi_rutin_balita"]):
+            print("Skrining Imunisasi Rutin Balita Dilewati (Tidak Aktif)")
+            return
         print("Skrining Imunisasi Rutin Balita Dimulai")
         self.page.locator('[id="rowfrm000171"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
@@ -299,6 +329,9 @@ class ScreeningMandiri:
         print("Skrining Imunisasi Rutin Balita Selesai")
 
     def do_risiko_kanker_usus(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_risiko_kanker_usus"]):
+            print("Skrining Kanker Usus Dilewati (Tidak Aktif)")
+            return
         print("Skrining Risiko Kanker Usus Dimulai")
         self.page.locator('[id="rowfrm000027"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -311,6 +344,9 @@ class ScreeningMandiri:
         print("Skrining Risiko Kanker Usus Selesai")
 
     def do_risiko_tb(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_risiko_tb"]):
+            print("Skrining Risiko TB Dilewati (Tidak Aktif)")
+            return
         print("Skrining Risiko TB Dimulai")
         self.page.locator('[id="rowfrm000180"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -320,6 +356,9 @@ class ScreeningMandiri:
         print("Skrining Risiko Kanker Usus Selesai")
 
     def do_hati(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_hati"]):
+            print("Skrining Hati Dilewati (Tidak Aktif)")
+            return
         print("Skrining Hati Dimulai")
         self.page.locator('[id="rowfrm000028"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -353,6 +392,9 @@ class ScreeningMandiri:
         print("Skrining Hati Selesai")
 
     def do_leher_rahim(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_leher_rahim"]):
+            print("Skrining Kanker Leher Rahim Dilewati (Tidak Aktif)")
+            return
         print("Skrining Kanker Leher Rahim Dimulai")
         self.page.locator('[id="rowfrm000088"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -362,6 +404,9 @@ class ScreeningMandiri:
         print("Skrining Kanker Leher Rahim Selesai")
 
     def do_keswa(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_keswa"]):
+            print("Skrining Kesehatan Jiwa Dilewati (Tidak Aktif)")
+            return
         print("Skrining Kesehatan Jiwa Dimulai")
         self.page.locator('[id="rowfrm000067"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -398,6 +443,9 @@ class ScreeningMandiri:
         print("Skrining Imunisasi Tetanus (Status T) Selesai")
 
     def do_risiko_kanker_paru(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_risiko_kanker_paru"]):
+            print("Skrining Risiko Kanker Paru Dilewati (Tidak Aktif)")
+            return
         print("Skrining Kanker Paru Dimulai")
         self.page.locator('[id="rowfrm000138"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -436,6 +484,9 @@ class ScreeningMandiri:
         print("Skrining Kanker Paru Selesai")
 
     def do_perilaku_merokok(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_perilaku_merokok"]):
+            print("Skrining Perilaku Dilewati (Tidak Aktif)")
+            return
         print("Skrining Perilaku Merokok Dimulai")
         self.page.locator('[id="rowfrm000064"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -471,6 +522,9 @@ class ScreeningMandiri:
         print("Skrining Perilaku Merokok Selesai")
 
     def do_aktivitas_fisik(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_aktivitas_fisik"]):
+            print("Skrining Aktivitas Fisik Dilewati (Tidak Aktif)")
+            return
         print("Skrining Aktivitas Fisik Dimulai")
         self.page.locator('[id="rowfrm000169"]').click()
 
