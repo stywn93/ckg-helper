@@ -79,7 +79,8 @@ TEENAGER_MANDIRI_SCREENINGS = [
     "do_gejala_depresi_anak",
     "do_riwayat_imunisasi_rutin_anak_sekolah",
     "do_risiko_hepatitis_sd",
-    "do_risiko_tb_anak"
+    "do_risiko_tb_anak",
+    "do_risiko_tb"
 ]
 TEENAGER_NAKES_SCREENINGS = [
     "do_gizi_anak_sekolah",
@@ -87,6 +88,8 @@ TEENAGER_NAKES_SCREENINGS = [
     "do_gula_darah_anak",
     "do_telinga_mata_anak_sekolah",
     "do_risiko_tb_anak",
+    "do_risiko_tb",
+    "do_tb",
     "do_tb_anak",
     "do_frambusia",
     "do_kusta",
