@@ -24,8 +24,8 @@ class ScreeningNakes:
         "do_warna_kulit_dan_tinja_28": "skrining_warna_kulit_dan_tinja_28",
         "do_telinga_mata_anak": "skrining_telinga_mata_anak",
         "do_periksa_gigi_anak": "skrining_periksa_gigi_anak",
-        "do_gizi_laki": "skrining_gizi_laki",
-        "do_gizi_perempuan": "skrining_gizi_perempuan",
+        "do_gizi_laki": "skrining_gizi",
+        "do_gizi_perempuan": "skrining_gizi",
         "do_skilas_penurunan_kognitif": "skrining_skilas_penurunan_kognitif",
         "do_skilas_mobilisasi": "skrining_skilas_mobilisasi",
         "do_skilas_malnutrisi": "skrining_skilas_malnutrisi",
@@ -53,7 +53,7 @@ class ScreeningNakes:
         "do_fibrosis": "skrining_fibrosis",
         "do_hepatitis": "skrining_hepatitis",
         "do_fungsi_ginjal": "skrining_fungsi_ginjal",
-        "do_fungsi_ginjal_perempuan": "skrining_fungsi_ginjal_perempuan",
+        "do_fungsi_ginjal_perempuan": "skrining_fungsi_ginjal",
         "do_kerusakan_ginjal": "skrining_kerusakan_ginjal",
         "do_kanker_payudara": "skrining_kanker_payudara",
         "do_hpv_dna": "skrining_hpv_dna",
@@ -458,6 +458,9 @@ class ScreeningNakes:
         print("Skrining Pemeriksaan Gigi Anak selesai")
 
     def do_gizi_laki(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_gizi_laki"]):
+            print("Skrining Gizi Laki Dilewati (Tidak Aktif)")
+            return
         print("Skrining Gizi Laki dimulai")
         self.page.locator('[id="rowfrm000093"]').click()
         self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(self.required(data, "berat_badan"))
@@ -467,6 +470,9 @@ class ScreeningNakes:
         print("Skrining Gizi Laki selesai")
 
     def do_gizi_perempuan(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_gizi_perempuan"]):
+            print("Skrining Gizi Perempuan Dilewati (Tidak Aktif)")
+            return
         print("Skrining Gizi Perempuan dimulai")
         self.page.locator('[id="rowfrm000051"]').click()
         self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(self.required(data, "berat_badan"))
@@ -476,6 +482,9 @@ class ScreeningNakes:
         print("Skrining Gizi Perempuan selesai")
 
     def do_skilas_penurunan_kognitif(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_skilas_penurunan_kognitif"]):
+            print("Skrining Skilas Penurunan Kognitif Dilewati (Tidak Aktif)")
+            return
         print("Skrining SKILAS Penurunan Kognitif dimulai")
         self.page.locator('[id="rowfrm000029"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -491,6 +500,9 @@ class ScreeningNakes:
         print("Skrining SKILAS Penurunan Kognitif selesai")
 
     def do_skilas_mobilisasi(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_skilas_mobilisasi"]):
+            print("Skrining Skilas Mobilisasi Dilewati (Tidak Aktif)")
+            return
         print("Skrining SKILAS Mobilisasi dimulai")
         self.page.locator('[id="rowfrm000032"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -500,6 +512,9 @@ class ScreeningNakes:
         print("Skrining SKILAS Mobilisasi selesai")
 
     def do_skilas_malnutrisi(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_skilas_malnutrisi"]):
+            print("Skrining Skilas Malnutrisi Dilewati (Tidak Aktif)")
+            return
         print("Skrining SKILAS Malnutrisi dimulai")
         self.page.locator('[id="rowfrm000034"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -515,6 +530,9 @@ class ScreeningNakes:
         print("Skrining SKILAS Malnutrisi selesai")
 
     def do_skilas_depresi(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_skilas_depresi"]):
+            print("Skrining Skilas Gejala Depresi Dilewati (Tidak Aktif)")
+            return
         print("Skrining SKILAS Gejala Depresi dimulai")
         self.page.locator('[id="rowfrm000038"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
@@ -527,6 +545,9 @@ class ScreeningNakes:
         print("Skrining SKILAS Gejala Depresi selesai")
 
     def do_gangguan_fungsional(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_gangguan_fungsional"]):
+            print("Skrining Gangguan Fungsional Dilewati (Tidak Aktif)")
+            return
         print("Skrining Gangguan Fungsional dimulai")
         self.page.locator('[id="rowfrm000040"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
@@ -563,6 +584,9 @@ class ScreeningNakes:
         print("Skrining Gangguan Fungsional selesai")
 
     def do_mini_cog(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_mini_cog"]):
+            print("Skrining Mini COG Dilewati (Tidak Aktif)")
+            return
         print("Skrining Mini COG dimulai")
         self.page.locator('[id="rowfrm000030"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -578,6 +602,9 @@ class ScreeningNakes:
         print("Skrining Mini COG selesai")
 
     def do_ad8_ina(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_ad8_ina"]):
+            print("Skrining AD-8 INA Dilewati (Tidak Aktif)")
+            return
         print("Skrining AD-8 INA dimulai")
         self.page.locator('[id="rowfrm000031"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
@@ -608,6 +635,9 @@ class ScreeningNakes:
         print("Skrining AD-8 INA selesai")
 
     def do_mobilisasi_lanjutan(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_mobilisasi_lanjutan"]):
+            print("Skrining Mobilisasi Lanjutan Dilewati (Tidak Aktif)")
+            return
         print("Skrining Mobilisasi Lanjutan dimulai")
         self.page.locator('[id="rowfrm000033"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
@@ -629,6 +659,9 @@ class ScreeningNakes:
         print("Skrining Mobilisasi Lanjutan selesai")
 
     def do_malnutrisi_lanjutan(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_malnutrisi_lanjutan"]):
+            print("Skrining Malnutrisi Lanjutan Dilewati (Tidak Aktif)")
+            return
         print("Skrining Malnutrisi Lanjutan dimulai")
         self.page.locator('[id="rowfrm000035"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
@@ -656,6 +689,9 @@ class ScreeningNakes:
         print("Skrining Malnutrisi Lanjutan selesai")
 
     def do_depresi_lanjutan(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_depresi_lanjutan"]):
+            print("Skrining Depresi Lanjutan Dilewati (Tidak Aktif)")
+            return
         print("Skrining Depresi Lanjutan dimulai")
         self.page.locator('[id="rowfrm000039"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
@@ -674,6 +710,9 @@ class ScreeningNakes:
         print("Skrining Depresi Lanjutan selesai")
 
     def do_gula_darah_dewasa(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_gula_darah_dewasa"]):
+            print("Skrining Gizi Laki Dilewati (Tidak Aktif)")
+            return
         print("Skrining Gula Darah Dewasa dimulai")
         # do_pemeriksaan_check(page, "input#hasil-lab-0-1", True)
         self.page.locator('[id="rowfrm000256"]').click()
@@ -701,6 +740,9 @@ class ScreeningNakes:
         print("Skrining Gula Darah Dewasa selesai")
 
     def do_tekanan_darah_dewasa(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_tekanan_darah_dewasa"]):
+            print("Skrining Gizi Laki Dilewati (Tidak Aktif)")
+            return
         print("Skrining Tekanan Darah Dewasa dimulai")
         # do_pemeriksaan_check(page, "input#hasil-lab-0-2", True)
         self.page.locator('[id="rowfrm000265"]').click()
@@ -767,6 +809,9 @@ class ScreeningNakes:
         print("Skrining Telinga dan Mata (18-39 tahun) selesai")
 
     def do_risiko_tb(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_risiko_tb"]):
+            print("Skrining Risiko TB Dilewati (Tidak Aktif)")
+            return
         print("Skrining Risiko TB dimulai")
         # do_pemeriksaan_check(page, "input#hasil-lab-1-0", True)
         self.page.locator('[id="rowfrm000182"]').click()
@@ -801,6 +846,9 @@ class ScreeningNakes:
         # page.pause()
 
     def do_tb(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_tb"]):
+            print("Skrining TB Dilewati (Tidak Aktif)")
+            return
         print("Skrining TB dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-1-1']", True)
         self.page.locator('[id="rowfrm000184"]').click()
@@ -878,6 +926,9 @@ class ScreeningNakes:
         print("Skrining Skabies selesai")
 
     def do_telinga_mata(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_telinga_mata"]):
+            print("Skrining Telinga dan Mata Dilewati (Tidak Aktif)")
+            return
         print("Skrining Telinga dan Mata dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-3-0']", True)
         self.page.locator('[id="rowfrm000099"]').click()
@@ -920,6 +971,9 @@ class ScreeningNakes:
         print("Skrining Telinga dan Mata selesai")
 
     def do_karies(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_karies"]):
+            print("Skrining Karies Dilewati (Tidak Aktif)")
+            return
         print("Skrining Karies dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-4-0']", True)
         self.page.locator('[id="rowfrm000055"]').click()
@@ -933,6 +987,9 @@ class ScreeningNakes:
         print("Skrining Karies selesai")
 
     def do_periodontal(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_periodontal"]):
+            print("Skrining Periodontal Dilewati (Tidak Aktif)")
+            return
         print("Skrining Periodontal dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-4-1']", True)
         self.page.locator('[id="rowfrm000056"]').click()
@@ -946,6 +1003,9 @@ class ScreeningNakes:
         print("Skrining Periodontal selesai")
 
     def do_ppok(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_ppok"]):
+            print("Skrining PPOK Dilewati (Tidak Aktif)")
+            return
         print("Skrining PPOK dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-5-0']", True)
         self.page.locator('[id="rowfrm000101"]').click()
@@ -969,6 +1029,9 @@ class ScreeningNakes:
         print("Skrining PPOK selesai")
 
     def do_kadar_co(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_kadar_co"]):
+            print("Skrining Kadar CO Dilewati (Tidak Aktif)")
+            return
         print("Skrining Kadar CO dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-6-0']", True)
         self.page.locator('[id="rowfrm000186"]').click()
@@ -979,6 +1042,9 @@ class ScreeningNakes:
         print("Skrining Kadar CO selesai")
 
     def do_lipid(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_lipid"]):
+            print("Skrining Lipid Dilewati (Tidak Aktif)")
+            return
         print("Skrining Lipid dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-7-0']", True)
         self.page.locator('[id="rowfrm000047"]').click()
@@ -998,6 +1064,9 @@ class ScreeningNakes:
         print("Skrining Lipid selesai")
 
     def do_fibrosis(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_fibrosis"]):
+            print("Skrining Fibrosis Dilewati (Tidak Aktif)")
+            return
         print("Skrining Fibrosis dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-7-1']", True)
         self.page.locator('[id="rowfrm000045"]').click()
@@ -1011,6 +1080,9 @@ class ScreeningNakes:
         print("Skrining Fibrosis selesai")
 
     def do_hepatitis(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_hepatitis"]):
+            print("Skrining Hepatitis Dilewati (Tidak Aktif)")
+            return
         print("Skrining Hepatitis dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-7-2']", True)
         self.page.locator('[id="rowfrm000044"]').click()
@@ -1028,6 +1100,9 @@ class ScreeningNakes:
         print("Skrining Hepatitis selesai")
 
     def do_fungsi_ginjal(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_fungsi_ginjal"]):
+            print("Skrining Fungsi Ginjal Dilewati (Tidak Aktif)")
+            return
         print("Skrining Fungsi Ginjal dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-7-3']", True)
         self.page.locator('[id="rowfrm000244"]').click()
@@ -1047,6 +1122,9 @@ class ScreeningNakes:
         print("Skrining Fungsi Ginjal selesai")
 
     def do_fungsi_ginjal_perempuan(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_fungsi_ginjal_perempuan"]):
+            print("Skrining Fungsi Ginjal Dilewati (Tidak Aktif)")
+            return
         print("Skrining Fungsi Ginjal dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-7-3']", True)
         self.page.locator('[id="rowfrm000245"]').click()
@@ -1066,6 +1144,9 @@ class ScreeningNakes:
         print("Skrining Fungsi Ginjal selesai")
 
     def do_kerusakan_ginjal(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_kerusakan_ginjal"]):
+            print("Skrining Kerusakan Ginjal Dilewati (Tidak Aktif)")
+            return
         print("Skrining Kerusakan Ginjal dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-7-4']", True)
         self.page.locator('[id="rowfrm000248"]').click()
@@ -1134,6 +1215,9 @@ class ScreeningNakes:
         print("Skrining Inspekulo dan IVA selesai")
 
     def do_jantung(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_jantung"]):
+            print("Skrining Jantung Dilewati (Tidak Aktif)")
+            return
         print("Skrining Jantung dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-8-0']",True)  # butuh penyesuaian berdasarkan siklus hidupnya atau bisa juga tahapan ini dilewati dengan asumsi saat pertama kali dibuka semuanya akan Ya
         self.page.locator('[id="rowfrm000057"]').click()
@@ -1147,6 +1231,9 @@ class ScreeningNakes:
         print("Skrining Jantung selesai")
 
     def do_kanker_usus(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_kanker_usus"]):
+            print("Skrining Kanker Usus Dilewati (Tidak Aktif)")
+            return
         print("Skrining Kanker Usus dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-9-0']", True)
         self.page.locator('[id="rowfrm000050"]').click()
@@ -1163,6 +1250,9 @@ class ScreeningNakes:
         print("Skrining Kanker Usus selesai")
 
     def do_kanker_paru(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_kanker_paru"]):
+            print("Skrining Kanker Paru Dilewati (Tidak Aktif)")
+            return
         print("Skrining Kanker Paru dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-10-0']", True)
         self.page.locator('[id="rowfrm000041"]').click()
