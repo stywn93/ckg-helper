@@ -14,6 +14,7 @@ from playwright_window_layout import launch_chromium_with_layout, pause_with_ins
 
 from date_picker import DatePicker
 from excel import ExcelStatusWorkbook, format_cell_value
+from api_report import monitored_main
 
 class Colors:
     HEADER = '\033[95m'
@@ -112,7 +113,7 @@ def searchPatient(page, data: dict, row_number: int, window_layout, date_picker:
 
 
 
-def main():
+def main() -> dict:
     excel_path = PROJECT_ROOT / "dataset" / "konfirm_kehadiran.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
@@ -120,7 +121,9 @@ def main():
     data_rows = excel.pending_rows()
     if not data_rows:
         print(f"{Colors.WARNING}Tidak ada data pada file Excel.{Colors.ENDC}")
-        return
+        return {"status": "success"}
+
+    any_failed = False
 
     with sync_playwright() as p:
         browser, window_layout = launch_chromium_with_layout(p)
@@ -140,11 +143,16 @@ def main():
                 excel.update_status(index, "SUCCESS")
             except Exception as exc:
                 failed_rows.append(index)
+                any_failed = True
                 excel.update_status(index, f"FAILED: {exc}")
                 # print(f"Baris Excel {index} gagal diproses: {exc}")
 
         context.close()
         browser.close()
 
+    if any_failed:
+        return {"status": "failed", "error_message": f"{len(failed_rows)} baris gagal diproses"}
+    return {"status": "success"}
+
 if __name__ == "__main__":
-    main()
+    monitored_main("konfirm_kehadiran", main)

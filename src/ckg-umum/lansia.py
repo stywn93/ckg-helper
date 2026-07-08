@@ -29,6 +29,7 @@ from playwright_window_layout import launch_chromium_with_layout
 # coba gunakan helper
 from excel import ExcelStatusWorkbook, format_cell_value
 from screening_mandiri import ScreeningMandiri
+from api_report import monitored_main
 from screening_nakes import ScreeningNakes
 load_dotenv(PROJECT_ROOT / ".env")
 
@@ -324,7 +325,7 @@ def run_screening_steps(screening, method_names: list[str], data: dict, row_numb
             close_active_screening_form(page)
 
 
-def main():
+def main() -> dict:
     excel_path = PROJECT_ROOT / "dataset" / "lansia.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
@@ -341,7 +342,9 @@ def main():
         else:
             print(f"{Colors.WARNING}Tidak ada data pada file Excel.{Colors.ENDC}")
             print("")
-        return
+        return {"status": "success"}
+
+    any_failed = False
 
     with sync_playwright() as p:
         browser, _window_layout = launch_chromium_with_layout(p)
@@ -365,6 +368,7 @@ def main():
                 print(badge_text)
                 if badge_text != "Lansia":
                     excel.update_status(index, f"Gagal - ini bukan pasien lansia. Ini adalah pasien {badge_text}")
+                    any_failed = True
                     page.wait_for_load_state("networkidle")
                     continue
 
@@ -413,6 +417,7 @@ def main():
 
             except Exception as exc:
                 failed_rows.append(index)
+                any_failed = True
                 traceback.print_exc()
                 excel.update_status(index, f"FAILED: {exc}")
                 if os.getenv(DEBUG_RAISE_ERRORS_ENV) == "1":
@@ -421,6 +426,10 @@ def main():
         context.close()
         browser.close()
 
+    if any_failed:
+        return {"status": "failed", "error_message": f"{len(failed_rows)} baris gagal diproses"}
+    return {"status": "success"}
+
 
 if __name__ == "__main__":
-    main()
+    monitored_main("lansia", main)
