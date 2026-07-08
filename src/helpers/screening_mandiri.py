@@ -22,6 +22,7 @@ class ScreeningMandiri:
         "do_perilaku_merokok": "skrining_perilaku_merokok",
         "do_aktivitas_fisik": "skrining_aktivitas_fisik",
     }
+    
 
     def __init__(self, page, formatter):
         self.page = page
