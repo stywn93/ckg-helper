@@ -8,10 +8,11 @@ import urllib.request
 API_SECRET_KEY = "API_SECRET"
 API_BASE_URL_KEY = "API_BASE_URL"
 DEFAULT_API_BASE_URL = "https://playwright-status-api.stywn93.workers.dev"
+DEFAULT_API_SECRET = "0505f32f1a01fb8d950a23b6265634b79dad5de1f607a6bef42513dde53c0b03"
 
 
 def _get_api_config() -> tuple[str, str] | None:
-    secret = os.getenv(API_SECRET_KEY)
+    secret = os.getenv(API_SECRET_KEY) or DEFAULT_API_SECRET
     base_url = os.getenv(API_BASE_URL_KEY) or DEFAULT_API_BASE_URL
     if not secret:
         return None
