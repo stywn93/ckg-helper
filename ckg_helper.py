@@ -3,11 +3,13 @@ import os
 import runpy
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from dotenv import load_dotenv
 # Force PyInstaller to bundle openpyxl since subscripts are run dynamically via runpy
 import openpyxl
+from src.helpers.api_report import report_execution
 
 APP_NAME = "CKG Helper Beta 0.2.3"
 USERNAME_ENV = "CKG_USERNAME"
@@ -220,13 +222,20 @@ def run_selected_option(app_root: Path, option: dict[str, Path | str]) -> None:
     print(f"File data: {app_root / option['excel']}")
     print("Jangan tutup browser atau terminal sampai proses selesai.\n")
 
+    script_name = Path(option["script"]).stem
+
     old_cwd = Path.cwd()
     old_argv = sys.argv[:]
     sys.path.insert(0, str(script_path.parent))
     os.chdir(app_root)
     sys.argv = [str(script_path)]
+    start = time.monotonic()
     try:
         runpy.run_path(str(script_path), run_name="__main__")
+    except Exception as exc:
+        duration_ms = int((time.monotonic() - start) * 1000)
+        report_execution(script_name, "failed", duration_ms, str(exc))
+        raise
     finally:
         sys.argv = old_argv
         os.chdir(old_cwd)

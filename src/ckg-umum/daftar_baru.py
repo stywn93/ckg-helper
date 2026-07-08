@@ -19,6 +19,7 @@ from playwright_window_layout import launch_chromium_with_layout
 from date_picker import DatePicker
 from excel import ExcelStatusWorkbook, format_cell_value
 from custom_exceptions import SkipRowException
+from api_report import monitored_main
 class Colors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -285,7 +286,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
         print(f"{Colors.OKGREEN}{Colors.BOLD}============ Pendaftaran Berhasil ==========={Colors.ENDC}")
 
 
-def main():
+def main() -> dict:
     excel_path = PROJECT_ROOT / "dataset" / "pendaftaran_umum.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
@@ -293,7 +294,9 @@ def main():
     data_rows = excel.pending_rows()
     if not data_rows:
         print(f"{Colors.WARNING}Tidak ada data pada file Excel.{Colors.ENDC}")
-        return
+        return {"status": "success"}
+
+    any_failed = False
 
     with sync_playwright() as p:
         browser, _window_layout = launch_chromium_with_layout(p)
@@ -316,11 +319,16 @@ def main():
                 excel.update_status(index, str(exc))
             except Exception as exc:
                 failed_rows.append(index)
+                any_failed = True
                 excel.update_status(index, f"FAILED: {exc}")
                 # print(f"Baris Excel {index} gagal diproses: {exc}")
         print(f"{Colors.OKCYAN}Pendaftaran selesai, silahkan buka kembali file Excel Anda. Jika ditemukan DUKCAPIL NOTICE maka jalankan kembali agar diproses ulang.{Colors.ENDC}")
         context.close()
         browser.close()
 
+    if any_failed:
+        return {"status": "failed", "error_message": f"{len(failed_rows)} baris gagal diproses"}
+    return {"status": "success"}
+
 if __name__ == "__main__":
-    main()
+    monitored_main("daftar_baru", main)
