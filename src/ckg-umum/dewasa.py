@@ -440,4 +440,5 @@ def main() -> dict:
 
 
 if __name__ == "__main__":
-    monitored_main("dewasa", main)
+    username = os.getenv("CKG_USERNAME", "unknown")
+    monitored_main(f"dewasa - {username}", main)

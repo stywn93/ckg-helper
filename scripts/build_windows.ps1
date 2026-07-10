@@ -10,6 +10,7 @@ $PythonBin = if ($env:PYTHON_BIN) { $env:PYTHON_BIN } else { "python" }
   --onefile `
   --name ckg-helper `
   --collect-all playwright `
+  --hidden-import zoneinfo `
   --add-data "src;src" `
   ckg_helper.py
 

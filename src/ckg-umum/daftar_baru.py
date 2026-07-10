@@ -331,4 +331,5 @@ def main() -> dict:
     return {"status": "success"}
 
 if __name__ == "__main__":
-    monitored_main("daftar_baru", main)
+    username = os.getenv("CKG_USERNAME", "unknown")
+    monitored_main(f"daftar_baru - {username}", main)

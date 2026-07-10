@@ -11,6 +11,7 @@ PYTHON_BIN="${PYTHON_BIN:-python3}"
   --onefile \
   --name ckg-helper \
   --collect-all playwright \
+  --hidden-import zoneinfo \
   --add-data "src:src" \
   ckg_helper.py
 
