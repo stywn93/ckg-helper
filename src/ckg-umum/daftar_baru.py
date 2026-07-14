@@ -220,6 +220,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     elif found == "periksa_kembali":
         locators["periksa_kembali"].click()
         page.locator("input#tidak-punya-nik[type='checkbox']").click(force=True)
+        isi_data_wali(page, data, date_picker)
         page.get_by_role("button", name="Selanjutnya", exact=True).click()
         next_found = wait_for_first_visible(page, locators)
         if next_found == "lanjutkan":
