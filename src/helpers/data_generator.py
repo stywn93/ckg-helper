@@ -3,7 +3,10 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Optional
 
+from faker import Faker
 from openpyxl import Workbook, load_workbook
+
+_faker = Faker("id_ID")
 
 PROVINCES = {
     "11": ("Aceh", ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "71", "72", "73", "74", "75"]),
@@ -92,15 +95,19 @@ def generate_nik(gender: str, dob: date, province_code: str, regency_code: str, 
 
 
 def generate_name(gender: str) -> str:
-    first_pool = MALE_FIRST_NAMES if gender == "Laki-laki" else FEMALE_FIRST_NAMES
-    first = random.choice(first_pool)
+    if gender == "Laki-laki":
+        first = _faker.first_name_male()
+        middle_pool = MALE_FIRST_NAMES
+    else:
+        first = _faker.first_name_female()
+        middle_pool = FEMALE_FIRST_NAMES
     r = random.random()
     if r < 0.35:
         return first
-    last = random.choice(LAST_NAMES)
+    last = _faker.last_name()
     if r < 0.70:
         return f"{first} {last}"
-    middle = random.choice(first_pool)
+    middle = random.choice(middle_pool)
     return f"{first} {middle} {last}"
 
 

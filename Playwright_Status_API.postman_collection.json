@@ -1,0 +1,113 @@
+{
+  "info": {
+    "name": "Playwright Status API",
+    "description": "Collection untuk testing endpoint pelaporan status eksekusi Playwright ke Cloudflare Worker + D1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://playwright-status-api.stywn93.workers.dev",
+      "type": "string"
+    },
+    {
+      "key": "api_secret",
+      "value": "0505f32f1a01fb8d950a23b6265634b79dad5de1f607a6bef42513dde53c0b03",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Report Success Execution",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{api_secret}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"script_name\": \"sehatindonesiaku_login\",\n  \"status\": \"success\",\n  \"duration_ms\": 4200\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}",
+          "host": ["{{base_url}}"]
+        }
+      }
+    },
+    {
+      "name": "Report Failed Execution",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{api_secret}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"script_name\": \"sehatindonesiaku_login\",\n  \"status\": \"failed\",\n  \"duration_ms\": 1500,\n  \"error_message\": \"Timeout waiting for selector #captcha-input\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}",
+          "host": ["{{base_url}}"]
+        }
+      }
+    },
+    {
+      "name": "Unauthorized Request (No API Key)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"script_name\": \"sehatindonesiaku_login\",\n  \"status\": \"success\",\n  \"duration_ms\": 3000\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}",
+          "host": ["{{base_url}}"]
+        }
+      }
+    },
+    {
+      "name": "Invalid Body (Missing Required Field)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{api_secret}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"duration_ms\": 3000\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}",
+          "host": ["{{base_url}}"]
+        }
+      }
+    }
+  ]
+}
