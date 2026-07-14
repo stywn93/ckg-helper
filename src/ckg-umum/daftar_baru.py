@@ -17,7 +17,7 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright_window_layout import launch_chromium_with_layout
 
 from date_picker import DatePicker
-from excel import ExcelStatusWorkbook, format_cell_value
+from excel import ExcelStatusWorkbook, ExcelAppendWorkbook, format_cell_value
 from custom_exceptions import SkipRowException
 from api_report import monitored_main
 class Colors:
@@ -281,7 +281,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     exception_found = wait_for_first_visible(page, locators)
     if (exception_found == "exception"):
         locators["exception"].click()
-        raise SkipRowException("Ada error dari Server CKG")
+        raise SkipRowException("Ada error dari Server CKG - Biasanya terkait NIK yang tidak valid")
     else:
         locators["tutup"].click()
         print(f"{Colors.OKGREEN}{Colors.BOLD}============ Pendaftaran Berhasil ==========={Colors.ENDC}")
@@ -315,6 +315,12 @@ def main() -> dict:
             try:
                 register_single_entry(page, data, index, date_picker)
                 excel.update_status(index, "SUCCESS")
+                konfirm_path = PROJECT_ROOT / "dataset" / "konfirm_kehadiran.xlsx"
+                konfirm_wb = ExcelAppendWorkbook(konfirm_path)
+                konfirm_wb.append_row({
+                    "nama_lengkap": format_cell_value(data["nama_lengkap"]),
+                    "tgl_pemeriksaan": datetime.now(ZoneInfo("Asia/Jakarta")).strftime("%Y-%m-%d"),
+                })
             except SkipRowException as exc:
                 # excel.update_status(index, f"SKIPPED: {str(exc)}")
                 excel.update_status(index, str(exc))
