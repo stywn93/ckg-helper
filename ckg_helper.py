@@ -248,6 +248,75 @@ def run_selected_option(app_root: Path, option: dict[str, Path | str]) -> None:
     pause()
 
 
+def run_data_generator(app_root: Path) -> None:
+    from src.helpers.data_generator import generate_batch, append_to_excel, list_provinces, list_regencies
+
+    print("\n=== Generator Data Penduduk ===")
+    print("Menghasilkan data NIK, nama, tanggal lahir, dan gender.")
+    print()
+
+    try:
+        count = int(input("Jumlah data yang ingin dibuat [10]: ").strip() or "10")
+        if count < 1:
+            print("Jumlah harus minimal 1.")
+            return
+    except ValueError:
+        print("Input tidak valid.")
+        return
+
+    try:
+        male_ratio = float(input("Persentase Laki-laki (0-100) [50]: ").strip() or "50")
+        male_ratio = max(0.0, min(100.0, male_ratio))
+    except ValueError:
+        male_ratio = 50.0
+
+    print("\nDaftar kode provinsi:")
+    print(list_provinces())
+    province = input("Kode provinsi (kosongkan untuk acak): ").strip()
+    regency = ""
+    if province:
+        print()
+        print(list_regencies(province))
+        regency = input("Kode kota/kabupaten (kosongkan untuk acak): ").strip()
+
+    try:
+        min_age = int(input("Umur minimal [17]: ").strip() or "17")
+        if min_age < 0:
+            min_age = 17
+    except ValueError:
+        min_age = 17
+
+    try:
+        max_age = int(input("Umur maksimal [65]: ").strip() or "65")
+        if max_age < 0:
+            max_age = 65
+    except ValueError:
+        max_age = 65
+
+    if min_age > max_age:
+        min_age, max_age = max_age, min_age
+
+    print(f"\nMembuat {count} data...")
+    data = generate_batch(
+        count=count,
+        male_ratio=male_ratio,
+        province_code=province if province else None,
+        regency_code=regency if regency else None,
+        min_age=min_age,
+        max_age=max_age,
+    )
+
+    excel_path = app_root / "dataset" / "pendaftaran_umum.xlsx"
+    rows_added = append_to_excel(excel_path, data)
+
+    print(f"\nBerhasil menambahkan {rows_added} baris ke {excel_path}")
+    print("\nContoh data:")
+    for p in data[:3]:
+        print(f"  {p['nik']} | {p['nama_lengkap']:25s} | {p['tgl_lahir']} | {p['gender']}")
+    if len(data) > 3:
+        print(f"  ... dan {len(data) - 3} lainnya")
+
+
 def main() -> None:
     app_root = get_app_root()
     load_app_env(app_root)
@@ -259,6 +328,13 @@ def main() -> None:
         if choice == "0":
             print("Keluar.")
             return
+
+        if choice == "999":
+            try:
+                run_data_generator(app_root)
+            except Exception as exc:
+                print(f"\nTerjadi error: {exc}")
+            continue
 
         option = MENU_OPTIONS.get(choice)
         if option is None:

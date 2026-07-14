@@ -1,4 +1,5 @@
 from openpyxl import load_workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
 
 def format_cell_value(value) -> str:
@@ -51,4 +52,26 @@ class ExcelStatusWorkbook:
     def update_status(self, row_number: int, status: str) -> None:
         column_index = self.headers.index(self.status_column) + 1
         self.sheet.cell(row=row_number, column=column_index, value=status)
+        self.workbook.save(self.path)
+
+
+class ExcelAppendWorkbook:
+    def __init__(self, path: str):
+        self.path = path
+        self.workbook = load_workbook(path)
+        self.sheet: Worksheet = self.workbook.active
+        self.headers = [cell.value for cell in self.sheet[1]]
+
+    def _first_empty_row(self) -> int:
+        for row in self.sheet.iter_rows(min_row=2, max_col=1, values_only=False):
+            if row[0].value is None:
+                return row[0].row
+        return self.sheet.max_row + 1
+
+    def append_row(self, data: dict) -> None:
+        row_number = self._first_empty_row()
+        for key, value in data.items():
+            if key in self.headers:
+                col_index = self.headers.index(key) + 1
+                self.sheet.cell(row=row_number, column=col_index, value=value)
         self.workbook.save(self.path)
