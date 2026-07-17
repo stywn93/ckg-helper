@@ -48,9 +48,10 @@ class ScreeningMandiri:
 
         print("Skrining Demografi Dewasa Dimulai")
         self.page.locator('[id="rowfrm000006"]').click()
-        self.page.locator("label").filter(
-            has_text=self.required(data, "status_perkawinan")
-        ).first.click()
+        # self.page.locator("label").filter(
+        #     has_text=self.required(data, "status_perkawinan")
+        # ).first.click()
+        self.page.get_by_label(self.required(data, "status_perkawinan"), exact=True).click()
         if data["status_perkawinan"] != "Menikah":
             self.page.locator("label").filter(
                 has_text=self.required(data, "rencana_menikah")
@@ -70,9 +71,11 @@ class ScreeningMandiri:
             return
         print("Skrining Demografi Dewasa Perempuan Dimulai")
         self.page.locator('[id="rowfrm000007"]').click()
-        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.required(data, "status_perkawinan")
-        ).first.click()
+        # self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        #     has_text=self.required(data, "status_perkawinan")
+        # ).first.click()
+        # self.page.get_by_label(self.required(data, "status_perkawinan"), exact=True).click()
+        self.page.get_by_text(self.required(data, "status_perkawinan"), exact=True).click()
         if data["status_perkawinan"] != "Menikah":
             self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
                 has_text=self.required(data, "rencana_menikah")
