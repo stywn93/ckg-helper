@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 import openpyxl
 from src.helpers.api_report import report_execution
 
-APP_NAME = "CKG Helper Beta 0.3.4"
+APP_NAME = "CKG Helper Beta 0.3.6"
 USERNAME_ENV = "CKG_USERNAME"
 PASSWORD_ENV = "CKG_PASSWORD"
 
