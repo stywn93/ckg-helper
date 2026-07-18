@@ -98,9 +98,10 @@ class ScreeningMandiri:
             return
         print("Skrining Demografi Lansia Dimulai")
         self.page.locator('[id="rowfrm000008"]').click()
-        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.required(data, "status_perkawinan")
-        ).first.click()
+        # self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+        #     has_text=self.required(data, "status_perkawinan")
+        # ).first.click()
+        self.page.get_by_text(self.required(data, "status_perkawinan"), exact=True).click()
 
         self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
             has_text=self.required(data, "disabilitas")

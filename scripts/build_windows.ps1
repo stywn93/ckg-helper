@@ -5,6 +5,10 @@ Set-Location $RootDir
 
 $PythonBin = if ($env:PYTHON_BIN) { $env:PYTHON_BIN } else { "python" }
 
+# Read version from auto_update.py
+$VersionLine = Select-String -Path "src\helpers\auto_update.py" -Pattern '__version__\s*=\s*"([^"]+)"'
+$Version = $VersionLine.Matches.Groups[1].Value
+
 & $PythonBin -m PyInstaller `
   --clean `
   --onefile `
@@ -28,9 +32,19 @@ if (Test-Path "dist\kamus") {
 New-Item -ItemType Directory -Force -Path "dist\kamus"
 Copy-Item "docs\skrining-nakes.pdf", "docs\skrining-mandiri.pdf" "dist\kamus\"
 
+# Create release zip + checksum for auto-update
+$ZipName = "ckg-helper-v$Version-windows.zip"
+$ZipPath = "dist\$ZipName"
+if (Test-Path $ZipPath) { Remove-Item $ZipPath -Force }
+Compress-Archive -Path "dist\ckg-helper.exe" -DestinationPath $ZipPath -Force
+$Hash = (Get-FileHash $ZipPath -Algorithm SHA256).Hash.ToLower()
+Set-Content -Path "$ZipPath.sha256" -Value "$Hash  $ZipName" -Encoding ASCII
+
 Write-Host ""
 Write-Host "Build selesai:"
 Write-Host "  dist\ckg-helper.exe"
+Write-Host "  dist\$ZipName"
+Write-Host "  dist\$ZipName.sha256"
 Write-Host "  dist\Jalankan CKG Helper.bat"
 Write-Host "  dist\dataset\"
 Write-Host "  dist\kamus\"
