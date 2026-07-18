@@ -10,8 +10,11 @@ from dotenv import load_dotenv
 # Force PyInstaller to bundle openpyxl since subscripts are run dynamically via runpy
 import openpyxl
 from src.helpers.api_report import report_execution
+from src.helpers.auto_update import __version__, check_for_update, install_update
 
-APP_NAME = "CKG Helper Beta 0.3.6"
+APP_NAME = f"CKG Helper Beta {__version__}"
+
+_update_available: dict | None = None
 USERNAME_ENV = "CKG_USERNAME"
 PASSWORD_ENV = "CKG_PASSWORD"
 
@@ -189,6 +192,8 @@ def print_menu() -> None:
     print("=" * len(APP_NAME))
     for key, option in MENU_OPTIONS.items():
         print(f"{key}. {option['label']}")
+    if _update_available:
+        print(f"U. ⬇ Update v{_update_available['version_str']} tersedia!")
     print("0. Keluar")
 
 
@@ -318,16 +323,37 @@ def run_data_generator(app_root: Path) -> None:
 
 
 def main() -> None:
+    global _update_available
+
     app_root = get_app_root()
     load_app_env(app_root)
     print_welcome(app_root)
 
+    print("\nMemeriksa update...", end=" ", flush=True)
+    _update_available = check_for_update()
+    if _update_available:
+        print(f"v{_update_available['version_str']} tersedia!")
+    else:
+        print("Tidak ada update.")
+
     while True:
         print_menu()
-        choice = input("Pilih menu: ").strip()
+        choice = input("Pilih menu: ").strip().lower()
         if choice == "0":
             print("Keluar.")
             return
+
+        if choice == "u":
+            if _update_available:
+                try:
+                    install_update(app_root, _update_available)
+                except Exception as exc:
+                    print(f"\nUpdate gagal: {exc}")
+                    pause()
+            else:
+                print("\nTidak ada update tersedia.")
+                pause()
+            continue
 
         if choice == "999":
             try:
