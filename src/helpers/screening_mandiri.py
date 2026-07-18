@@ -12,7 +12,7 @@ class ScreeningMandiri:
         "do_risiko_tb_anak": "skrining_risiko_tb_anak",
         "do_risiko_gula_darah_anak": "skrining_risiko_gula_darah_anak",
         "do_imunisasi_rutin_balita": "skrining_imunisasi_rutin_balita",
-        "do_risiko_kanker_usus": "skrining_kanker_usus",
+        "do_risiko_kanker_usus": "skrining_kanker_usus_mandiri",
         "do_risiko_tb": "skrining_risiko_tb",
         "do_hati": "skrining_hati",
         "do_leher_rahim": "skrining_kanker_leher_rahim",
