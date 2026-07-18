@@ -14,6 +14,7 @@ if str(HELPERS_DIR) not in sys.path:
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+import click_delay  # noqa: F401
 from playwright_window_layout import launch_chromium_with_layout
 
 from date_picker import DatePicker

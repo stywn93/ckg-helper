@@ -24,6 +24,7 @@ PROJECT_ROOT = Path(os.getenv("CKG_PROJECT_ROOT", Path(__file__).resolve().paren
 from dotenv import load_dotenv
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
+import click_delay  # noqa: F401
 from playwright_window_layout import launch_chromium_with_layout
 
 # coba gunakan helper
