@@ -209,7 +209,7 @@ def search_patient_with_status(page, data: dict, examination_status: str) -> Non
     
     search_by_nik = format_cell_value(data["cari_by_nik"])
 
-    if search_by_nik:
+    if search_by_nik == "Ya":
         page.locator("div").filter(has_text=re.compile(r"^Nama$")).nth(3).click()
         page.get_by_text("NIK").click()
         nik_field = page.get_by_role("textbox", name="0/").click()

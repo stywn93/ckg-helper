@@ -1,3 +1,6 @@
+import re
+
+
 class ScreeningMandiri:
     _SCREENING_KEYS = {
         "do_demografi_dewasa": "skrining_demografi",
@@ -51,7 +54,11 @@ class ScreeningMandiri:
         # self.page.locator("label").filter(
         #     has_text=self.required(data, "status_perkawinan")
         # ).first.click()
-        self.page.get_by_label(self.required(data, "status_perkawinan"), exact=True).click()
+        value = self.required(data, "status_perkawinan")
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=re.compile(rf"^{re.escape(value)}$")
+        ).first.click()
+        # self.page.get_by_label(self.required(data, "status_perkawinan"), exact=True).click()
         if data["status_perkawinan"] != "Menikah":
             self.page.locator("label").filter(
                 has_text=self.required(data, "rencana_menikah")
@@ -75,7 +82,11 @@ class ScreeningMandiri:
         #     has_text=self.required(data, "status_perkawinan")
         # ).first.click()
         # self.page.get_by_label(self.required(data, "status_perkawinan"), exact=True).click()
-        self.page.get_by_text(self.required(data, "status_perkawinan"), exact=True).click()
+        # self.page.get_by_text(self.required(data, "status_perkawinan"), exact=True).click()
+        value = self.required(data, "status_perkawinan")
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=re.compile(rf"^{re.escape(value)}$")
+        ).first.click()
         if data["status_perkawinan"] != "Menikah":
             self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
                 has_text=self.required(data, "rencana_menikah")
@@ -101,7 +112,11 @@ class ScreeningMandiri:
         # self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
         #     has_text=self.required(data, "status_perkawinan")
         # ).first.click()
-        self.page.get_by_text(self.required(data, "status_perkawinan"), exact=True).click()
+        # self.page.get_by_text(self.required(data, "status_perkawinan"), exact=True).click()
+        value = self.required(data, "status_perkawinan")
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=re.compile(rf"^{re.escape(value)}$")
+        ).first.click()
 
         self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
             has_text=self.required(data, "disabilitas")
