@@ -12,6 +12,15 @@ import openpyxl
 from src.helpers.api_report import report_execution
 from src.helpers.auto_update import __version__, check_for_update, install_update
 
+BANNER = r"""
+  _______ _______  __ __    __            
+ / ___/ //_/ ___/ / // /__ / /__  ___ ____
+/ /__/ ,< / (_ / / _  / -_) / _ \/ -_) __/
+\___/_/|_|\___/ /_//_/\__/_/ .__/\__/_/   
+                          /_/
+"""
+
+
 APP_NAME = f"CKG Helper Beta {__version__}"
 
 _update_available: dict | None = None
@@ -20,37 +29,49 @@ PASSWORD_ENV = "CKG_PASSWORD"
 
 MENU_OPTIONS = {
     "1": {
-        "label": "Pendaftaran Baru",
+        "label": "CKG Umum - Pendaftaran Baru",
         "script": Path("src") / "ckg-umum" / "daftar_baru.py",
         "excel": Path("dataset") / "pendaftaran_umum.xlsx",
     },
     "2": {
-        "label": "Konfirmasi Kehadiran",
+        "label": "CKG Umum - Konfirmasi Kehadiran",
         "script": Path("src") / "ckg-umum" / "konfirm_kehadiran.py",
         "excel": Path("dataset") / "konfirm_kehadiran.xlsx",
     },
     "3": {
-        "label": "CKG Umum Anak",
+        "label": "CKG Umum - Anak",
         "script": Path("src") / "ckg-umum" / "anak.py",
         "excel": Path("dataset") / "anak.xlsx",
     },
     "4": {
-        "label": "CKG Umum Remaja",
+        "label": "CKG Umum - Remaja",
         "script": Path("src") / "ckg-umum" / "remaja.py",
         "excel": Path("dataset") / "remaja.xlsx",
     },
     "5": {
-        "label": "CKG Umum Dewasa",
+        "label": "CKG Umum - Dewasa",
         "script": Path("src") / "ckg-umum" / "dewasa.py",
         "excel": Path("dataset") / "dewasa.xlsx",
     },
     "6": {
-        "label": "CKG Umum Lansia",
+        "label": "CKG Umum - Lansia",
         "script": Path("src") / "ckg-umum" / "lansia.py",
         "excel": Path("dataset") / "lansia.xlsx",
     },
+    "7": {
+        "label": "CKG Sekolah - Pendaftaran",
+        "script": Path("src") / "ckg-sekolah" / "pendaftaran.py",
+        "excel": Path("dataset") / "pendaftaran_sekolah.xlsx",
+    },
+    "8": {
+        "label": "CKG Sekolah - Pelayanan",
+        "script": Path("src") / "ckg-sekolah" / "pelayanan.py",
+        "excel": Path("dataset") / "pelayanan_sekolah.xlsx",
+    },
 }
 
+def show_banner():
+    print(BANNER)
 
 def get_app_root() -> Path:
     if getattr(sys, "frozen", False):
@@ -81,15 +102,12 @@ def load_app_env(app_root: Path) -> None:
 
 
 def print_welcome(app_root: Path) -> None:
-    print(f"\n{APP_NAME}")
-    print("=" * len(APP_NAME))
-    print("Otomatisasi skrining CKG Sehat Indonesia Ku.")
-    print()
+    # print(f"\n{APP_NAME}")
+    # print("=" * len(APP_NAME))
     print("Panduan singkat:")
-    print(f"- Folder data Excel: {app_root / 'dataset'}")
-    print("- Jangan buka file Excel di aplikasi lain saat proses berjalan.")
+    print("- Pastikan file Excel sudah disimpan dan ditutup.")
     print("- Login CKG disimpan otomatis di file .env pada folder ini.")
-    print("- Jika ada kendala, silahkan hubungi melalui Telegram @stywn93")
+    print("- Konsultasi via Telegram @stywn93")
 
 
 def read_env_file(env_path: Path) -> dict[str, str]:
@@ -170,7 +188,7 @@ def ensure_chromium_installed() -> bool:
 
     print("\nChromium browser belum terpasang.")
     print("CKG Helper perlu mengunduh browser otomatis satu kali saja.")
-    print("Ukuran download dapat mencapai ratusan MB, tergantung versi Playwright.")
+    print("Download dapat berlangsung beberapa menit, tergantung koneksi internet.")
     answer = input("Lanjutkan download sekarang? (Y/n): ").strip().lower()
     if answer not in {"y", "ya"}:
         print("Dibatalkan. Pilih menu ini lagi saat siap mengunduh Chromium.")
@@ -224,7 +242,7 @@ def run_selected_option(app_root: Path, option: dict[str, Path | str]) -> None:
         return
 
     print(f"\nMenjalankan: {option['label']}")
-    print(f"File data: {app_root / option['excel']}")
+    # print(f"File data: {app_root / option['excel']}")
     print("Jangan tutup browser atau terminal sampai proses selesai.\n")
 
     script_name = Path(option["script"]).stem
@@ -253,78 +271,10 @@ def run_selected_option(app_root: Path, option: dict[str, Path | str]) -> None:
     pause()
 
 
-def run_data_generator(app_root: Path) -> None:
-    from src.helpers.data_generator import generate_batch, append_to_excel, list_provinces, list_regencies
-
-    print("\n=== Generator Data Penduduk ===")
-    print("Menghasilkan data NIK, nama, tanggal lahir, dan gender.")
-    print()
-
-    try:
-        count = int(input("Jumlah data yang ingin dibuat [10]: ").strip() or "10")
-        if count < 1:
-            print("Jumlah harus minimal 1.")
-            return
-    except ValueError:
-        print("Input tidak valid.")
-        return
-
-    try:
-        male_ratio = float(input("Persentase Laki-laki (0-100) [50]: ").strip() or "50")
-        male_ratio = max(0.0, min(100.0, male_ratio))
-    except ValueError:
-        male_ratio = 50.0
-
-    print("\nDaftar kode provinsi:")
-    print(list_provinces())
-    province = input("Kode provinsi (kosongkan untuk acak): ").strip()
-    regency = ""
-    if province:
-        print()
-        print(list_regencies(province))
-        regency = input("Kode kota/kabupaten (kosongkan untuk acak): ").strip()
-
-    try:
-        min_age = int(input("Umur minimal [17]: ").strip() or "17")
-        if min_age < 0:
-            min_age = 17
-    except ValueError:
-        min_age = 17
-
-    try:
-        max_age = int(input("Umur maksimal [65]: ").strip() or "65")
-        if max_age < 0:
-            max_age = 65
-    except ValueError:
-        max_age = 65
-
-    if min_age > max_age:
-        min_age, max_age = max_age, min_age
-
-    print(f"\nMembuat {count} data...")
-    data = generate_batch(
-        count=count,
-        male_ratio=male_ratio,
-        province_code=province if province else None,
-        regency_code=regency if regency else None,
-        min_age=min_age,
-        max_age=max_age,
-    )
-
-    excel_path = app_root / "dataset" / "pendaftaran_umum.xlsx"
-    rows_added = append_to_excel(excel_path, data)
-
-    print(f"\nBerhasil menambahkan {rows_added} baris ke {excel_path}")
-    print("\nContoh data:")
-    for p in data[:3]:
-        print(f"  {p['nik']} | {p['nama_lengkap']:25s} | {p['tgl_lahir']} | {p['gender']}")
-    if len(data) > 3:
-        print(f"  ... dan {len(data) - 3} lainnya")
-
-
 def main() -> None:
     global _update_available
 
+    show_banner()
     app_root = get_app_root()
     load_app_env(app_root)
     print_welcome(app_root)
@@ -334,7 +284,7 @@ def main() -> None:
     if _update_available:
         print(f"v{_update_available['version_str']} tersedia!")
     else:
-        print("Tidak ada update.")
+        print("Masih versi terbaru.")
 
     while True:
         print_menu()
@@ -353,13 +303,6 @@ def main() -> None:
             else:
                 print("\nTidak ada update tersedia.")
                 pause()
-            continue
-
-        if choice == "999":
-            try:
-                run_data_generator(app_root)
-            except Exception as exc:
-                print(f"\nTerjadi error: {exc}")
             continue
 
         option = MENU_OPTIONS.get(choice)

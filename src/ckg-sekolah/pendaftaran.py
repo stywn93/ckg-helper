@@ -54,14 +54,14 @@ def get_required_env(name: str) -> str:
 def prepare_registration_page(page) -> None:
     page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pendaftaran-anak-sekolah")
     page.wait_for_load_state("networkidle")
-    # page.reload(wait_until="networkidle")
+    page.reload(wait_until="networkidle")
 
-    # checkbox = page.locator("input[name='verify']")
-    # if checkbox.count() > 0:
-    #     checkbox = page.locator("input[name='verify']")
-    #     checkbox.set_checked(True, force=True)
-    #     page.locator("button:has-text('Setuju')").click()
-    #     page.wait_for_load_state("networkidle")
+    checkbox = page.locator("input[name='verify']")
+    if checkbox.count() > 0:
+        checkbox = page.locator("input[name='verify']")
+        checkbox.set_checked(True, force=True)
+        page.locator("button:has-text('Setuju')").click()
+        page.wait_for_load_state("networkidle")
 
     page.get_by_role("button", name="Daftar Baru").click()
 
@@ -102,33 +102,51 @@ def wait_for_first_visible(page, locators_dict, timeout=5000):
         time.sleep(0.5)
     raise PlaywrightTimeoutError("None of the expected buttons appeared")
 
+# def handle_periksa_kembali(page, data: dict, date_picker: DatePicker) -> None:
+#     btn_recheck = page.locator("button:has-text('Periksa Kembali')").first
+#     btn_success = page.locator("button:has-text('Lanjutkan')").first
+#     try:
+#         btn_recheck.wait_for(state="visible", timeout=3000)
+#         btn_recheck.click()
+#         btn_recheck.wait_for(state="hidden", timeout=3000)
+#         checkbox = page.locator("input[name='noNik']")
+#         checkbox.set_checked(True, force=True)
+#         page.locator("input#nik\\ wali").fill(format_cell_value(data["nik_wali"]))
+#         page.locator('input[name="Nama Lengkap Wali"]').fill(format_cell_value(data["nama_wali"]))
+
+#         date_picker.select(
+#             page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),
+#             format_cell_value(data["tgl_lahir_wali"]),
+#         )
+
+#         page.locator("div:has(> .text-gray-4:text('Pilih Jenis Kelamin'))").click()
+#         page.locator(".max-h-\\[250px\\]").get_by_text(format_cell_value(data["gender_wali"]), exact=True).click()
+#         page.locator("label").filter(has_text="No. Whatsapp Wali").locator('input[name="Nomor whatsapp"]').fill(
+#             format_cell_value(data["no_whatsapp_wali"])
+#         )
+#         page.get_by_role("button", name="Selanjutnya").click()
+#         page.locator("button:has-text('Lanjutkan')").click()
+
+#     except PlaywrightTimeoutError:
+#         btn_success.click()
+
 def handle_periksa_kembali(page, data: dict, date_picker: DatePicker) -> None:
-    btn_recheck = page.locator("button:has-text('Periksa Kembali')").first
-    btn_success = page.locator("button:has-text('Lanjutkan')").first
-    try:
-        btn_recheck.wait_for(state="visible", timeout=3000)
-        btn_recheck.click()
-        btn_recheck.wait_for(state="hidden", timeout=3000)
-        checkbox = page.locator("input[name='noNik']")
-        checkbox.set_checked(True, force=True)
-        page.locator("input#nik\\ wali").fill(format_cell_value(data["nik_wali"]))
-        page.locator('input[name="Nama Lengkap Wali"]').fill(format_cell_value(data["nama_wali"]))
+    page.locator('input#Nama\\ Lengkap').fill(format_cell_value(data["nama_lengkap"]))
 
-        date_picker.select(
-            page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),
-            format_cell_value(data["tgl_lahir_wali"]),
-        )
+    date_picker.select(
+        page.locator("#Tanggal\\ Lahir .mx-input-wrapper"),
+        format_cell_value(data["tgl_lahir"]),
+    )
+    # page.get_by_text("Pilih jenis kelamin", exact=True).click()
+    # page.locator("div.absolute.top-13.z-2000").get_by_text(
+    #     format_cell_value(data["gender"]),
+    #     exact=True,
+    # ).click()
+    
+    page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
 
-        page.locator("div:has(> .text-gray-4:text('Pilih Jenis Kelamin'))").click()
-        page.locator(".max-h-\\[250px\\]").get_by_text(format_cell_value(data["gender_wali"]), exact=True).click()
-        page.locator("label").filter(has_text="No. Whatsapp Wali").locator('input[name="Nomor whatsapp"]').fill(
-            format_cell_value(data["no_whatsapp_wali"])
-        )
-        page.get_by_role("button", name="Selanjutnya").click()
-        page.locator("button:has-text('Lanjutkan')").click()
-
-    except PlaywrightTimeoutError:
-        btn_success.click()
+    # Select a specific day button by exact day number (avoids "1" matching "11", "12"...)
+    # dob = datetime.strptime(format_cell_value(data['tgl_lahir']), "%Y-%m-%d")
 
 def isi_data_wali(page, data: dict, date_picker: DatePicker) -> None:
     page.locator("input#nik\\ wali").fill(format_cell_value(data["nik_wali"]))
@@ -174,10 +192,10 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
 
     day = datetime.now().day
     # day = 7
-    day_button = page.locator("button").filter(
-        has=page.locator("span.font-bold", has_text=re.compile(rf"^{day}$"))
-    )
-    day_button.click()
+    # day_button = page.locator("button").filter(
+    #     has=page.locator("span.font-bold", has_text=re.compile(rf"^{day}$"))
+    # )
+    # day_button.click()
     if diff.days > 21915 or diff.days < 2191:
         # print("try to call isi data wali")
         isi_data_wali(page, data, date_picker)
@@ -207,6 +225,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
         if next_found == "periksa_kembali":
             locators["periksa_kembali"].click()
             page.locator("input#tidak-punya-nik[type='checkbox']").click(force=True)
+            handle_periksa_kembali(page, data, date_picker)
             isi_data_wali(page, data, date_picker)
             page.get_by_role("button", name="Selanjutnya", exact=True).click()
             next_found_2 = wait_for_first_visible(page, locators)
@@ -226,6 +245,8 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     elif found == "periksa_kembali":
         locators["periksa_kembali"].click()
         page.locator("input#tidak-punya-nik[type='checkbox']").click(force=True)
+        handle_periksa_kembali(page, data, date_picker)
+        page.pause()
         isi_data_wali(page, data, date_picker)
         page.get_by_role("button", name="Selanjutnya", exact=True).click()
         next_found = wait_for_first_visible(page, locators)
