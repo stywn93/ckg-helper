@@ -2,7 +2,7 @@ import contextlib
 import os
 from playwright.sync_api import Locator
 
-CLICK_DELAY_MS = int(os.getenv("CKG_CLICK_DELAY_MS", "1000"))
+CLICK_DELAY_MS = int(os.getenv("CKG_CLICK_DELAY_MS", "500"))
 _delay_enabled = True
 
 if CLICK_DELAY_MS > 0:
