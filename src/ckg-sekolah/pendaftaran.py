@@ -138,10 +138,11 @@ def handle_periksa_kembali(page, data: dict, date_picker: DatePicker) -> None:
         format_cell_value(data["tgl_lahir"]),
     )
     # page.get_by_text("Pilih jenis kelamin", exact=True).click()
-    # page.locator("div.absolute.top-13.z-2000").get_by_text(
-    #     format_cell_value(data["gender"]),
-    #     exact=True,
-    # ).click()
+    page.locator("div:nth-child(5) > div > .relative > .m-auto > .icon").click()
+    page.locator("div.absolute.top-13.z-2000").get_by_text(
+        format_cell_value(data["gender"]),
+        exact=True,
+    ).click()
     
     page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
 
@@ -246,7 +247,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
         locators["periksa_kembali"].click()
         page.locator("input#tidak-punya-nik[type='checkbox']").click(force=True)
         handle_periksa_kembali(page, data, date_picker)
-        page.pause()
+        # page.pause()
         isi_data_wali(page, data, date_picker)
         page.get_by_role("button", name="Selanjutnya", exact=True).click()
         next_found = wait_for_first_visible(page, locators)
