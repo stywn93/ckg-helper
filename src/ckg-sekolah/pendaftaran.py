@@ -60,6 +60,7 @@ def prepare_registration_page(page) -> None:
     if checkbox.count() > 0:
         checkbox = page.locator("input[name='verify']")
         checkbox.set_checked(True, force=True)
+        # page.pause()
         page.locator("button:has-text('Setuju')").click()
         page.wait_for_load_state("networkidle")
 
@@ -170,7 +171,7 @@ def isi_data_wali(page, data: dict, date_picker: DatePicker) -> None:
         format_cell_value(data["tgl_lahir_wali"]),
     )
 
-    page.pause()
+    # page.pause()
     # print(page.locator("div.mb-2.font-semibold.text-sm", has_text="Jenis Kelamin").count())
     # date_picker.select(page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),format_cell_value(data["tgl_lahir_wali"]),)
 
@@ -218,7 +219,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     # )
     # day_button.click()
     if diff.days > 21915 or diff.days < 2191:
-        # print("try to call isi data wali")
+        print("try to call isi data wali")
         isi_data_wali(page, data, date_picker)
     page.get_by_role("button", name="Selanjutnya").click()
     # page.pause()
@@ -280,12 +281,42 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
         print(f"{Colors.WARNING}pasien belum menerima CKG{Colors.ENDC}")
         page.get_by_role("button", name="Lanjutkan", exact=True).click()
 
-
     page.get_by_text("Pilih status pernikahan", exact=True).click()
     page.get_by_text(format_cell_value(data["pernikahan"]), exact=True).click()
 
+    page.get_by_text("Pilih penyandang disabilitas", exact=True).click()
+    page.get_by_text(format_cell_value(data["disabilitas"]), exact=True).click()
+
     page.get_by_text("Pilih pekerjaan", exact=True).click()
     page.get_by_text(format_cell_value(data["pekerjaan"]), exact=True).click()
+
+    # page.pause()
+    
+    page.get_by_text("Pilih nama sekolah", exact=True).click()
+    nama_sekolah_search = page.get_by_placeholder("Cari nama sekolah")
+    nama_sekolah_search.click()
+    # page.pause()
+    nama_sekolah_search.press_sequentially(format_cell_value(data["sekolah"]), delay=100)
+    page.wait_for_selector('[data-v-0dd0c770].flex.items-center.justify-between.gap-2')
+    first_result = page.locator('[data-v-0dd0c770].flex.items-center.justify-between.gap-2').first
+    first_result.click()
+    # page.pause() 
+    page.get_by_text("Pilih jenjang pendidikan", exact=True).click()
+    # jenjang_field = page.locator('[data-v-0dd0c770]', has_text="Pilih jenjang pendidikan")
+    # jenjang_field.click()
+    pilihan_jenjang = page.get_by_placeholder("Cari jenjang pendidikan")
+    pilihan_jenjang.click()
+    pilihan_jenjang.press_sequentially(format_cell_value(data["jenjang_pendidikan"]), delay=100)
+    # page.pause()
+    page.wait_for_selector('[data-v-0dd0c770].flex.items-center.justify-between.gap-2')
+    first_result = page.locator('[data-v-0dd0c770].flex.items-center.justify-between.gap-2').first
+    first_result.click()
+    # page.get_by_text(format_cell_value(data["sekolah"]), exact=True).click()
+    # sekolah_search.click()
+    # sekolah_search.press_sequentially("SD AL IRSYAD", delay=100)
+
+    # page.get_by_text("Pilih nama sekolah", exact=True).click()
+    # page.get_by_text(format_cell_value(data["sekolah"]), exact=True).click()
 
     page.get_by_text("Pilih alamat domisili", exact=True).click()
     page.get_by_text(format_cell_value(data["prov"]), exact=True).click()
@@ -298,6 +329,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     print(f"{Colors.OKCYAN}Mohon tunggu sedang menunggu respon dari server CKG secara lengkap...{Colors.ENDC}")
     # page.pause()
     page.wait_for_timeout(1500)
+    # page.get_by_role("button", name="Tutup").click()
     # Seharusnya menunggu apakah tombol pilih muncul
     # jika tombol pilih muncul maka klik tombol pilih
     # jika tombol pilih di-klik maka klik Daftarkan dengan NIK
@@ -305,22 +337,22 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     # jika ada tombol Ok, maka Raise Exception
     # jika tidak muncul maka klik Daftarkan tanpa NIK
 
-    locators = {
-        "dengan_nik": page.get_by_role("button", name="Pilih"),
-        "tanpa_nik": page.get_by_role("button", name="Daftarkan tanpa NIK")
-    }
-    nik_found = wait_for_first_visible(page, locators)
-    print(f"nik_found = {nik_found}")
-    if(nik_found == "dengan_nik"):
-        locators["dengan_nik"].click()
-        print(f"{Colors.OKCYAN}NIK ditemukan, silahkan tunggu...{Colors.ENDC}")
-        page.get_by_role("button", name="Daftarkan dengan NIK").click()
+    # locators = {
+    #     "dengan_nik": page.get_by_role("button", name="Pilih"),
+    #     "tanpa_nik": page.get_by_role("button", name="Daftarkan tanpa NIK")
+    # }
+    # nik_found = wait_for_first_visible(page, locators)
+    # print(f"nik_found = {nik_found}")
+    # if(nik_found == "dengan_nik"):
+    #     locators["dengan_nik"].click()
+    #     print(f"{Colors.OKCYAN}NIK ditemukan, silahkan tunggu...{Colors.ENDC}")
+    #     page.get_by_role("button", name="Daftarkan dengan NIK").click()
 
 
-    elif(nik_found == "tanpa_nik"):
-        locators["tanpa_nik"].click()
+    # elif(nik_found == "tanpa_nik"):
+    #     locators["tanpa_nik"].click()
 
-    page.wait_for_load_state("networkidle")
+    # page.wait_for_load_state("networkidle")
 
     locators = {
         "exception": page.get_by_role("button", name="Ok", exact=True),
