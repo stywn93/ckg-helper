@@ -223,6 +223,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
         isi_data_wali(page, data, date_picker)
     page.get_by_role("button", name="Selanjutnya").click()
     # page.pause()
+    # ayah ini ke mana??? 
 
 
 
@@ -236,7 +237,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     }
 
     found = wait_for_first_visible(page, locators)
-    print(found)
+    print(f"Button locators yang ditemukan: {found}")
     # page.pause()
     if found == "quota_habis":
         print("Quota Pemeriksaan habis")
@@ -287,8 +288,13 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     page.get_by_text("Pilih penyandang disabilitas", exact=True).click()
     page.get_by_text(format_cell_value(data["disabilitas"]), exact=True).click()
 
-    page.get_by_text("Pilih pekerjaan", exact=True).click()
-    page.get_by_text(format_cell_value(data["pekerjaan"]), exact=True).click()
+    #jika NIK ditemukan maka tidak perlu mengisi pekerjaan
+    if found != "lanjutkan":
+        page.get_by_text("Pilih pekerjaan", exact=True).click()
+        page.get_by_text(format_cell_value(data["pekerjaan"]), exact=True).click()
+
+    # page.get_by_text("Pilih pekerjaan", exact=True).click()
+    # page.get_by_text(format_cell_value(data["pekerjaan"]), exact=True).click()
 
     # page.pause()
     
