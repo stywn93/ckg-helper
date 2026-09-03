@@ -401,11 +401,11 @@ def main() -> dict:
             try:
                 register_single_entry(page, data, index, date_picker)
                 excel.update_status(index, "SUCCESS")
-                konfirm_path = PROJECT_ROOT / "dataset" / "konfirm_kehadiran.xlsx"
+                konfirm_path = PROJECT_ROOT / "dataset" / "konfirm_kehadiran_sekolah.xlsx"
                 konfirm_wb = ExcelAppendWorkbook(konfirm_path)
                 konfirm_wb.append_row({
                     "nama_lengkap": format_cell_value(data["nama_lengkap"]),
-                    "tgl_pemeriksaan": datetime.now(ZoneInfo("Asia/Jakarta")).strftime("%Y-%m-%d"),
+                    "tgl_entri": datetime.now(ZoneInfo("Asia/Jakarta")).strftime("%Y-%m-%d"),
                 })
             except SkipRowException as exc:
                 # excel.update_status(index, f"SKIPPED: {str(exc)}")
@@ -425,4 +425,4 @@ def main() -> dict:
 
 if __name__ == "__main__":
     username = os.getenv("CKG_USERNAME", "unknown")
-    monitored_main(f"daftar_baru - {username}", main)
+    monitored_main(f"pendaftaran - {username}", main)
