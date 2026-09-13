@@ -64,6 +64,11 @@ MENU_OPTIONS = {
         "excel": Path("dataset") / "pendaftaran_sekolah.xlsx",
     },
     "8": {
+        "label": "CKG Sekolah - Konfirmasi Kehadiran",
+        "script": Path("src") / "ckg-sekolah" / "konfirm_kehadiran.py",
+        "excel": Path("dataset") / "pelayanan_sekolah.xlsx",
+    },
+    "9": {
         "label": "CKG Sekolah - Pelayanan",
         "script": Path("src") / "ckg-sekolah" / "pelayanan.py",
         "excel": Path("dataset") / "pelayanan_sekolah.xlsx",
