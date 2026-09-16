@@ -181,7 +181,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
             checkbox.set_checked(True, force=True)
             page.locator("input[name='Nomor Whatsapp']").fill("81234567890")
             hadir = page.get_by_role("button", name="Hadir", exact=True)
-            # hadir.click()
+            # hadir.click() 
             if hadir.count() > 0:
                 print(hadir.count())
                 hadir.click()
