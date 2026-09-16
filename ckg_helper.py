@@ -13,15 +13,21 @@ from src.helpers.api_report import report_execution
 from src.helpers.auto_update import __version__, check_for_update, install_update
 
 BANNER = r"""
-  _______ _______  __ __    __            
- / ___/ //_/ ___/ / // /__ / /__  ___ ____
-/ /__/ ,< / (_ / / _  / -_) / _ \/ -_) __/
-\___/_/|_|\___/ /_//_/\__/_/ .__/\__/_/   
-                          /_/
+  /$$$$$$  /$$   /$$  /$$$$$$        /$$   /$$                 /$$      /$$                                        
+ /$$__  $$| $$  /$$/ /$$__  $$      | $$$ | $$                | $$  /$ | $$                                        
+| $$  \__/| $$ /$$/ | $$  \__/      | $$$$| $$  /$$$$$$       | $$ /$$$| $$  /$$$$$$   /$$$$$$   /$$$$$$  /$$   /$$
+| $$      | $$$$$/  | $$ /$$$$      | $$ $$ $$ /$$__  $$      | $$/$$ $$ $$ /$$__  $$ /$$__  $$ /$$__  $$| $$  | $$
+| $$      | $$  $$  | $$|_  $$      | $$  $$$$| $$  \ $$      | $$$$_  $$$$| $$  \ $$| $$  \__/| $$  \__/| $$  | $$
+| $$    $$| $$\  $$ | $$  \ $$      | $$\  $$$| $$  | $$      | $$$/ \  $$$| $$  | $$| $$      | $$      | $$  | $$
+|  $$$$$$/| $$ \  $$|  $$$$$$/      | $$ \  $$|  $$$$$$/      | $$/   \  $$|  $$$$$$/| $$      | $$      |  $$$$$$$
+ \______/ |__/  \__/ \______/       |__/  \__/ \______/       |__/     \__/ \______/ |__/      |__/       \____  $$
+                                                                                                          /$$  | $$
+                                                                                                         |  $$$$$$/
+                                                                                                          \______/ 
 """
 
 
-APP_NAME = f"CKG Helper Beta {__version__}"
+APP_NAME = f"CKG No Worry {__version__}"
 
 _update_available: dict | None = None
 USERNAME_ENV = "CKG_USERNAME"
@@ -90,6 +96,37 @@ def get_bundle_root() -> Path:
 
 def pause(message: str = "Tekan Enter untuk kembali ke menu...") -> None:
     input(f"\n{message}")
+
+
+def confirm_excel_closed() -> bool:
+    options = ["ya", "tidak"]
+    if not sys.stdin.isatty():
+        return input("\nApakah file Excel sudah disimpan dan ditutup? (Ya/Tidak): ").strip().lower() in {
+            "ya",
+            "y",
+        }
+
+    selected_index = 0
+    first_render = True
+    print("\nApakah file Excel sudah disimpan dan ditutup?")
+    print("Gunakan tombol ↑/↓ lalu Enter.\n")
+    while True:
+        if not first_render:
+            print("\033[2A", end="")
+        for index, option in enumerate(options):
+            marker = ">" if index == selected_index else " "
+            line = f"{marker} {option.capitalize()}"
+            prefix = "\033[7m" if index == selected_index else ""
+            print(f"\033[2K{prefix}{line}\033[0m")
+        first_render = False
+
+        key = read_menu_key()
+        if key == "up":
+            selected_index = next_menu_index(selected_index, -1, len(options))
+        elif key == "down":
+            selected_index = next_menu_index(selected_index, 1, len(options))
+        elif key in {"\r", "\n"}:
+            return selected_index == 0
 
 
 def configure_playwright_browsers_path(app_root: Path) -> Path:
@@ -192,7 +229,7 @@ def ensure_chromium_installed() -> bool:
         pass
 
     print("\nChromium browser belum terpasang.")
-    print("CKG Helper perlu mengunduh browser otomatis satu kali saja.")
+    print("Aplikasi perlu mengunduh browser otomatis satu kali saja.")
     print("Download dapat berlangsung beberapa menit, tergantung koneksi internet.")
     answer = input("Lanjutkan download sekarang? (Y/n): ").strip().lower()
     if answer not in {"y", "ya"}:
@@ -210,14 +247,70 @@ def ensure_chromium_installed() -> bool:
     return True
 
 
-def print_menu() -> None:
-    print(f"\n{APP_NAME}")
+def read_menu_key() -> str:
+    if os.name == "nt":
+        import msvcrt
+
+        key = msvcrt.getwch()
+        if key in {"\x00", "\xe0"}:
+            return {"H": "up", "P": "down"}.get(msvcrt.getwch(), "")
+        return key
+
+    import termios
+    import tty
+
+    fd = sys.stdin.fileno()
+    settings = termios.tcgetattr(fd)
+    try:
+        tty.setcbreak(fd)
+        key = sys.stdin.read(1)
+        if key == "\x1b":
+            sequence = sys.stdin.read(2)
+            return {"[A": "up", "[B": "down", "OA": "up", "OB": "down"}.get(sequence, "")
+        return key
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, settings)
+
+
+def next_menu_index(index: int, direction: int, item_count: int) -> int:
+    return (index + direction) % item_count
+
+
+def print_menu(menu_keys: list[str], selected_index: int) -> None:
+    print("\033[2J\033[H", end="")
+    show_banner()
+    print(f"{APP_NAME}")
     print("=" * len(APP_NAME))
-    for key, option in MENU_OPTIONS.items():
-        print(f"{key}. {option['label']}")
+    labels = {key: option["label"] for key, option in MENU_OPTIONS.items()}
     if _update_available:
-        print(f"U. ⬇ Update v{_update_available['version_str']} tersedia!")
-    print("0. Keluar")
+        labels["u"] = f"⬇ Update v{_update_available['version_str']} tersedia!"
+    labels["0"] = "Keluar"
+    for index, key in enumerate(menu_keys):
+        marker = ">" if index == selected_index else " "
+        line = f"{marker} {key.upper()}. {labels[key]}"
+        print(f"\033[7m{line}\033[0m" if index == selected_index else line)
+    print("\nGunakan tombol ↑/↓ lalu Enter.")
+
+
+def select_menu() -> str:
+    menu_keys = list(MENU_OPTIONS)
+    if _update_available:
+        menu_keys.append("u")
+    menu_keys.append("0")
+
+    if not sys.stdin.isatty():
+        return input("Pilih menu: ").strip().lower()
+
+    selected_index = 0
+    while True:
+        print_menu(menu_keys, selected_index)
+        key = read_menu_key()
+        if key == "up":
+            selected_index = next_menu_index(selected_index, -1, len(menu_keys))
+        elif key == "down":
+            selected_index = next_menu_index(selected_index, 1, len(menu_keys))
+        elif key in {"\r", "\n"}:
+            return menu_keys[selected_index]
 
 
 def validate_excel_file(app_root: Path, option: dict[str, Path | str]) -> bool:
@@ -231,6 +324,11 @@ def validate_excel_file(app_root: Path, option: dict[str, Path | str]) -> bool:
 
 
 def run_selected_option(app_root: Path, option: dict[str, Path | str]) -> None:
+    if not confirm_excel_closed():
+        print("\nMenu dibatalkan. Tutup file Excel lalu pilih menu lagi.")
+        pause()
+        return
+
     if not validate_excel_file(app_root, option):
         pause()
         return
@@ -292,8 +390,7 @@ def main() -> None:
         print("Masih versi terbaru.")
 
     while True:
-        print_menu()
-        choice = input("Pilih menu: ").strip().lower()
+        choice = select_menu()
         if choice == "0":
             print("Keluar.")
             return
