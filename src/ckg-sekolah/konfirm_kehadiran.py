@@ -102,91 +102,142 @@ def wait_for_first_visible(page, locators_dict, timeout=5000):
     raise PlaywrightTimeoutError("None of the expected buttons appeared")
 
 
-def handle_periksa_kembali(page, data: dict, date_picker: DatePicker) -> None:
-    # print("handle periksa kembali executed")
-    page.locator('input#Nama\\ Lengkap').fill(format_cell_value(data["nama_lengkap"]))
+# def handle_periksa_kembali(page, data: dict, date_picker: DatePicker) -> None:
+#     # print("handle periksa kembali executed")
+#     page.locator('input#Nama\\ Lengkap').fill(format_cell_value(data["nama_lengkap"]))
 
-    date_picker.select(
-        page.locator("#Tanggal\\ Lahir .mx-input-wrapper"),
-        format_cell_value(data["tgl_lahir"]),
-    )
-    # page.get_by_text("Pilih jenis kelamin", exact=True).click()
-    page.locator("div:nth-child(5) > div > .relative > .m-auto > .icon").click()
-    page.locator("div.absolute.top-13.z-2000").get_by_text(
-        format_cell_value(data["gender"]),
-        exact=True,
-    ).click()
+#     date_picker.select(
+#         page.locator("#Tanggal\\ Lahir .mx-input-wrapper"),
+#         format_cell_value(data["tgl_lahir"]),
+#     )
+#     # page.get_by_text("Pilih jenis kelamin", exact=True).click()
+#     page.locator("div:nth-child(5) > div > .relative > .m-auto > .icon").click()
+#     page.locator("div.absolute.top-13.z-2000").get_by_text(
+#         format_cell_value(data["gender"]),
+#         exact=True,
+#     ).click()
     
-    page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
+#     page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
     # print("end of handle periksa kembali")
 
     # Select a specific day button by exact day number (avoids "1" matching "11", "12"...)
     # dob = datetime.strptime(format_cell_value(data['tgl_lahir']), "%Y-%m-%d")
 
-def isi_data_wali(page, data: dict, date_picker: DatePicker) -> None:
-    print("isi data wali executed")
-    page.get_by_role("textbox", name="NIK *").click()
-    page.get_by_role("textbox", name="NIK *").fill(format_cell_value(data["nik_wali"]))
-    page.locator("[id=\"Nama Lengkap-wali\"]").click()
-    page.locator("[id=\"Nama Lengkap-wali\"]").fill(format_cell_value(data["nama_wali"]))
-    # page.pause()
-    # page.locator("input#nik\\ wali").fill(format_cell_value(data["nik_wali"]))
-    # page.locator('input[name="Nama Lengkap Wali"]').fill(format_cell_value(data["nama_wali"]))
+# def isi_data_wali(page, data: dict, date_picker: DatePicker) -> None:
+#     print("isi data wali executed")
+#     page.get_by_role("textbox", name="NIK *").click()
+#     page.get_by_role("textbox", name="NIK *").fill(format_cell_value(data["nik_wali"]))
+#     page.locator("[id=\"Nama Lengkap-wali\"]").click()
+#     page.locator("[id=\"Nama Lengkap-wali\"]").fill(format_cell_value(data["nama_wali"]))
+#     # page.pause()
+#     # page.locator("input#nik\\ wali").fill(format_cell_value(data["nik_wali"]))
+#     # page.locator('input[name="Nama Lengkap Wali"]').fill(format_cell_value(data["nama_wali"]))
 
-    # coba pakai ini
-    page.locator('[id="Tanggal Lahir-wali"]').locator(".mx-datepicker").click()
+#     # coba pakai ini
+#     page.locator('[id="Tanggal Lahir-wali"]').locator(".mx-datepicker").click()
 
-    # combine single line dan library yang sudah ada
-    date_picker.select(
-        page.locator('[id="Tanggal Lahir-wali"]').locator(".mx-datepicker"),
-        format_cell_value(data["tgl_lahir_wali"]),
-    )
+#     # combine single line dan library yang sudah ada
+#     date_picker.select(
+#         page.locator('[id="Tanggal Lahir-wali"]').locator(".mx-datepicker"),
+#         format_cell_value(data["tgl_lahir_wali"]),
+#     )
 
-    # page.pause()
-    # print(page.locator("div.mb-2.font-semibold.text-sm", has_text="Jenis Kelamin").count())
-    # date_picker.select(page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),format_cell_value(data["tgl_lahir_wali"]),)
+#     # page.pause()
+#     # print(page.locator("div.mb-2.font-semibold.text-sm", has_text="Jenis Kelamin").count())
+#     # date_picker.select(page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),format_cell_value(data["tgl_lahir_wali"]),)
 
-    page.locator("div:has(> .text-gray-4:text('Pilih Jenis Kelamin'))").click()
-    page.locator(".max-h-\\[250px\\]").get_by_text(format_cell_value(data["gender_wali"]), exact=True).click()
-    # page.locator("label").filter(has_text="No. Whatsapp Wali").locator('input[name="Nomor whatsapp"]').fill(
-    #     format_cell_value(data["no_whatsapp_wali"])
-    # )
-    page.locator('[id="No whatsapp-wali"]').fill("81234567890")
+#     page.locator("div:has(> .text-gray-4:text('Pilih Jenis Kelamin'))").click()
+#     page.locator(".max-h-\\[250px\\]").get_by_text(format_cell_value(data["gender_wali"]), exact=True).click()
+#     # page.locator("label").filter(has_text="No. Whatsapp Wali").locator('input[name="Nomor whatsapp"]').fill(
+#     #     format_cell_value(data["no_whatsapp_wali"])
+#     # )
+#     page.locator('[id="No whatsapp-wali"]').fill("81234567890")
 
 def register_single_entry(page, data: dict, row_number: int, date_picker: DatePicker) -> None:
     prepare_registration_page(page)
 
-    page.get_by_text("Pilih sekolah").click()
+    print("mencari field sekolah...")
+    fSekolah = page.get_by_text("Pilih sekolah")
+    if(fSekolah):
+        print(f"{Colors.OKGREEN}{Colors.BOLD}=== field sekolah ditemukan{Colors.ENDC}")
+        fSekolah.click()
+    print("mencari input sekolah...")
     nama_sekolah_search = page.locator("#sekolah")
-    nama_sekolah_search.press_sequentially(format_cell_value(data["sekolah"]), delay=100)
-    page.wait_for_selector("div.py-2.px-4.cursor-pointer", state="visible")
-    page.locator("div.py-2.px-4.cursor-pointer").first.click()
+    if(nama_sekolah_search): 
+        print(f"{Colors.OKGREEN}{Colors.BOLD}=== input sekolah ditemukan{Colors.ENDC}")
+        print(f"nama sekolah di excel : {format_cell_value(data['sekolah'])}")
+        nama_sekolah_search.press_sequentially(format_cell_value(data["sekolah"]), delay=100)
+        page.wait_for_selector("div.py-2.px-4.cursor-pointer", state="visible")
+        print("mencari nama sekolah yang sesuai...")
+        page.locator("div.py-2.px-4.cursor-pointer").first.click()
 
-    page.get_by_text("Pilih kelas").click()
-    page.get_by_text(format_cell_value(data["kelas"]), exact=True).click()
-    page.get_by_text("Nomor Tiket").click()
-    page.get_by_text("Nama", exact=True).click()
-    nama_sekolah_search = page.locator("#searchNik")
-    nama_sekolah_search.press_sequentially(format_cell_value(data["nama"]), delay=100)
-    page.keyboard.press("Enter")
-    page.wait_for_load_state("networkidle")
-    buttonKonfirmasi = page.get_by_role("button", name="Konfirmasi Hadir")
-    page.pause()
-    print(f"button konformasi : {buttonKonfirmasi.count()}")
+    print("mencari field kelas...")
+    fKelas = page.get_by_text("Pilih kelas")
+    if(fKelas):
+        print(f"{Colors.OKGREEN}{Colors.BOLD}=== field kelas ditemukan{Colors.ENDC}")
+        fKelas.click()
+    print("mencari nama kelas...")
+    print(f"nama kelas di excel : {format_cell_value(data["kelas"])}")
+    nKelas = page.get_by_text(format_cell_value(data["kelas"]), exact=True)
+    if(nKelas):
+        print(f"{Colors.OKGREEN}{Colors.BOLD}=== nama kelas ditemukan{Colors.ENDC}")
+        nKelas.click()
+
+    print("mencari field nomor tiket...")
+    nTiket = page.get_by_text("Nomor Tiket")
+    if(nTiket):
+        print(f"{Colors.OKGREEN}{Colors.BOLD}=== nomor tiket ditemukan{Colors.ENDC}")
+        nTiket.click()
+        print("mengganti field tiket dengan Nama...")
+        nama = page.get_by_text("Nama", exact=True)
+        if(nama):
+            print(f"{Colors.OKGREEN}{Colors.BOLD}=== field nama ditemukan{Colors.ENDC}")
+            nama.click()
+            print("mencari field input nama...")
+            nNama = page.locator("#searchNik")
+            if(nNama):
+                print(f"{Colors.OKGREEN}{Colors.BOLD}=== field input nama ditemukan{Colors.ENDC}")
+                print(f"nama di excel : {format_cell_value(data["nama_lengkap"])}")
+                nNama.press_sequentially(format_cell_value(data["nama_lengkap"]), delay=100)
+                print("menjalankan aksi Enter")
+                page.keyboard.press("Enter")
+                print("menunggu hasil pencarian...")
+                time.sleep(3)
+                # page.pause()
+                page.wait_for_load_state("networkidle")
+                print("mencari tombol konfirmasi hadir...")
+                buttonKonfirmasi = page.get_by_role("button", name="Konfirmasi Hadir")
+    
     if buttonKonfirmasi.count() > 0:
+        print(f"{Colors.OKGREEN}{Colors.BOLD}=== tombol konfirmasi hadir ditemukan{Colors.ENDC}")
         buttonKonfirmasi.first.click()
+        print("mencari checkbox verifikasi...")
         checkbox = page.locator("input[name='verify']")
         if checkbox.count() > 0:
+            print(f"{Colors.OKGREEN}{Colors.BOLD}=== checkbox verifikasi ditemukan{Colors.ENDC}")
             checkbox = page.locator("input[name='verify']")
+            print("mencoba mengklik checkbox...")
             checkbox.set_checked(True, force=True)
-            page.locator("input[name='Nomor Whatsapp']").fill("81234567890")
+            print("mencari field nomor whatsapp...")
+            wa = page.locator("input[name='Nomor Whatsapp']")
+            if(wa):
+                print(f"{Colors.OKGREEN}{Colors.BOLD}=== field nomor whatsapp ditemukan{Colors.ENDC}")
+                print(f"nomor whatsapp di excel : {format_cell_value(data["whatsapp"])}")
+                print("memasukkan nomor whatsapp...")
+                wa.fill(format_cell_value(data["whatsapp"]))
+            print("mencari tombol hadir...")
             hadir = page.get_by_role("button", name="Hadir", exact=True)
-            # hadir.click() 
             if hadir.count() > 0:
-                print(hadir.count())
+                print(f"{Colors.OKGREEN}{Colors.BOLD}=== tombol hadir ditemukan{Colors.ENDC}")
                 hadir.click()
+            print("menunggu aksi selesai...")
             page.wait_for_load_state("networkidle")
-            page.get_by_role("button", name="Tutup", exact=True).click()
+            print("mencari tombol tutup...")
+            tutup = page.get_by_role("button", name="Tutup", exact=True)
+            if(tutup):
+                print(f"{Colors.OKGREEN}{Colors.BOLD}=== tombol tutup ditemukan{Colors.ENDC}")
+                tutup.click()
+            # page.get_by_role("button", name="Tutup", exact=True).click()
             print(f"{Colors.OKGREEN}{Colors.BOLD}============ Konfirmasi kehadiran berhasil ==========={Colors.ENDC}")
 
     else: 
@@ -337,7 +388,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
 
 
 def main() -> dict:
-    excel_path = PROJECT_ROOT / "dataset" / "pelayanan_sekolah.xlsx"
+    excel_path = PROJECT_ROOT / "dataset" / "konfirm_kehadiran_sekolah.xlsx"
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
     excel = ExcelStatusWorkbook(excel_path)

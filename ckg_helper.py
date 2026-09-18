@@ -72,7 +72,7 @@ MENU_OPTIONS = {
     "8": {
         "label": "CKG Sekolah - Konfirmasi Kehadiran",
         "script": Path("src") / "ckg-sekolah" / "konfirm_kehadiran.py",
-        "excel": Path("dataset") / "pelayanan_sekolah.xlsx",
+        "excel": Path("dataset") / "konfirm_kehadiran_sekolah.xlsx",
     },
     "9": {
         "label": "CKG Sekolah - Pelayanan",
