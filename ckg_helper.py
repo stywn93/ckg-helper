@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import openpyxl
 from src.helpers.api_report import report_execution
 from src.helpers.auto_update import __version__, check_for_update, install_update
+from src.helpers.excel import DEFAULT_COMBINED_WORKBOOK_NAME, resolve_dataset
 
 BANNER = r"""
   /$$$$$$  /$$   /$$  /$$$$$$        /$$   /$$                 /$$      /$$                                        
@@ -37,46 +38,64 @@ MENU_OPTIONS = {
     "1": {
         "label": "CKG Umum - Pendaftaran Baru",
         "script": Path("src") / "ckg-umum" / "daftar_baru.py",
+        "dataset_key": "pendaftaran_umum",
+        "sheet": "pendaftaran_umum",
         "excel": Path("dataset") / "pendaftaran_umum.xlsx",
     },
     "2": {
         "label": "CKG Umum - Konfirmasi Kehadiran",
         "script": Path("src") / "ckg-umum" / "konfirm_kehadiran.py",
+        "dataset_key": "konfirm_kehadiran",
+        "sheet": "konfirm_kehadiran",
         "excel": Path("dataset") / "konfirm_kehadiran.xlsx",
     },
     "3": {
         "label": "CKG Umum - Anak",
         "script": Path("src") / "ckg-umum" / "anak.py",
+        "dataset_key": "anak",
+        "sheet": "anak",
         "excel": Path("dataset") / "anak.xlsx",
     },
     "4": {
         "label": "CKG Umum - Remaja",
         "script": Path("src") / "ckg-umum" / "remaja.py",
+        "dataset_key": "remaja",
+        "sheet": "remaja",
         "excel": Path("dataset") / "remaja.xlsx",
     },
     "5": {
         "label": "CKG Umum - Dewasa",
         "script": Path("src") / "ckg-umum" / "dewasa.py",
+        "dataset_key": "dewasa",
+        "sheet": "dewasa",
         "excel": Path("dataset") / "dewasa.xlsx",
     },
     "6": {
         "label": "CKG Umum - Lansia",
         "script": Path("src") / "ckg-umum" / "lansia.py",
+        "dataset_key": "lansia",
+        "sheet": "lansia",
         "excel": Path("dataset") / "lansia.xlsx",
     },
     "7": {
         "label": "CKG Sekolah - Pendaftaran",
         "script": Path("src") / "ckg-sekolah" / "pendaftaran.py",
+        "dataset_key": "pendaftaran_sekolah",
+        "sheet": "pendaftaran_sekolah",
         "excel": Path("dataset") / "pendaftaran_sekolah.xlsx",
     },
     "8": {
         "label": "CKG Sekolah - Konfirmasi Kehadiran",
         "script": Path("src") / "ckg-sekolah" / "konfirm_kehadiran.py",
+        "dataset_key": "konfirm_kehadiran_sekolah",
+        "sheet": "konfirm_kehadiran_sekolah",
         "excel": Path("dataset") / "konfirm_kehadiran_sekolah.xlsx",
     },
     "9": {
         "label": "CKG Sekolah - Pelayanan",
         "script": Path("src") / "ckg-sekolah" / "pelayanan.py",
+        "dataset_key": "pelayanan_sekolah",
+        "sheet": "pelayanan_sekolah",
         "excel": Path("dataset") / "pelayanan_sekolah.xlsx",
     },
 }
@@ -314,12 +333,17 @@ def select_menu() -> str:
 
 
 def validate_excel_file(app_root: Path, option: dict[str, Path | str]) -> bool:
-    excel_path = app_root / option["excel"]
-    if excel_path.exists():
+    dataset_key = str(option.get("dataset_key", ""))
+    preferred_sheet = str(option.get("sheet", ""))
+    target_path, sheet_name = resolve_dataset(dataset_key, preferred_sheet, project_root=app_root)
+
+    if target_path.exists():
         return True
 
-    print(f"\nFile Excel tidak ditemukan: {excel_path}")
-    print("Pastikan folder dataset berada satu folder dengan aplikasi.")
+    print("\nFile data tidak ditemukan:")
+    print(f"- File gabungan: {app_root / 'dataset' / DEFAULT_COMBINED_WORKBOOK_NAME} (sheet: '{preferred_sheet}')")
+    print(f"- Atau file terpisah: {app_root / option['excel']}")
+    print("Pastikan file Excel diletakkan di folder dataset.")
     return False
 
 
