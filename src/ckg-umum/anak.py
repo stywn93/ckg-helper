@@ -28,7 +28,7 @@ import click_delay  # noqa: F401
 from playwright_window_layout import launch_chromium_with_layout
 
 # coba gunakan helper
-from excel import ExcelStatusWorkbook, format_cell_value
+from excel import ExcelStatusWorkbook, format_cell_value, resolve_dataset
 from screening_mandiri import ScreeningMandiri
 from api_report import monitored_main
 from screening_nakes import ScreeningNakes
@@ -286,11 +286,11 @@ def run_screening_steps(screening, method_names: list[str], data: dict, row_numb
 
 
 def main() -> dict:
-    excel_path = PROJECT_ROOT / "dataset" / "anak.xlsx"
+    excel_path, sheet_name = resolve_dataset("anak")
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
 
-    excel = ExcelStatusWorkbook(excel_path)
+    excel = ExcelStatusWorkbook(excel_path, sheet_name=sheet_name)
     data_rows = excel.pending_rows()
     if not data_rows:
         skipped_rows = excel.summary["skipped_rows"]

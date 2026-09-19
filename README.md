@@ -53,3 +53,30 @@ CKG No Worry saat ini mampu menjalankan :
 - CKG Umum - Pelayanan Lansia
 - CKG Sekolah - Pendaftaran Baru
 - CKG Sekolah - Konfirmasi Kehadiran
+---
+
+# 🏗️ Susunan Folder
+Setelah mengunduh aplikasi, pastikan dataset diletakkan pada folder `dataset/`.
+Aplikasi mendukung 2 metode dataset:
+1. **File Gabungan (Direkomendasikan)**: Satu file `dataset/ckg_data.xlsx` yang berisi sheet terpisah untuk setiap layanan (`anak`, `dewasa`, `remaja`, `lansia`, `pendaftaran_umum`, `konfirm_kehadiran`, `pendaftaran_sekolah`, `konfirm_kehadiran_sekolah`, `pelayanan_sekolah`).
+2. **File Terpisah**: File `.xlsx` individual seperti sebelumnya.
+
+```text
+CKG Helper
+│
+├── ckg-helper.exe
+│
+├── dataset/
+│   ├── ckg_data.xlsx                  # (Rekomendasi) 1 file berisi seluruh sheet
+│   │
+│   # ATAU file terpisah:
+│   ├── anak.xlsx
+│   ├── dewasa.xlsx
+│   ├── konfirm_kehadiran_sekolah.xlsx
+│   ├── konfirm_kehadiran.xlsx
+│   ├── lansia.xlsx
+│   ├── pelayanan_sekolah.xlsx
+│   ├── pendaftaran_sekolah.xlsx
+│   ├── pendaftaran_umum.xlsx
+│   └── remaja.xlsx
+```
