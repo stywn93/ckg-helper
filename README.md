@@ -1,14 +1,15 @@
 # CKG No Worry
+<img src="https://wordpress.com" alt="Website Preview" width="600">
 
-<p align="center">
+<p>
   <strong>Otomasi untuk membantu proses entri data CKG (Cek Kesehatan Gratis).</strong>
 </p>
 
-<p align="center">
+<p>
   Aplikasi otomasi berbasis python dan playwright yang dapat membantu entri data Cek Kesehatan Gratis dengan lebih mudah dan cepat.
 </p>
 
-<p align="center">
+<p>
   <img src="https://img.shields.io/badge/version-v0.4.0-orange" alt="Version">
   <img src="https://img.shields.io/badge/Python-Backend-3776AB?logo=python&logoColor=white" alt="Python">
   <img src="https://img.shields.io/badge/MacOS-Supported-Yes?logo=apple&logoColor=white" alt="macOS">
@@ -52,25 +53,3 @@ CKG No Worry saat ini mampu menjalankan :
 - CKG Umum - Pelayanan Lansia
 - CKG Sekolah - Pendaftaran Baru
 - CKG Sekolah - Konfirmasi Kehadiran
----
-
-# 🏗️ Susunan Folder
-Setelah mengunduh aplikasi, pastikan juga mengunduh dataset dan susun seperti ini pada folder.
-
-```text
-CKG Helper
-│
-├── ckg-helper.exe
-│
-├── dataset/
-│
-│   ├── anak.xlsx
-│   ├── dewasa.xlsx
-│   ├── konfirm_kehadiran_sekolah.xlsx
-│   ├── konfirm_kehadiran.xlsx
-│   ├── lansia.xlsx
-│   ├── pelayanan_sekolah.xlsx
-│   ├── pendaftaran_sekolah.xlsx
-│   ├── pendaftaran_umum.xlsx
-│   ├── remaja.xlsx
-    └── Audit
