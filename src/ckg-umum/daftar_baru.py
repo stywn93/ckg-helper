@@ -18,7 +18,7 @@ import click_delay  # noqa: F401
 from playwright_window_layout import launch_chromium_with_layout
 
 from date_picker import DatePicker
-from excel import ExcelStatusWorkbook, ExcelAppendWorkbook, format_cell_value
+from excel import ExcelStatusWorkbook, ExcelAppendWorkbook, format_cell_value, resolve_dataset
 from custom_exceptions import SkipRowException
 from api_report import monitored_main
 class Colors:
@@ -290,10 +290,10 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
 
 
 def main() -> dict:
-    excel_path = PROJECT_ROOT / "dataset" / "pendaftaran_umum.xlsx"
+    excel_path, sheet_name = resolve_dataset("pendaftaran_umum")
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
-    excel = ExcelStatusWorkbook(excel_path)
+    excel = ExcelStatusWorkbook(excel_path, sheet_name=sheet_name)
     data_rows = excel.pending_rows()
     if not data_rows:
         print(f"{Colors.WARNING}Tidak ada data pada file Excel.{Colors.ENDC}")
@@ -317,9 +317,7 @@ def main() -> dict:
             try:
                 register_single_entry(page, data, index, date_picker)
                 excel.update_status(index, "SUCCESS")
-                konfirm_path = PROJECT_ROOT / "dataset" / "konfirm_kehadiran.xlsx"
-                konfirm_wb = ExcelAppendWorkbook(konfirm_path)
-                konfirm_wb.append_row({
+                excel.append_row_to_dataset("konfirm_kehadiran", {
                     "nama_lengkap": format_cell_value(data["nama_lengkap"]),
                     "tgl_pemeriksaan": datetime.now(ZoneInfo("Asia/Jakarta")).strftime("%Y-%m-%d"),
                 })
