@@ -146,7 +146,7 @@ class ExcelStatusWorkbook:
 
             first_empty_row = None
             for row in dest_sheet.iter_rows(min_row=2, max_col=1, values_only=False):
-                if row[0].value is None:
+                if all(cell.value is None for cell in dest_sheet[row[0].row]):
                     first_empty_row = row[0].row
                     break
             if first_empty_row is None:
@@ -182,7 +182,7 @@ class ExcelAppendWorkbook:
 
     def _first_empty_row(self) -> int:
         for row in self.sheet.iter_rows(min_row=2, max_col=1, values_only=False):
-            if row[0].value is None:
+            if all(cell.value is None for cell in self.sheet[row[0].row]):
                 return row[0].row
         return self.sheet.max_row + 1
 

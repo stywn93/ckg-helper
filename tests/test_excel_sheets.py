@@ -116,6 +116,25 @@ class TestExcelMultiSheet(unittest.TestCase):
         self.assertEqual(check_wb["konfirm_kehadiran"].cell(row=2, column=1).value, "Budi")
         self.assertEqual(check_wb["konfirm_kehadiran"].cell(row=2, column=2).value, "2026-09-20")
 
+    def test_append_row_to_dataset_skips_partially_populated_rows(self):
+        combined = self.dataset_dir / DEFAULT_COMBINED_WORKBOOK_NAME
+        wb = Workbook()
+        ws_reg = wb.active
+        ws_reg.title = "pendaftaran_umum"
+        ws_reg.append(["nama_lengkap", "status"])
+
+        ws_anak = wb.create_sheet(title="anak")
+        ws_anak.append(["tgl_pemeriksaan", "nama"])
+        ws_anak.cell(row=2, column=2, value="Existing")
+        wb.save(combined)
+
+        excel = ExcelStatusWorkbook(combined, sheet_name="pendaftaran_umum")
+        excel.append_row_to_dataset("anak", {"nama": "Budi"})
+
+        check_wb = load_workbook(combined)
+        self.assertEqual(check_wb["anak"].cell(row=2, column=2).value, "Existing")
+        self.assertEqual(check_wb["anak"].cell(row=3, column=2).value, "Budi")
+
     def test_validate_excel_file_with_combined_and_standalone(self):
         # Combined workbook with all 9 sheets
         combined = self.dataset_dir / DEFAULT_COMBINED_WORKBOOK_NAME
