@@ -242,16 +242,33 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     page.get_by_text(format_cell_value(data["pekerjaan"]), exact=True).click()
 
     page.get_by_text("Pilih alamat domisili", exact=True).click()
+    # fProvinsi = page.get_by_role("textbox", name="Cari Provinsi")
+    # fProvinsi.click()
+    # fProvinsi.press_sequentially(format_cell_value(data["prov"]), delay=100)
+    # page.pause()
+    # page.get_by_role("button", name=format_cell_value(data["prov"])).click()
+    # page.wait_for_selector('[data-v-0dd0c770].flex.items-center.justify-between.gap-2')
     page.get_by_text(format_cell_value(data["prov"]), exact=True).click()
     page.get_by_text(format_cell_value(data["kab"]), exact=True).click()
     page.get_by_text(format_cell_value(data["kec"]), exact=True).click()
-    page.get_by_text(format_cell_value(data["desa"]), exact=True).click()
+    # page.pause()
+    # page.get_by_text(format_cell_value(data["desa"]), exact=True).first.click()
+    fDesa = page.get_by_text(format_cell_value(data["desa"]), exact=True)
+    count = fDesa.count()
+    if count == 0:
+        raise ValueError(f"Elemen '{data['desa']}' tidak ditemukan")
+    elif count == 1:
+        fDesa.first.click()
+    else:
+        # ada duplikat, misal nama desa sama di kecamatan berbeda
+        fDesa.nth(1).click()
+    # page.get_by_text(format_cell_value(data["desa"]), exact=True).nth(1).click()
     page.locator("textarea#detail-domisili").fill(format_cell_value(data["domisili"]))
 
-    page.get_by_role("button", name="Selanjutnya").click()
+    page.get_by_role("button", name="Daftarkan").click()
     print(f"{Colors.OKCYAN}Mohon tunggu sedang menunggu respon dari server CKG secara lengkap...{Colors.ENDC}")
     # page.pause()
-    page.wait_for_timeout(1500)
+    page.wait_for_timeout(500)
     # Seharusnya menunggu apakah tombol pilih muncul
     # jika tombol pilih muncul maka klik tombol pilih
     # jika tombol pilih di-klik maka klik Daftarkan dengan NIK
@@ -261,7 +278,8 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
 
     locators = {
         "dengan_nik": page.get_by_role("button", name="Pilih"),
-        "tanpa_nik": page.get_by_role("button", name="Daftarkan tanpa NIK")
+        "tanpa_nik": page.get_by_role("button", name="Daftarkan tanpa NIK"),
+        "tutup": page.get_by_role("button", name="Tutup")
     }
     nik_found = wait_for_first_visible(page, locators)
     print(f"nik_found = {nik_found}")
@@ -270,23 +288,25 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
         print(f"{Colors.OKCYAN}NIK ditemukan, silahkan tunggu...{Colors.ENDC}")
         page.get_by_role("button", name="Daftarkan dengan NIK").click()
 
-
     elif(nik_found == "tanpa_nik"):
         locators["tanpa_nik"].click()
+    elif(nik_found == "tutup"):
+        locators["tutup"].click()
+        print(f"{Colors.OKGREEN}{Colors.BOLD}============ Pendaftaran Berhasil ==========={Colors.ENDC}")
 
     page.wait_for_load_state("networkidle")
 
-    locators = {
-        "exception": page.get_by_role("button", name="Ok", exact=True),
-        "tutup": page.get_by_role("button", name="Tutup")
-    }
-    exception_found = wait_for_first_visible(page, locators)
-    if (exception_found == "exception"):
-        locators["exception"].click()
-        raise SkipRowException("Ada error dari Server CKG - Biasanya terkait NIK yang tidak valid")
-    else:
-        locators["tutup"].click()
-        print(f"{Colors.OKGREEN}{Colors.BOLD}============ Pendaftaran Berhasil ==========={Colors.ENDC}")
+    # locators = {
+    #     "exception": page.get_by_role("button", name="Ok", exact=True),
+    #     "tutup": page.get_by_role("button", name="Tutup")
+    # }
+    # exception_found = wait_for_first_visible(page, locators)
+    # if (exception_found == "exception"):
+    #     locators["exception"].click()
+    #     raise SkipRowException("Ada error dari Server CKG - Biasanya terkait NIK yang tidak valid")
+    # else:
+    #     locators["tutup"].click()
+    #     print(f"{Colors.OKGREEN}{Colors.BOLD}============ Pendaftaran Berhasil ==========={Colors.ENDC}")
 
 
 def main() -> dict:
