@@ -204,14 +204,14 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     }
 
     found = wait_for_first_visible(page, locators)
-    print(found)
+    # print(found)
     # page.pause()
     if found == "quota_habis":
         print("Quota Pemeriksaan habis")
         locators["quota_habis"].click()
         # page.pause()
         next_found = wait_for_first_visible(page, locators)
-        print(f"next_found : {next_found}")
+        # print(f"next_found : {next_found}")
         if next_found == "periksa_kembali":
             locators["periksa_kembali"].click()
             page.locator("input#tidak-punya-nik[type='checkbox']").click(force=True)
@@ -294,7 +294,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
         "tutup": page.get_by_role("button", name="Tutup")
     }
     nik_found = wait_for_first_visible(page, locators)
-    print(f"nik_found = {nik_found}")
+    # print(f"nik_found = {nik_found}")
     if(nik_found == "dengan_nik"):
         locators["dengan_nik"].click()
         print(f"{Colors.OKCYAN}NIK ditemukan, silahkan tunggu...{Colors.ENDC}")
