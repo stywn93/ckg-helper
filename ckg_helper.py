@@ -42,13 +42,6 @@ MENU_OPTIONS = {
         "sheet": "pendaftaran_umum",
         "excel": Path("dataset") / "pendaftaran_umum.xlsx",
     },
-    "2": {
-        "label": "CKG Umum - Konfirmasi Kehadiran",
-        "script": Path("src") / "ckg-umum" / "konfirm_kehadiran.py",
-        "dataset_key": "konfirm_kehadiran",
-        "sheet": "konfirm_kehadiran",
-        "excel": Path("dataset") / "konfirm_kehadiran.xlsx",
-    },
     "3": {
         "label": "CKG Umum - Anak",
         "script": Path("src") / "ckg-umum" / "anak.py",

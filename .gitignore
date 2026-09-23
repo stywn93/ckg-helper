@@ -16,3 +16,7 @@ docs/agent-workflow.md
 browsers
 *.zip
 dataset copy/
+release_notes.md
+dataset/ckg_data.xlsx
+dataset/sumber.xlsx
+.DS_Store

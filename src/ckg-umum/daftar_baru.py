@@ -174,6 +174,8 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
         has=page.locator("span.font-bold", has_text=re.compile(rf"^{day}$"))
     )
     day_button.click()
+    # 2191 -> 6 tahun -> anak usia sekolah dan remaja
+    # 21915 -> 60 tahun -> lansia
     if diff.days > 21915 or diff.days < 2191:
         # print("try to call isi data wali")
         isi_data_wali(page, data, date_picker)
