@@ -47,6 +47,14 @@ def get_required_env(name: str) -> str:
     return value
 
 
+def target_sheet_for_age(diff_days: int) -> str:
+    if diff_days < 2191:
+        return "anak"
+    if diff_days > 21915:
+        return "lansia"
+    return "dewasa"
+
+
 def prepare_registration_page(page) -> None:
     page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pendaftaran-individu")
     page.wait_for_load_state("networkidle")
@@ -138,7 +146,7 @@ def isi_data_wali(page, data: dict, date_picker: DatePicker) -> None:
         format_cell_value(data["no_whatsapp_wali"])
     )
 
-def register_single_entry(page, data: dict, row_number: int, date_picker: DatePicker) -> None:
+def register_single_entry(page, data: dict, row_number: int, date_picker: DatePicker) -> str:
     prepare_registration_page(page)
     print()
     print(f"{Colors.BOLD}======================={Colors.ENDC}")
@@ -168,6 +176,8 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     diff = today.date() - dob.date()
     # print(f"Total days: {diff.days}")
 
+    target_sheet = target_sheet_for_age(diff.days)
+
     day = datetime.now().day
     # day = 7
     day_button = page.locator("button").filter(
@@ -176,7 +186,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     day_button.click()
     # 2191 -> 6 tahun -> anak usia sekolah dan remaja
     # 21915 -> 60 tahun -> lansia
-    if diff.days > 21915 or diff.days < 2191:
+    if target_sheet != "dewasa":
         # print("try to call isi data wali")
         isi_data_wali(page, data, date_picker)
     page.get_by_role("button", name="Selanjutnya").click()
@@ -310,6 +320,8 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     #     locators["tutup"].click()
     #     print(f"{Colors.OKGREEN}{Colors.BOLD}============ Pendaftaran Berhasil ==========={Colors.ENDC}")
 
+    return target_sheet
+
 
 def main() -> dict:
     excel_path, sheet_name = resolve_dataset("pendaftaran_umum")
@@ -337,11 +349,14 @@ def main() -> dict:
             index = row_entry["row_number"]
             data = row_entry["data"]
             try:
-                register_single_entry(page, data, index, date_picker)
+                target_sheet = register_single_entry(page, data, index, date_picker)
                 excel.update_status(index, "SUCCESS")
                 excel.append_row_to_dataset("konfirm_kehadiran", {
                     "nama_lengkap": format_cell_value(data["nama_lengkap"]),
                     "tgl_pemeriksaan": datetime.now(ZoneInfo("Asia/Jakarta")).strftime("%Y-%m-%d"),
+                })
+                excel.append_row_to_dataset(target_sheet, {
+                    "nama": format_cell_value(data["nama_lengkap"]),
                 })
             except SkipRowException as exc:
                 # excel.update_status(index, f"SKIPPED: {str(exc)}")
