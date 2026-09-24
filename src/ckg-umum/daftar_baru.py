@@ -47,12 +47,19 @@ def get_required_env(name: str) -> str:
     return value
 
 
+CHILD_MAX_DAYS = 2190
+TEENAGER_MAX_DAYS = 6574
+ADULT_MAX_DAYS = 21914
+
+
 def target_sheet_for_age(diff_days: int) -> str:
-    if diff_days < 2191:
+    if diff_days <= CHILD_MAX_DAYS:
         return "anak"
-    if diff_days > 21915:
-        return "lansia"
-    return "dewasa"
+    if diff_days <= TEENAGER_MAX_DAYS:
+        return "remaja"
+    if diff_days <= ADULT_MAX_DAYS:
+        return "dewasa"
+    return "lansia"
 
 
 def prepare_registration_page(page) -> None:
@@ -221,9 +228,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     )
     print(f"mencari tombol tanggal {day}...")
     day_button.click()
-    # 2191 -> 6 tahun -> anak usia sekolah dan remaja
-    # 21915 -> 60 tahun -> lansia
-    if target_sheet != "dewasa":
+    if target_sheet in ("anak", "lansia"):
         print("usia membutuhkan data wali, mengisi data wali...")
         isi_data_wali(page, data, date_picker)
     print("mengklik tombol selanjutnya...")

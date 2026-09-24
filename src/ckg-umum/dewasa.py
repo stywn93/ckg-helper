@@ -159,34 +159,47 @@ def get_required_env(name: str) -> str:
 
 
 def prepare_page(page) -> None:
+    print("membuka halaman pelayanan CKG...")
     page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
     page.wait_for_load_state("networkidle")
 
+    print("mencari checkbox verifikasi...")
     checkbox = page.locator("input[name='verify']")
     if checkbox.count() > 0:
-        checkbox = page.locator("input[name='verify']")
+        print("=== checkbox verifikasi ditemukan")
+        print("mencentang checkbox verifikasi...")
         checkbox.set_checked(True, force=True)
+        print("mengklik tombol setuju...")
         page.locator("button:has-text('Setuju')").click()
         page.wait_for_load_state("networkidle")
 
+    print("mencari checkbox lokasi yang sama...")
     sameLocation = page.locator("input[name='sameLocation']")
     if sameLocation.count() > 0:
-        sameLocation = page.locator("input[name='sameLocation']")
+        print("=== checkbox lokasi yang sama ditemukan")
+        print("mencentang checkbox lokasi yang sama...")
         sameLocation.set_checked(True, force=True)
+        print("mengklik tombol simpan...")
         page.locator("button:has-text('Simpan')").click()
         page.wait_for_load_state("networkidle")
     # print("end of prepare_page")
 
 
 def login_and_wait_for_profile(page, username: str, password: str) -> None:
+    print("membuka halaman login...")
     page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
+    print("mengisi username...")
     page.locator("input#email").fill(username)
+    print("mengisi password...")
     page.locator("input#password").fill(password)
 
+    print("mencari tombol login...")
     submit_button = page.locator("button[type='submit']").first
     if submit_button.count() > 0:
+        print("=== tombol login ditemukan, mengklik...")
         submit_button.click()
     else:
+        print("tombol login tidak ditemukan, menjalankan Enter...")
         page.keyboard.press("Enter")
 
     try:
@@ -204,28 +217,43 @@ def login_and_wait_for_profile(page, username: str, password: str) -> None:
 
 def search_patient_with_status(page, data: dict, examination_status: str) -> None:
     prepare_page(page)
+    print(f"mencari status pemeriksaan: {examination_status}...")
     page.locator("div.cursor-pointer.px-3").filter(has_text=examination_status).click()
+    print("mencari field tanggal pemeriksaan...")
     page.locator("div.mx-input-wrapper").click()
     
     search_by_nik = format_cell_value(data["cari_by_nik"])
+    print(f"metode pencarian di excel : {search_by_nik}")
 
     if search_by_nik == "Ya":
+        print("mengganti pencarian nama menjadi NIK...")
         page.locator("div").filter(has_text=re.compile(r"^Nama$")).nth(3).click()
+        print("mencari pilihan NIK...")
         page.get_by_text("NIK").click()
-        nik_field = page.get_by_role("textbox", name="0/").click()
+        print("mencari field NIK...")
+        nik_field = page.get_by_role("textbox", name="0/")
+        print(f"NIK di excel : {format_cell_value(data['nik'])}")
+        nik_field.click()
         page.keyboard.type(format_cell_value(data["nik"]))
     else:
         batas_awal = format_cell_value(data["batas_awal"])
         batas_akhir = format_cell_value(data["batas_akhir"])
+        print(f"batas awal di excel : {batas_awal}")
         page.locator(f'td.cell[title="{batas_awal}"]').first.click()
+        print(f"batas akhir di excel : {batas_akhir}")
         page.locator(f'td.cell[title="{batas_akhir}"]').first.click()
+        print("mengganti pencarian NIK menjadi nama...")
         page.locator("span:has-text('Nama')").click()
+        print("mencari pilihan nama...")
         page.get_by_text("Nama", exact=True).nth(0).click()
+        print(f"nama di excel : {format_cell_value(data['nama'])}")
         page.locator("input#searchNik").fill(format_cell_value(data["nama"]))
     
+    print("menjalankan pencarian dengan Enter...")
     page.keyboard.press("Enter")
     page.wait_for_timeout(1000)
     page.wait_for_load_state("networkidle")
+    print("mencari tombol mulai...")
     page.locator("button:has-text('Mulai')").first.click(timeout=PATIENT_SEARCH_TIMEOUT_MS)
 
 
@@ -328,6 +356,7 @@ def run_screening_steps(screening, method_names: list[str], data: dict, row_numb
             continue
 
         try:
+            print(f"form {method_name} ditemukan, memulai...")
             print(f"{Colors.OKCYAN}Menjalankan {method_name}{Colors.ENDC}")
             method(data, row_number)
             page.wait_for_load_state("networkidle")
@@ -372,10 +401,11 @@ def main() -> dict:
             try:
                 examination_status = search_patient(page, data, index)
                 # search_patient(page, data, index)
+                print("mencari badge kategori pasien...")
                 badge = page.locator("div.border-rd-full.px-3.py-1").first
                 badge.wait_for(state="visible", timeout=15000)
                 badge_text = badge.inner_text().strip()
-                print(badge_text)
+                print(f"kategori pasien ditemukan : {badge_text}")
                 if badge_text != "Dewasa":
                     excel.update_status(index, f"Gagal - ini bukan pasien dewasa. Ini adalah pasien {badge_text}")
                     any_failed = True
@@ -383,18 +413,22 @@ def main() -> dict:
                     continue
 
                 if badge_text == "Dewasa":
+                    print("mencari jenis kelamin pasien...")
                     gender_locator = (
                         page.locator("div.flex.flex-col.gap-2")
                         .filter(has_text="Jenis Kelamin")
                         .locator("div.font-bold")
                     )
                     gender = gender_locator.inner_text().strip()
+                    print(f"jenis kelamin pasien ditemukan : {gender}")
                     if gender == "Laki-Laki":
                         print(f"{Colors.OKCYAN}Skrining Laki-Laki Dewasa{Colors.ENDC}")
                         print(f"{Colors.BOLD}============== Skrining Mandiri Dimulai =============={Colors.ENDC}")
                         if examination_status == "Belum Pemeriksaan":
                             #butuh perbaikan di sini untuk memilih tanggal
+                            print("mengklik tombol mulai pemeriksaan...")
                             page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
+                            print("mengklik tombol simpan...")
                             page.locator("button.btn-fill-primary:has-text('Simpan')").click()
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
                         run_screening_steps(
@@ -414,7 +448,9 @@ def main() -> dict:
                         print(f"{Colors.BOLD}============== Skrining Mandiri Dimulai =============={Colors.ENDC}")
                         if examination_status == "Belum Pemeriksaan":
                             #butuh perbaikan di sini untuk memilih tanggal
+                            print("mengklik tombol mulai pemeriksaan...")
                             page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
+                            print("mengklik tombol simpan...")
                             page.locator("button.btn-fill-primary:has-text('Simpan')").click()
                             print(f"{Colors.OKGREEN}Mulai Pemeriksaan dan Simpan berhasil diklik{Colors.ENDC}")
                         screening_mandiri = ScreeningMandiri(page, format_cell_value)
