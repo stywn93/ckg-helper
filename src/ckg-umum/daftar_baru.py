@@ -107,41 +107,67 @@ def wait_for_first_visible(page, locators_dict, timeout=5000):
     raise PlaywrightTimeoutError("None of the expected buttons appeared")
 
 def handle_periksa_kembali(page, data: dict, date_picker: DatePicker) -> None:
+    print("mencari tombol periksa kembali...")
     btn_recheck = page.locator("button:has-text('Periksa Kembali')").first
+    print("mencari tombol lanjutkan...")
     btn_success = page.locator("button:has-text('Lanjutkan')").first
     try:
         btn_recheck.wait_for(state="visible", timeout=3000)
+        print("=== tombol periksa kembali ditemukan")
+        print("mengklik tombol periksa kembali...")
         btn_recheck.click()
         btn_recheck.wait_for(state="hidden", timeout=3000)
+        print("mencari checkbox tidak punya NIK...")
         checkbox = page.locator("input[name='noNik']")
+        print("=== checkbox tidak punya NIK ditemukan")
+        print("mencentang checkbox tidak punya NIK...")
         checkbox.set_checked(True, force=True)
+        print(f"NIK wali di excel : {format_cell_value(data['nik_wali'])}")
         page.locator("input#nik\\ wali").fill(format_cell_value(data["nik_wali"]))
+        print(f"nama wali di excel : {format_cell_value(data['nama_wali'])}")
         page.locator('input[name="Nama Lengkap Wali"]').fill(format_cell_value(data["nama_wali"]))
 
+        print(f"tanggal lahir wali di excel : {format_cell_value(data['tgl_lahir_wali'])}")
         date_picker.select(
             page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),
             format_cell_value(data["tgl_lahir_wali"]),
         )
 
+        print("mencari field jenis kelamin wali...")
         page.locator("div:has(> .text-gray-4:text('Pilih Jenis Kelamin'))").click()
+        print(f"jenis kelamin wali di excel : {format_cell_value(data['gender_wali'])}")
         page.locator(".max-h-\\[250px\\]").get_by_text(format_cell_value(data["gender_wali"]), exact=True).click()
+        print(f"nomor WhatsApp wali di excel : {format_cell_value(data['no_whatsapp_wali'])}")
         page.locator("label").filter(has_text="No. Whatsapp Wali").locator('input[name="Nomor whatsapp"]').fill(
             format_cell_value(data["no_whatsapp_wali"])
         )
+        print("mengklik tombol selanjutnya...")
         page.get_by_role("button", name="Selanjutnya").click()
+        print("mengklik tombol lanjutkan...")
         page.locator("button:has-text('Lanjutkan')").click()
 
     except PlaywrightTimeoutError:
+        print("tombol lanjutkan ditemukan, mengklik...")
         btn_success.click()
 
 def isi_data_wali(page, data: dict, date_picker: DatePicker) -> None:
+    print("mengisi data wali...")
+    print(f"NIK wali di excel : {format_cell_value(data['nik_wali'])}")
     page.locator("input#nik\\ wali").fill(format_cell_value(data["nik_wali"]))
+    print(f"nama wali di excel : {format_cell_value(data['nama_wali'])}")
     page.locator('input[name="Nama Lengkap Wali"]').fill(format_cell_value(data["nama_wali"]))
 
-    date_picker.select(page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),format_cell_value(data["tgl_lahir_wali"]),)
+    print(f"tanggal lahir wali di excel : {format_cell_value(data['tgl_lahir_wali'])}")
+    date_picker.select(
+        page.locator('[id="Tanggal Lahir"] .mx-input-wrapper').filter(has_text="Pilih Tanggal Lahir"),
+        format_cell_value(data["tgl_lahir_wali"]),
+    )
 
+    print("mencari field jenis kelamin wali...")
     page.locator("div:has(> .text-gray-4:text('Pilih Jenis Kelamin'))").click()
+    print(f"jenis kelamin wali di excel : {format_cell_value(data['gender_wali'])}")
     page.locator(".max-h-\\[250px\\]").get_by_text(format_cell_value(data["gender_wali"]), exact=True).click()
+    print(f"nomor WhatsApp wali di excel : {format_cell_value(data['no_whatsapp_wali'])}")
     page.locator("label").filter(has_text="No. Whatsapp Wali").locator('input[name="Nomor whatsapp"]').fill(
         format_cell_value(data["no_whatsapp_wali"])
     )
@@ -151,20 +177,30 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     print()
     print(f"{Colors.BOLD}======================={Colors.ENDC}")
     print(f"{Colors.OKBLUE}Nama : {format_cell_value(data['nama_lengkap'])}{Colors.ENDC}")
+    print("mencari field NIK...")
     nik_input = page.locator("form input#nik")
+    print("=== field NIK ditemukan")
+    print(f"NIK di excel : {format_cell_value(data['nik'])}")
     nik_input.fill(format_cell_value(data["nik"]))
+    print("mencari field nama lengkap...")
+    print(f"nama lengkap di excel : {format_cell_value(data['nama_lengkap'])}")
     page.locator('input#Nama\\ Lengkap').fill(format_cell_value(data["nama_lengkap"]))
 
+    print("mencari field tanggal lahir...")
+    print(f"tanggal lahir di excel : {format_cell_value(data['tgl_lahir'])}")
     date_picker.select(
         page.locator("#Tanggal\\ Lahir .mx-input-wrapper"),
         format_cell_value(data["tgl_lahir"]),
     )
+    print("mencari field jenis kelamin...")
     page.get_by_text("Pilih jenis kelamin", exact=True).click()
+    print(f"jenis kelamin di excel : {format_cell_value(data['gender'])}")
     page.locator("div.absolute.top-13.z-2000").get_by_text(
         format_cell_value(data["gender"]),
         exact=True,
     ).click()
     
+    print(f"nomor WhatsApp di excel : {format_cell_value(data['no_whatsapp'])}")
     page.locator('input#No\\ Whatsapp').fill(format_cell_value(data["no_whatsapp"]))
 
     # Select a specific day button by exact day number (avoids "1" matching "11", "12"...)
@@ -183,12 +219,14 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     day_button = page.locator("button").filter(
         has=page.locator("span.font-bold", has_text=re.compile(rf"^{day}$"))
     )
+    print(f"mencari tombol tanggal {day}...")
     day_button.click()
     # 2191 -> 6 tahun -> anak usia sekolah dan remaja
     # 21915 -> 60 tahun -> lansia
     if target_sheet != "dewasa":
-        # print("try to call isi data wali")
+        print("usia membutuhkan data wali, mengisi data wali...")
         isi_data_wali(page, data, date_picker)
+    print("mengklik tombol selanjutnya...")
     page.get_by_role("button", name="Selanjutnya").click()
     # page.pause()
 
@@ -208,51 +246,69 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     # page.pause()
     if found == "quota_habis":
         print("Quota Pemeriksaan habis")
+        print("mengklik tombol lanjut...")
         locators["quota_habis"].click()
         # page.pause()
         next_found = wait_for_first_visible(page, locators)
         # print(f"next_found : {next_found}")
         if next_found == "periksa_kembali":
+            print("mengklik tombol periksa kembali...")
             locators["periksa_kembali"].click()
+            print("mencari checkbox tidak punya NIK...")
             page.locator("input#tidak-punya-nik[type='checkbox']").click(force=True)
             isi_data_wali(page, data, date_picker)
+            print("mengklik tombol selanjutnya...")
             page.get_by_role("button", name="Selanjutnya", exact=True).click()
             next_found_2 = wait_for_first_visible(page, locators)
             if(next_found_2 == "quota_habis"):
+                print("mengklik tombol lanjut...")
                 locators["quota_habis"].click()
                 next_found_3 = wait_for_first_visible(page, locators)
                 if(next_found_3 == "lanjutkan"):
+                    print("mengklik tombol lanjutkan...")
                     locators["lanjutkan"].click()
             elif next_found_2 == "lanjutkan":
+                print("mengklik tombol lanjutkan...")
                 locators["lanjutkan"].click()
         elif next_found == "cari_individu":
             print(f"{Colors.WARNING}pasien ini sudah menerima CKG{Colors.ENDC}")
             raise SkipRowException("Pasien ini sudah menerima CKG")
         elif next_found == "lanjutkan":
+            print("mengklik tombol lanjutkan...")
             locators["lanjutkan"].click()
         # print(f"next_found {next_found}")
     elif found == "periksa_kembali":
+        print("mengklik tombol periksa kembali...")
         locators["periksa_kembali"].click()
+        print("mencari checkbox tidak punya NIK...")
         page.locator("input#tidak-punya-nik[type='checkbox']").click(force=True)
         isi_data_wali(page, data, date_picker)
+        print("mengklik tombol selanjutnya...")
         page.get_by_role("button", name="Selanjutnya", exact=True).click()
         next_found = wait_for_first_visible(page, locators)
         if next_found == "lanjutkan":
+            print("mengklik tombol lanjutkan...")
             locators["lanjutkan"].click()
     elif found == "cari_individu":
         print(f"{Colors.WARNING}pasien ini sudah menerima CKG{Colors.ENDC}")
         raise SkipRowException("Pasien ini sudah menerima CKG")
     else:
         print(f"{Colors.WARNING}pasien belum menerima CKG{Colors.ENDC}")
+        print("mengklik tombol lanjutkan...")
         page.get_by_role("button", name="Lanjutkan", exact=True).click()
 
 
+    print("mencari field status pernikahan...")
     page.get_by_text("Pilih status pernikahan", exact=True).click()
+    print(f"status pernikahan di excel : {format_cell_value(data['pernikahan'])}")
     page.get_by_text(format_cell_value(data["pernikahan"]), exact=True).click()
 
+    print("mencari field pekerjaan...")
     page.get_by_text("Pilih pekerjaan", exact=True).click()
+    print(f"pekerjaan di excel : {format_cell_value(data['pekerjaan'])}")
     page.get_by_text(format_cell_value(data["pekerjaan"]), exact=True).click()
 
+    print("mencari field alamat domisili...")
     page.get_by_text("Pilih alamat domisili", exact=True).click()
     # fProvinsi = page.get_by_role("textbox", name="Cari Provinsi")
     # fProvinsi.click()
@@ -260,8 +316,11 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     # page.pause()
     # page.get_by_role("button", name=format_cell_value(data["prov"])).click()
     # page.wait_for_selector('[data-v-0dd0c770].flex.items-center.justify-between.gap-2')
+    print(f"provinsi di excel : {format_cell_value(data['prov'])}")
     page.get_by_text(format_cell_value(data["prov"]), exact=True).click()
+    print(f"kabupaten di excel : {format_cell_value(data['kab'])}")
     page.get_by_text(format_cell_value(data["kab"]), exact=True).click()
+    print(f"kecamatan di excel : {format_cell_value(data['kec'])}")
     page.get_by_text(format_cell_value(data["kec"]), exact=True).click()
     # page.pause()
     # page.get_by_text(format_cell_value(data["desa"]), exact=True).first.click()
@@ -270,13 +329,17 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     if count == 0:
         raise ValueError(f"Elemen '{data['desa']}' tidak ditemukan")
     elif count == 1:
+        print(f"desa di excel : {format_cell_value(data['desa'])}")
         fDesa.first.click()
     else:
         # ada duplikat, misal nama desa sama di kecamatan berbeda
+        print(f"desa di excel : {format_cell_value(data['desa'])}")
         fDesa.nth(1).click()
     # page.get_by_text(format_cell_value(data["desa"]), exact=True).nth(1).click()
+    print(f"detail domisili di excel : {format_cell_value(data['domisili'])}")
     page.locator("textarea#detail-domisili").fill(format_cell_value(data["domisili"]))
 
+    print("mengklik tombol daftarkan...")
     page.get_by_role("button", name="Daftarkan").click()
     print(f"{Colors.OKCYAN}Mohon tunggu sedang menunggu respon dari server CKG secara lengkap...{Colors.ENDC}")
     # page.pause()
@@ -296,13 +359,17 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     nik_found = wait_for_first_visible(page, locators)
     # print(f"nik_found = {nik_found}")
     if(nik_found == "dengan_nik"):
+        print("mengklik hasil NIK ditemukan...")
         locators["dengan_nik"].click()
         print(f"{Colors.OKCYAN}NIK ditemukan, silahkan tunggu...{Colors.ENDC}")
+        print("mengklik tombol daftarkan dengan NIK...")
         page.get_by_role("button", name="Daftarkan dengan NIK").click()
 
     elif(nik_found == "tanpa_nik"):
+        print("mengklik tombol daftarkan tanpa NIK...")
         locators["tanpa_nik"].click()
     elif(nik_found == "tutup"):
+        print("mengklik tombol tutup...")
         locators["tutup"].click()
         print(f"{Colors.OKGREEN}{Colors.BOLD}============ Pendaftaran Berhasil ==========={Colors.ENDC}")
 
