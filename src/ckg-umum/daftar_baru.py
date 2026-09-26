@@ -21,6 +21,7 @@ from date_picker import DatePicker
 from excel import ExcelStatusWorkbook, ExcelAppendWorkbook, format_cell_value, resolve_dataset
 from custom_exceptions import SkipRowException
 from api_report import monitored_main
+from sticky_stop_footer import sticky_stop_footer
 class Colors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -396,6 +397,11 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
 
 
 def main() -> dict:
+    with sticky_stop_footer():
+        return _run_main()
+
+
+def _run_main() -> dict:
     excel_path, sheet_name = resolve_dataset("pendaftaran_umum")
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
