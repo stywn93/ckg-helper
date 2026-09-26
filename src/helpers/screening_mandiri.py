@@ -11,6 +11,62 @@ class Colors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
+def _is_locator(value):
+    return hasattr(value, "count") and hasattr(value, "click")
+
+
+def _unwrap(value):
+    return value._locator if isinstance(value, _LoggingLocator) else value
+
+
+class _LoggingLocator:
+    def __init__(self, locator):
+        self._locator = locator
+
+    def __getattr__(self, name):
+        attribute = getattr(self._locator, name)
+        if name in {"click", "fill", "press", "press_sequentially", "set_checked", "type"}:
+            def action(*args, **kwargs):
+                print(f"mencari elemen sebelum {name}...")
+                if self._locator.count() > 0:
+                    print(f"=== elemen ditemukan, menjalankan {name}...")
+                else:
+                    print(f"=== elemen tidak ditemukan sebelum {name}")
+                return attribute(*args, **kwargs)
+
+            return action
+
+        if callable(attribute):
+            def call(*args, **kwargs):
+                result = attribute(
+                    *[_unwrap(arg) for arg in args],
+                    **{key: _unwrap(value) for key, value in kwargs.items()},
+                )
+                return _LoggingLocator(result) if _is_locator(result) else result
+
+            return call
+
+        return _LoggingLocator(attribute) if _is_locator(attribute) else attribute
+
+
+class _LoggingPage:
+    def __init__(self, page):
+        self._page = page
+
+    def __getattr__(self, name):
+        attribute = getattr(self._page, name)
+        if callable(attribute):
+            def call(*args, **kwargs):
+                result = attribute(
+                    *[_unwrap(arg) for arg in args],
+                    **{key: _unwrap(value) for key, value in kwargs.items()},
+                )
+                return _LoggingLocator(result) if _is_locator(result) else result
+
+            return call
+        return _LoggingLocator(attribute) if _is_locator(attribute) else attribute
+
 class ScreeningMandiri:
     _SCREENING_KEYS = {
         "do_demografi_dewasa": "skrining_demografi",
@@ -38,20 +94,25 @@ class ScreeningMandiri:
     
 
     def __init__(self, page, formatter):
-        self.page = page
+        self.page = _LoggingPage(page)
         self.formatter = formatter
 
+    def _value(self, data: dict, key: str) -> str:
+        value = self.formatter(data.get(key))
+        print(f"{key} di excel : {value}")
+        return value
+
     def _should_run(self, data:dict, key: str) -> bool:
-        value = data.get(key)
+        value = self._value(data, key)
         if value is None or str(value).strip() == "":
             return False
-        return self.formatter(value) == "Ya"
+        return value == "Ya"
 
     def required(self, data: dict, key: str) -> str:
-        value = data.get(key)
+        value = self._value(data, key)
         if value is None or str(value).strip() == "":
             raise ValueError(f"kolom {key} tidak boleh kosong")
-        return self.formatter(value)
+        return value
 
 
     def do_demografi_dewasa(self, data: dict, row_number: int) -> None:
@@ -75,7 +136,7 @@ class ScreeningMandiri:
             has_text=re.compile(rf"^{re.escape(value)}$")
         ).first.click()
         # self.page.get_by_label(self.required(data, "status_perkawinan"), exact=True).click()
-        if data["status_perkawinan"] != "Menikah":
+        if value != "Menikah":
             self.page.locator("label").filter(
                 has_text=self.required(data, "rencana_menikah")
             ).click()
@@ -109,7 +170,7 @@ class ScreeningMandiri:
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=re.compile(rf"^{re.escape(value)}$")
         ).first.click()
-        if data["status_perkawinan"] != "Menikah":
+        if value != "Menikah":
             self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
                 has_text=self.required(data, "rencana_menikah")
             ).first.click()
@@ -299,10 +360,11 @@ class ScreeningMandiri:
             return
         print("Skrining Risiko Gula Darah Anak Dimulai")
         self.page.locator('[id="rowfrm000110"]').click()
+        pernah_kencing_manis = self.required(data, "pernah_kencing_manis")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.required(data, "pernah_kencing_manis")
+            has_text=pernah_kencing_manis
         ).first.click()
-        if self.formatter(data["pernah_kencing_manis"]) == "Ya":
+        if pernah_kencing_manis == "Ya":
             self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.required(data, "berapa_bulan_diabetes"))
         else:
             self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
@@ -328,13 +390,15 @@ class ScreeningMandiri:
         print("Skrining Imunisasi Rutin Balita Dimulai")
         self.page.locator('[id="rowfrm000171"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
+        imunisasi_24_bulan = self.required(data, "imunisasi_24_bulan")
         self.page.locator("#sq_100i_list [role='option']").filter(
-            has_text=self.required(data, "imunisasi_24_bulan")).click()
-        if self.formatter(data["imunisasi_24_bulan"]) == "Ya":
+            has_text=imunisasi_24_bulan).click()
+        if imunisasi_24_bulan == "Ya":
             self.page.locator("div[aria-controls='sq_101i_list']").click()
+            membawa_buku_imunisasi = self.required(data, "membawa_buku_imunisasi")
             self.page.locator("#sq_101i_list [role='option']").filter(
-                has_text=self.required(data, "membawa_buku_imunisasi")).click()
-            if self.formatter(data["membawa_buku_imunisasi"]) == "Ya":
+                has_text=membawa_buku_imunisasi).click()
+            if membawa_buku_imunisasi == "Ya":
                 self.page.locator("div[aria-controls='sq_102i_list']").click()
                 self.page.locator("#sq_102i_list [role='option']").filter(
                     has_text=self.required(data, "menerima_imunisasi_hepatitis_b")).click()
@@ -541,10 +605,11 @@ class ScreeningMandiri:
             return
         print("Skrining Kanker Paru Dimulai")
         self.page.locator('[id="rowfrm000138"]').click()
+        merokok_setahun_terakhir = self.required(data, "merokok_setahun_terakhir")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.required(data, "merokok_setahun_terakhir")
+            has_text=merokok_setahun_terakhir
         ).click()
-        if data["merokok_setahun_terakhir"] == "Tidak":
+        if merokok_setahun_terakhir == "Tidak":
             self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
                 has_text=self.required(data, "merokok_15_tahun")
             ).click()
@@ -592,11 +657,12 @@ class ScreeningMandiri:
         
         print("Skrining Perilaku Merokok Dimulai")
         self.page.locator('[id="rowfrm000064"]').click()
+        merokok_setahun_terakhir_b = self.required(data, "merokok_setahun_terakhir_b")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.required(data, "merokok_setahun_terakhir_b")
+            has_text=merokok_setahun_terakhir_b
         ).click()
 
-        if data["merokok_setahun_terakhir_b"] == "Ya":
+        if merokok_setahun_terakhir_b == "Ya":
             self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
                 has_text=self.required(data, "jenis_rokok")
             ).click()
@@ -607,11 +673,12 @@ class ScreeningMandiri:
                 self.required(data, "berapa_batang")
             )
 
-        elif data["merokok_setahun_terakhir_b"] == "Tidak":
+        elif merokok_setahun_terakhir_b == "Tidak":
+            pernah_merokok = self.required(data, "pernah_merokok")
             self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
-                has_text=self.required(data, "pernah_merokok")
+                has_text=pernah_merokok
             ).click()
-            if data["pernah_merokok"] == "Ya":
+            if pernah_merokok == "Ya":
                 self.page.locator("input[aria-labelledby='sq_105_ariaTitle']").fill(
                     self.required(data, "berapa_tahun_sebelumnya")
                 )
@@ -642,9 +709,10 @@ class ScreeningMandiri:
         self.page.locator('[id="rowfrm000169"]').click()
 
         self.page.locator("div[aria-controls='sq_100i_list']").click()
+        aktivitas_domestik = self.required(data, "aktivitas_domestik")
         self.page.locator("#sq_100i_list [role='option']").filter(
-            has_text=self.required(data, "aktivitas_domestik")).click()
-        if data["aktivitas_domestik"] == "Ya":
+            has_text=aktivitas_domestik).click()
+        if aktivitas_domestik == "Ya":
             self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
                 self.required(data, "hari_domestik")
             )
@@ -654,9 +722,10 @@ class ScreeningMandiri:
 
         self.page.locator("div[aria-controls='sq_103i_list']").click()
         self.page.locator("#sq_103i .sd-dropdown__value").click()
+        aktivitas_pekerjaan = self.required(data, "aktivitas_pekerjaan")
         self.page.locator("#sq_103i_list [role='option']").filter(
-            has_text=self.required(data, "aktivitas_pekerjaan")).click()
-        if data["aktivitas_pekerjaan"] == "Ya":
+            has_text=aktivitas_pekerjaan).click()
+        if aktivitas_pekerjaan == "Ya":
             self.page.locator("input[aria-labelledby='sq_104_ariaTitle']").fill(
                 self.required(data, "hari_pekerjaan")
             )
@@ -666,9 +735,10 @@ class ScreeningMandiri:
 
         self.page.locator("div[aria-controls='sq_106i_list']").click()
         self.page.locator("#sq_106i .sd-dropdown__value").click()
+        aktivitas_perjalanan = self.required(data, "aktivitas_perjalanan")
         self.page.locator("#sq_106i_list [role='option']").filter(
-            has_text=self.required(data, "aktivitas_perjalanan")).click()
-        if data["aktivitas_perjalanan"] == "Ya":
+            has_text=aktivitas_perjalanan).click()
+        if aktivitas_perjalanan == "Ya":
             self.page.locator("input[aria-labelledby='sq_107_ariaTitle']").fill(
                 self.required(data, "hari_perjalanan")
             )
@@ -678,9 +748,10 @@ class ScreeningMandiri:
 
         self.page.locator("div[aria-controls='sq_109i_list']").click()
         self.page.locator("#sq_109i .sd-dropdown__value").click()
+        aktivitas_olahraga = self.required(data, "aktivitas_olahraga")
         self.page.locator("#sq_109i_list [role='option']").filter(
-            has_text=self.required(data, "aktivitas_olahraga")).click()
-        if data["aktivitas_olahraga"] == "Ya":
+            has_text=aktivitas_olahraga).click()
+        if aktivitas_olahraga == "Ya":
             self.page.locator("input[aria-labelledby='sq_110_ariaTitle']").fill(
                 self.required(data, "hari_olahraga")
             )
@@ -691,9 +762,10 @@ class ScreeningMandiri:
         self.page.locator("div[aria-controls='sq_112i_list']").click()
         self.page.locator("#sq_112i .sd-dropdown__value").click()
 
+        aktivitas_kerja_berat = self.required(data, "aktivitas_kerja_berat")
         self.page.locator("#sq_112i_list [role='option']").filter(
-            has_text=self.required(data, "aktivitas_kerja_berat")).click()
-        if data["aktivitas_kerja_berat"] == "Ya":
+            has_text=aktivitas_kerja_berat).click()
+        if aktivitas_kerja_berat == "Ya":
             self.page.locator("input[aria-labelledby='sq_113_ariaTitle']").fill(
                 self.required(data, "hari_kerja_berat")
             )
@@ -703,9 +775,10 @@ class ScreeningMandiri:
 
         self.page.locator("div[aria-controls='sq_115i_list']").click()
         self.page.locator("#sq_115i .sd-dropdown__value").click()
+        aktivitas_olahraga_berat = self.required(data, "aktivitas_olahraga_berat")
         self.page.locator("#sq_115i_list [role='option']").filter(
-            has_text=self.required(data, "aktivitas_olahraga_berat")).click()
-        if data["aktivitas_olahraga_berat"] == "Ya":
+            has_text=aktivitas_olahraga_berat).click()
+        if aktivitas_olahraga_berat == "Ya":
             self.page.locator("input[aria-labelledby='sq_116_ariaTitle']").fill(
                 self.required(data, "hari_olahraga_berat")
             )

@@ -408,7 +408,7 @@ def main() -> dict:
                 print(f"jenis kelamin pasien ditemukan : {gender}")
                 if gender == "Laki-laki":
                     print("memasuki if laki-laki...")
-                    page.pause()
+                    # page.pause()
                     print(f"{Colors.OKCYAN}Skrining Laki-Laki Dewasa{Colors.ENDC}")
                     print(f"{Colors.BOLD}============== Skrining Mandiri Dimulai =============={Colors.ENDC}")
                     if examination_status == "Belum Pemeriksaan":
