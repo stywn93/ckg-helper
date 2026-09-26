@@ -44,7 +44,7 @@ MENU_OPTIONS = {
     },
     "3": {
         "label": "CKG Umum",
-        "detail": "Pelayanan CKG anak",
+        "detail": "Pelayanan CKG Anak",
         "script": Path("src") / "ckg-umum" / "anak.py",
         "dataset_key": "anak",
         "sheet": "anak",
@@ -52,7 +52,7 @@ MENU_OPTIONS = {
     },
     "4": {
         "label": "CKG Umum",
-        "detail": "Pelayanan CKG remaja",
+        "detail": "Pelayanan CKG Remaja",
         "script": Path("src") / "ckg-umum" / "remaja.py",
         "dataset_key": "remaja",
         "sheet": "remaja",
@@ -60,7 +60,7 @@ MENU_OPTIONS = {
     },
     "5": {
         "label": "CKG Umum",
-        "detail": "Pelayanan CKG dewasa",
+        "detail": "Pelayanan CKG Dewasa",
         "script": Path("src") / "ckg-umum" / "dewasa.py",
         "dataset_key": "dewasa",
         "sheet": "dewasa",
@@ -68,7 +68,7 @@ MENU_OPTIONS = {
     },
     "6": {
         "label": "CKG Umum",
-        "detail": "Pelayanan CKG lansia",
+        "detail": "Pelayanan CKG Lansia",
         "script": Path("src") / "ckg-umum" / "lansia.py",
         "dataset_key": "lansia",
         "sheet": "lansia",
@@ -76,7 +76,7 @@ MENU_OPTIONS = {
     },
     "7": {
         "label": "CKG Sekolah",
-        "detail": "Pendaftaran CKG sekolah",
+        "detail": "Pendaftaran CKG Sekolah",
         "script": Path("src") / "ckg-sekolah" / "pendaftaran.py",
         "dataset_key": "pendaftaran_sekolah",
         "sheet": "pendaftaran_sekolah",
@@ -84,7 +84,7 @@ MENU_OPTIONS = {
     },
     "8": {
         "label": "CKG Sekolah",
-        "detail": "Konfirmasi kehadiran",
+        "detail": "Konfirmasi Kehadiran",
         "script": Path("src") / "ckg-sekolah" / "konfirm_kehadiran.py",
         "dataset_key": "konfirm_kehadiran_sekolah",
         "sheet": "konfirm_kehadiran_sekolah",
@@ -92,7 +92,7 @@ MENU_OPTIONS = {
     },
     "9": {
         "label": "CKG Sekolah",
-        "detail": "Pelayanan CKG sekolah",
+        "detail": "Pelayanan CKG Sekolah",
         "script": Path("src") / "ckg-sekolah" / "pelayanan.py",
         "dataset_key": "pelayanan_sekolah",
         "sheet": "pelayanan_sekolah",
@@ -127,16 +127,16 @@ def confirm_excel_closed() -> bool:
 
     selected_index = 0
     first_render = True
-    print("\nApakah file Excel sudah disimpan dan ditutup?")
-    print("Gunakan tombol ↑/↓ lalu Enter.\n")
+    print(f"\n{GREEN}Apakah file Excel sudah disimpan dan ditutup?{RESET}")
+    print(f"{FADED}Gunakan tombol ↑/↓ lalu Enter.{RESET}\n")
     while True:
         if not first_render:
             print("\033[2A", end="")
         for index, option in enumerate(options):
-            marker = ">" if index == selected_index else " "
+            marker = "➤" if index == selected_index else " "
             line = f"{marker} {option.capitalize()}"
-            prefix = "\033[7m" if index == selected_index else ""
-            print(f"\033[2K{prefix}{line}\033[0m")
+            color = BLUE if index == selected_index else ""
+            print(f"\033[2K{color}{line}{RESET}")
         first_render = False
 
         key = read_menu_key()
@@ -308,7 +308,7 @@ def print_menu(menu_keys: list[str], selected_index: int) -> None:
         marker = "➤" if index == selected_index else " "
         line = f"{marker} {key.upper()}. {labels[key]:<{MENU_COLUMN_WIDTH}} {details[key]}"
         print(f"{BLUE}{line}{RESET}" if index == selected_index else line)
-    print(f"\n{FADED}↑/↓ Navigasi  |  Enter Pilih  |  V Lihat versi  |  Q Quit{RESET}")
+    print(f"\n{FADED}↑/↓  |  Enter  |  I Info  |  V Versi  |  Q Quit{RESET}")
 
 
 def select_menu() -> str:
@@ -328,7 +328,7 @@ def select_menu() -> str:
             selected_index = next_menu_index(selected_index, 1, len(menu_keys))
         elif key in {"\r", "\n"}:
             return menu_keys[selected_index]
-        elif key.lower() in {"v", "q"}:
+        elif key.lower() in {"i", "v", "q"}:
             return key.lower()
 
 
@@ -404,7 +404,6 @@ def main() -> None:
     show_banner()
     app_root = get_app_root()
     load_app_env(app_root)
-    print_welcome(app_root)
 
     print("\nMemeriksa update...", end=" ", flush=True)
     _update_available = check_for_update()
@@ -421,6 +420,11 @@ def main() -> None:
 
         if choice == "v":
             print(f"\n{APP_NAME}")
+            pause()
+            continue
+
+        if choice == "i":
+            print_welcome(app_root)
             pause()
             continue
 
