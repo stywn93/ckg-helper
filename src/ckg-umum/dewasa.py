@@ -305,8 +305,6 @@ def do_pemeriksaan_check(page, selector: str, checked: bool) -> None:
         # page.pause()
         if checkbox.is_checked() != checked:
             checkbox.click()
-        # checkbox.click()
-        # page.locator(selector).set_checked(checked, force=True)
 
 
 def close_active_screening_form(page) -> None:
@@ -400,71 +398,60 @@ def main() -> dict:
             data = row_entry["data"]
             try:
                 examination_status = search_patient(page, data, index)
-                # search_patient(page, data, index)
-                print("mencari badge kategori pasien...")
-                badge = page.locator("div.border-rd-full.px-3.py-1").first
-                badge.wait_for(state="visible", timeout=15000)
-                badge_text = badge.inner_text().strip()
-                print(f"kategori pasien ditemukan : {badge_text}")
-                if badge_text != "Dewasa":
-                    excel.update_status(index, f"Gagal - ini bukan pasien dewasa. Ini adalah pasien {badge_text}")
-                    any_failed = True
-                    page.wait_for_load_state("networkidle")
-                    continue
-
-                if badge_text == "Dewasa":
-                    print("mencari jenis kelamin pasien...")
-                    gender_locator = (
-                        page.locator("div.flex.flex-col.gap-2")
-                        .filter(has_text="Jenis Kelamin")
-                        .locator("div.font-bold")
+                print("mencari jenis kelamin pasien...")
+                gender_locator = (
+                    page.locator("div.flex.flex-col.gap-2")
+                    .filter(has_text="Jenis Kelamin")
+                    .locator("div.font-bold")
+                )
+                gender = gender_locator.inner_text().strip()
+                print(f"jenis kelamin pasien ditemukan : {gender}")
+                if gender == "Laki-laki":
+                    print("memasuki if laki-laki...")
+                    page.pause()
+                    print(f"{Colors.OKCYAN}Skrining Laki-Laki Dewasa{Colors.ENDC}")
+                    print(f"{Colors.BOLD}============== Skrining Mandiri Dimulai =============={Colors.ENDC}")
+                    if examination_status == "Belum Pemeriksaan":
+                        #butuh perbaikan di sini untuk memilih tanggal
+                        print("mengklik tombol mulai pemeriksaan...")
+                        page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
+                        print("mengklik tombol simpan...")
+                        page.locator("button.btn-fill-primary:has-text('Simpan')").click()
+                    screening_mandiri = ScreeningMandiri(page, format_cell_value)
+                    run_screening_steps(
+                        screening_mandiri, DEWASA_MANDIRI_LAKI_SCREENINGS, data, index, page
                     )
-                    gender = gender_locator.inner_text().strip()
-                    print(f"jenis kelamin pasien ditemukan : {gender}")
-                    if gender == "Laki-Laki":
-                        print(f"{Colors.OKCYAN}Skrining Laki-Laki Dewasa{Colors.ENDC}")
-                        print(f"{Colors.BOLD}============== Skrining Mandiri Dimulai =============={Colors.ENDC}")
-                        if examination_status == "Belum Pemeriksaan":
-                            #butuh perbaikan di sini untuk memilih tanggal
-                            print("mengklik tombol mulai pemeriksaan...")
-                            page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
-                            print("mengklik tombol simpan...")
-                            page.locator("button.btn-fill-primary:has-text('Simpan')").click()
-                        screening_mandiri = ScreeningMandiri(page, format_cell_value)
-                        run_screening_steps(
-                            screening_mandiri, DEWASA_MANDIRI_LAKI_SCREENINGS, data, index, page
-                        )
-                        print(f"{Colors.BOLD}============== Skrining Mandiri Selesai =============={Colors.ENDC}")
-                        print(f"{Colors.BOLD}============== Skrining Oleh Nakes Dimulai =============={Colors.ENDC}")
-                        screening_nakes = ScreeningNakes(page, format_cell_value)
-                        run_screening_steps(
-                            screening_nakes, DEWASA_NAKES_LAKI_SCREENINGS, data, index, page
-                        )
-                        print(f"{Colors.BOLD}============== Skrining Oleh Nakes Selesai =============={Colors.ENDC}")
-                        excel.update_status(index, "SUCCESS")
-                        # page.pause()
-                    elif gender == "Perempuan":
-                        print(f"{Colors.OKCYAN}Skrining Perempuan Dewasa{Colors.ENDC}")
-                        print(f"{Colors.BOLD}============== Skrining Mandiri Dimulai =============={Colors.ENDC}")
-                        if examination_status == "Belum Pemeriksaan":
-                            #butuh perbaikan di sini untuk memilih tanggal
-                            print("mengklik tombol mulai pemeriksaan...")
-                            page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
-                            print("mengklik tombol simpan...")
-                            page.locator("button.btn-fill-primary:has-text('Simpan')").click()
-                            print(f"{Colors.OKGREEN}Mulai Pemeriksaan dan Simpan berhasil diklik{Colors.ENDC}")
-                        screening_mandiri = ScreeningMandiri(page, format_cell_value)
-                        run_screening_steps(
-                            screening_mandiri, DEWASA_MANDIRI_PEREMPUAN_SCREENINGS, data, index, page
-                        )
-                        print(f"{Colors.BOLD}============== Skrining Mandiri Selesai =============={Colors.ENDC}")
-                        print(f"{Colors.BOLD}============== Skrining Oleh Nakes Dimulai =============={Colors.ENDC}")
-                        screening_nakes = ScreeningNakes(page, format_cell_value)
-                        run_screening_steps(
-                            screening_nakes, DEWASA_NAKES_PEREMPUAN_SCREENINGS, data, index, page
-                        )
-                        print(f"{Colors.BOLD}============== Skrining Oleh Nakes Selesai =============={Colors.ENDC}")
-                        excel.update_status(index, "SUCCESS")
+                    print(f"{Colors.BOLD}============== Skrining Mandiri Selesai =============={Colors.ENDC}")
+                    print(f"{Colors.BOLD}============== Skrining Oleh Nakes Dimulai =============={Colors.ENDC}")
+                    screening_nakes = ScreeningNakes(page, format_cell_value)
+                    run_screening_steps(
+                        screening_nakes, DEWASA_NAKES_LAKI_SCREENINGS, data, index, page
+                    )
+                    print(f"{Colors.BOLD}============== Skrining Oleh Nakes Selesai =============={Colors.ENDC}")
+                    excel.update_status(index, "SUCCESS")
+                    # page.pause()
+                elif gender == "Perempuan":
+                    print(f"{Colors.OKCYAN}Skrining Perempuan Dewasa{Colors.ENDC}")
+                    print(f"{Colors.BOLD}============== Skrining Mandiri Dimulai =============={Colors.ENDC}")
+                    if examination_status == "Belum Pemeriksaan":
+                        #butuh perbaikan di sini untuk memilih tanggal
+                        print("mengklik tombol mulai pemeriksaan...")
+                        page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
+                        print("mengklik tombol simpan...")
+                        page.locator("button.btn-fill-primary:has-text('Simpan')").click()
+                        print(f"{Colors.OKGREEN}Mulai Pemeriksaan dan Simpan berhasil diklik{Colors.ENDC}")
+                    screening_mandiri = ScreeningMandiri(page, format_cell_value)
+                    run_screening_steps(
+                        screening_mandiri, DEWASA_MANDIRI_PEREMPUAN_SCREENINGS, data, index, page
+                    )
+                    print(f"{Colors.BOLD}============== Skrining Mandiri Selesai =============={Colors.ENDC}")
+                    print(f"{Colors.BOLD}============== Skrining Oleh Nakes Dimulai =============={Colors.ENDC}")
+                    screening_nakes = ScreeningNakes(page, format_cell_value)
+                    run_screening_steps(
+                        screening_nakes, DEWASA_NAKES_PEREMPUAN_SCREENINGS, data, index, page
+                    )
+                    print(f"{Colors.BOLD}============== Skrining Oleh Nakes Selesai =============={Colors.ENDC}")
+                    excel.update_status(index, "SUCCESS")
 
 
                 page.wait_for_load_state("networkidle")
