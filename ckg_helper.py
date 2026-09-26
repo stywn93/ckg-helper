@@ -14,21 +14,20 @@ from src.helpers.auto_update import __version__, check_for_update, install_updat
 from src.helpers.excel import DEFAULT_COMBINED_WORKBOOK_NAME, resolve_dataset
 
 BANNER = r"""
-  /$$$$$$  /$$   /$$  /$$$$$$        /$$   /$$                 /$$      /$$                                        
- /$$__  $$| $$  /$$/ /$$__  $$      | $$$ | $$                | $$  /$ | $$                                        
-| $$  \__/| $$ /$$/ | $$  \__/      | $$$$| $$  /$$$$$$       | $$ /$$$| $$  /$$$$$$   /$$$$$$   /$$$$$$  /$$   /$$
-| $$      | $$$$$/  | $$ /$$$$      | $$ $$ $$ /$$__  $$      | $$/$$ $$ $$ /$$__  $$ /$$__  $$ /$$__  $$| $$  | $$
-| $$      | $$  $$  | $$|_  $$      | $$  $$$$| $$  \ $$      | $$$$_  $$$$| $$  \ $$| $$  \__/| $$  \__/| $$  | $$
-| $$    $$| $$\  $$ | $$  \ $$      | $$\  $$$| $$  | $$      | $$$/ \  $$$| $$  | $$| $$      | $$      | $$  | $$
-|  $$$$$$/| $$ \  $$|  $$$$$$/      | $$ \  $$|  $$$$$$/      | $$/   \  $$|  $$$$$$/| $$      | $$      |  $$$$$$$
- \______/ |__/  \__/ \______/       |__/  \__/ \______/       |__/     \__/ \______/ |__/      |__/       \____  $$
-                                                                                                          /$$  | $$
-                                                                                                         |  $$$$$$/
-                                                                                                          \______/ 
+  _______ _______  __ __    __            
+ / ___/ //_/ ___/ / // /__ / /__  ___ ____
+/ /__/ ,< / (_ / / _  / -_) / _ \/ -_) __/
+\___/_/|_|\___/ /_//_/\__/_/ .__/\__/_/   
+                          /_/            
 """
 
 
 APP_NAME = f"CKG No Worry {__version__}"
+RESET = "\033[0m"
+GREEN = "\033[32m"
+BLUE = "\033[38;2;124;206;254m"
+FADED = "\033[38;2;120;120;120m"
+MENU_COLUMN_WIDTH = 15
 
 _update_available: dict | None = None
 USERNAME_ENV = "CKG_USERNAME"
@@ -36,56 +35,64 @@ PASSWORD_ENV = "CKG_PASSWORD"
 
 MENU_OPTIONS = {
     "1": {
-        "label": "CKG Umum - Pendaftaran Baru",
+        "label": "CKG Umum",
+        "detail": "Pendaftaran Baru",
         "script": Path("src") / "ckg-umum" / "daftar_baru.py",
         "dataset_key": "pendaftaran_umum",
         "sheet": "pendaftaran_umum",
         "excel": Path("dataset") / "pendaftaran_umum.xlsx",
     },
     "3": {
-        "label": "CKG Umum - Anak",
+        "label": "CKG Umum",
+        "detail": "Pelayanan CKG Anak",
         "script": Path("src") / "ckg-umum" / "anak.py",
         "dataset_key": "anak",
         "sheet": "anak",
         "excel": Path("dataset") / "anak.xlsx",
     },
     "4": {
-        "label": "CKG Umum - Remaja",
+        "label": "CKG Umum",
+        "detail": "Pelayanan CKG Remaja",
         "script": Path("src") / "ckg-umum" / "remaja.py",
         "dataset_key": "remaja",
         "sheet": "remaja",
         "excel": Path("dataset") / "remaja.xlsx",
     },
     "5": {
-        "label": "CKG Umum - Dewasa",
+        "label": "CKG Umum",
+        "detail": "Pelayanan CKG Dewasa",
         "script": Path("src") / "ckg-umum" / "dewasa.py",
         "dataset_key": "dewasa",
         "sheet": "dewasa",
         "excel": Path("dataset") / "dewasa.xlsx",
     },
     "6": {
-        "label": "CKG Umum - Lansia",
+        "label": "CKG Umum",
+        "detail": "Pelayanan CKG Lansia",
         "script": Path("src") / "ckg-umum" / "lansia.py",
         "dataset_key": "lansia",
         "sheet": "lansia",
         "excel": Path("dataset") / "lansia.xlsx",
     },
     "7": {
-        "label": "CKG Sekolah - Pendaftaran",
+        "label": "CKG Sekolah",
+        "detail": "Pendaftaran CKG Sekolah",
         "script": Path("src") / "ckg-sekolah" / "pendaftaran.py",
         "dataset_key": "pendaftaran_sekolah",
         "sheet": "pendaftaran_sekolah",
         "excel": Path("dataset") / "pendaftaran_sekolah.xlsx",
     },
     "8": {
-        "label": "CKG Sekolah - Konfirmasi Kehadiran",
+        "label": "CKG Sekolah",
+        "detail": "Konfirmasi Kehadiran",
         "script": Path("src") / "ckg-sekolah" / "konfirm_kehadiran.py",
         "dataset_key": "konfirm_kehadiran_sekolah",
         "sheet": "konfirm_kehadiran_sekolah",
         "excel": Path("dataset") / "konfirm_kehadiran_sekolah.xlsx",
     },
     "9": {
-        "label": "CKG Sekolah - Pelayanan",
+        "label": "CKG Sekolah",
+        "detail": "Pelayanan CKG Sekolah",
         "script": Path("src") / "ckg-sekolah" / "pelayanan.py",
         "dataset_key": "pelayanan_sekolah",
         "sheet": "pelayanan_sekolah",
@@ -94,7 +101,7 @@ MENU_OPTIONS = {
 }
 
 def show_banner():
-    print(BANNER)
+    print(f"{GREEN}{BANNER.rstrip()}\nMembantu anda mengentry ckg secara cepat{RESET}")
 
 def get_app_root() -> Path:
     if getattr(sys, "frozen", False):
@@ -120,16 +127,16 @@ def confirm_excel_closed() -> bool:
 
     selected_index = 0
     first_render = True
-    print("\nApakah file Excel sudah disimpan dan ditutup?")
-    print("Gunakan tombol ↑/↓ lalu Enter.\n")
+    print(f"\n{GREEN}Apakah file Excel sudah disimpan dan ditutup?{RESET}")
+    print(f"{FADED}Gunakan tombol ↑/↓ lalu Enter.{RESET}\n")
     while True:
         if not first_render:
             print("\033[2A", end="")
         for index, option in enumerate(options):
-            marker = ">" if index == selected_index else " "
+            marker = "➤" if index == selected_index else " "
             line = f"{marker} {option.capitalize()}"
-            prefix = "\033[7m" if index == selected_index else ""
-            print(f"\033[2K{prefix}{line}\033[0m")
+            color = BLUE if index == selected_index else ""
+            print(f"\033[2K{color}{line}{RESET}")
         first_render = False
 
         key = read_menu_key()
@@ -285,31 +292,29 @@ def read_menu_key() -> str:
 
 
 def next_menu_index(index: int, direction: int, item_count: int) -> int:
-    return (index + direction) % item_count
+    return max(0, min(index + direction, item_count - 1))
 
 
 def print_menu(menu_keys: list[str], selected_index: int) -> None:
     print("\033[2J\033[H", end="")
     show_banner()
-    print(f"{APP_NAME}")
-    print("=" * len(APP_NAME))
+    print()
     labels = {key: option["label"] for key, option in MENU_OPTIONS.items()}
+    details = {key: option.get("detail", "") for key, option in MENU_OPTIONS.items()}
     if _update_available:
         labels["u"] = f"⬇ Update v{_update_available['version_str']} tersedia!"
-    labels["0"] = "Keluar"
+        details["u"] = ""
     for index, key in enumerate(menu_keys):
-        marker = ">" if index == selected_index else " "
-        line = f"{marker} {key.upper()}. {labels[key]}"
-        print(f"\033[7m{line}\033[0m" if index == selected_index else line)
-    print("\nGunakan tombol ↑/↓ lalu Enter.")
+        marker = "➤" if index == selected_index else " "
+        line = f"{marker} {key.upper()}. {labels[key]:<{MENU_COLUMN_WIDTH}} {details[key]}"
+        print(f"{BLUE}{line}{RESET}" if index == selected_index else line)
+    print(f"\n{FADED}↑/↓  |  Enter  |  I Info  |  V Versi  |  Q Quit{RESET}")
 
 
 def select_menu() -> str:
     menu_keys = list(MENU_OPTIONS)
     if _update_available:
         menu_keys.append("u")
-    menu_keys.append("0")
-
     if not sys.stdin.isatty():
         return input("Pilih menu: ").strip().lower()
 
@@ -323,6 +328,8 @@ def select_menu() -> str:
             selected_index = next_menu_index(selected_index, 1, len(menu_keys))
         elif key in {"\r", "\n"}:
             return menu_keys[selected_index]
+        elif key.lower() in {"i", "v", "q"}:
+            return key.lower()
 
 
 def validate_excel_file(app_root: Path, option: dict[str, Path | str]) -> bool:
@@ -397,7 +404,6 @@ def main() -> None:
     show_banner()
     app_root = get_app_root()
     load_app_env(app_root)
-    print_welcome(app_root)
 
     print("\nMemeriksa update...", end=" ", flush=True)
     _update_available = check_for_update()
@@ -408,9 +414,19 @@ def main() -> None:
 
     while True:
         choice = select_menu()
-        if choice == "0":
+        if choice == "q":
             print("Keluar.")
             return
+
+        if choice == "v":
+            print(f"\n{APP_NAME}")
+            pause()
+            continue
+
+        if choice == "i":
+            print_welcome(app_root)
+            pause()
+            continue
 
         if choice == "u":
             if _update_available:
