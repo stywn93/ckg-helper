@@ -1,5 +1,15 @@
 import re
 
+class Colors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 class ScreeningMandiri:
     _SCREENING_KEYS = {
@@ -48,12 +58,18 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_demografi_dewasa"]):
             print("Skrining Demografi Dewasa Dilewati (Tidak Aktif)")
             return
-
+        label = "Demografi Dewasa Laki-laki"
+        print(f"Memeriksa status {label}")
+        row = self.page.locator("tr").filter(
+            has=self.page.get_by_text(f"{label}", exact=True)
+        )
+        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
         print("Skrining Demografi Dewasa Dimulai")
         self.page.locator('[id="rowfrm000006"]').click()
-        # self.page.locator("label").filter(
-        #     has_text=self.required(data, "status_perkawinan")
-        # ).first.click()
+        
         value = self.required(data, "status_perkawinan")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=re.compile(rf"^{re.escape(value)}$")
@@ -76,13 +92,19 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_demografi_dewasa_perempuan"]):
             print("Skrining Demografi Dewasa Dilewati (Tidak Aktif)")
             return
+        
+        label = "Demografi Dewasa Perempuan"
+        print(f"Memeriksa status {label}")
+        row = self.page.locator("tr").filter(
+            has=self.page.get_by_text(f"{label}", exact=True)
+        )
+        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
+
         print("Skrining Demografi Dewasa Perempuan Dimulai")
         self.page.locator('[id="rowfrm000007"]').click()
-        # self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-        #     has_text=self.required(data, "status_perkawinan")
-        # ).first.click()
-        # self.page.get_by_label(self.required(data, "status_perkawinan"), exact=True).click()
-        # self.page.get_by_text(self.required(data, "status_perkawinan"), exact=True).click()
         value = self.required(data, "status_perkawinan")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=re.compile(rf"^{re.escape(value)}$")
@@ -107,12 +129,17 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_demografi_lansia"]):
             print("Skrining Demografi Lansia Dilewati (Tidak Aktif)")
             return
+        print("Memeriksa status Demografi Lansia")
+        row = self.page.locator("tr").filter(
+            has=self.page.get_by_text("Demografi Lansia", exact=True)
+        )
+        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
+        if already_done:
+            print("Demografi Lansia sudah selesai; dilewati")
+            return
+        
         print("Skrining Demografi Lansia Dimulai")
         self.page.locator('[id="rowfrm000008"]').click()
-        # self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-        #     has_text=self.required(data, "status_perkawinan")
-        # ).first.click()
-        # self.page.get_by_text(self.required(data, "status_perkawinan"), exact=True).click()
         value = self.required(data, "status_perkawinan")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=re.compile(rf"^{re.escape(value)}$")
@@ -130,6 +157,15 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_demografi_anak"]):
             print("Skrining Demografi Dewasa Dilewati (Tidak Aktif)")
             return
+        
+        print("Memeriksa status Demografi Anak")
+        row = self.page.locator("tr").filter(
+            has=self.page.get_by_text("Demografi Anak", exact=True)
+        )
+        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
+        if already_done:
+            print("Demografi Anak sudah selesai; dilewati")
+            return
         print("Skrining Demografi Anak Dimulai")
         self.page.locator('[id="rowfrm000106"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -143,6 +179,15 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_risiko_malaria"]):
             print("Skrining Risiko Malaria Dilewati (Tidak Aktif)")
             return
+        print("Memeriksa status Risiko Malaria")
+        row = self.page.locator("tr").filter(
+            has=self.page.get_by_text("Risiko Malaria", exact=True)
+        )
+        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
+        if already_done:
+            print("Risiko Malaria sudah selesai; dilewati")
+            return
+        
         print("Skrining Risiko Malaria Dimulai")
         self.page.locator('[id="rowfrm000115"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -165,6 +210,7 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_cemas_anak"]):
             print("Skrining Cemas Anak Dilewati (Tidak Aktif)")
             return
+        
         print("Skrining Cemas Anak Dimulai")
         self.page.locator('[id="rowfrm000109"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -367,6 +413,15 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_risiko_tb"]):
             print("Skrining Risiko TB Dilewati (Tidak Aktif)")
             return
+        label = "Faktor Risiko TB - Mandiri"
+        print(f"Memeriksa status {label}")
+        row = self.page.locator("tr").filter(
+            has=self.page.get_by_text(f"{label}", exact=True)
+        )
+        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
         print("Skrining Risiko TB Dimulai")
         self.page.locator('[id="rowfrm000180"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -378,6 +433,15 @@ class ScreeningMandiri:
     def do_hati(self, data: dict, row_number: int) -> None:
         if not self._should_run(data, self._SCREENING_KEYS["do_hati"]):
             print("Skrining Hati Dilewati (Tidak Aktif)")
+            return
+        label = "Faktor Risiko Hati"
+        print(f"Memeriksa status {label}")
+        row = self.page.locator("tr").filter(
+            has=self.page.get_by_text(f"{label}", exact=True)
+        )
+        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
             return
         print("Skrining Hati Dimulai")
         self.page.locator('[id="rowfrm000028"]').click()
@@ -426,6 +490,15 @@ class ScreeningMandiri:
     def do_keswa(self, data: dict, row_number: int) -> None:
         if not self._should_run(data, self._SCREENING_KEYS["do_keswa"]):
             print("Skrining Kesehatan Jiwa Dilewati (Tidak Aktif)")
+            return
+        label = "Kesehatan Jiwa Dewasa"
+        print(f"Memeriksa status {label}")
+        row = self.page.locator("tr").filter(
+            has=self.page.get_by_text(f"{label}", exact=True)
+        )
+        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
             return
         print("Skrining Kesehatan Jiwa Dimulai")
         self.page.locator('[id="rowfrm000067"]').click()
@@ -507,6 +580,16 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_perilaku_merokok"]):
             print("Skrining Perilaku Dilewati (Tidak Aktif)")
             return
+        label = "Hasil Perilaku Merokok"
+        print(f"Memeriksa status {label}")
+        row = self.page.locator("tr").filter(
+            has=self.page.get_by_text(f"{label}", exact=True)
+        )
+        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
+        
         print("Skrining Perilaku Merokok Dimulai")
         self.page.locator('[id="rowfrm000064"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -545,6 +628,16 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_aktivitas_fisik"]):
             print("Skrining Aktivitas Fisik Dilewati (Tidak Aktif)")
             return
+        label = "Tingkat Aktivitas Fisik"
+        print(f"Memeriksa status {label}")
+        row = self.page.locator("tr").filter(
+            has=self.page.get_by_text(f"{label}", exact=True)
+        )
+        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
+        
         print("Skrining Aktivitas Fisik Dimulai")
         self.page.locator('[id="rowfrm000169"]').click()
 
