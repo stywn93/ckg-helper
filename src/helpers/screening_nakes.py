@@ -168,6 +168,11 @@ class ScreeningNakes:
         value = self._value(data, key)
         if value is None or str(value).strip() == "":
             raise ValueError(f"kolom {key} tidak boleh kosong")
+        if key == "tinggi_badan":
+            value = re.sub(r"\s*cm\s*$", "", str(value), flags=re.IGNORECASE).strip()
+            if not re.fullmatch(r"\d+(?:[.,]\d+)?", value):
+                raise ValueError(f"kolom {key} harus berupa angka, contoh: 155")
+            value = value.replace(",", ".")
         return value
 
     def do_pertumbuhan_balita(self, data: dict, row_number: int) -> None:
