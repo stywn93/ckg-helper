@@ -134,7 +134,7 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_demografi_dewasa"]):
             print("Skrining Demografi Dewasa Dilewati (Tidak Aktif)")
             return
-        label = "Demografi Dewasa Laki-laki"
+        label = "Demografi Dewasa Laki-Laki"
         row = self.page.locator("tr").filter(
             has=self.page.get_by_text(f"{label}", exact=True)
         )
@@ -472,6 +472,14 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_risiko_kanker_usus"]):
             print("Skrining Kanker Usus Dilewati (Tidak Aktif)")
             return
+        label = "Faktor Risiko Kanker Usus"
+        row = self.page.locator("tr").filter(
+            has=self.page.get_by_text(f"{label}", exact=True)
+        )
+        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
         self._start_screening("Skrining Risiko Kanker Usus")
         self.page.locator('[id="rowfrm000027"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -479,6 +487,12 @@ class ScreeningMandiri:
         ).click()
         self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
             has_text=self.required(data, "merokok")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.required(data, "usia_skor_apcs_mandiri")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=self.required(data, "jenis_kelamin_apcs_mandiri")
         ).click()
         self.page.locator("input:has-text('Kirim')").click()
         self._finish_screening()
@@ -613,6 +627,14 @@ class ScreeningMandiri:
     def do_risiko_kanker_paru(self, data: dict, row_number: int) -> None:
         if not self._should_run(data, self._SCREENING_KEYS["do_risiko_kanker_paru"]):
             print("Skrining Risiko Kanker Paru Dilewati (Tidak Aktif)")
+            return
+        label = "Penapisan Risiko Kanker Paru"
+        row = self.page.locator("tr").filter(
+            has=self.page.get_by_text(f"{label}", exact=True)
+        )
+        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
             return
         self._start_screening("Skrining Kanker Paru")
         self.page.locator('[id="rowfrm000138"]').click()

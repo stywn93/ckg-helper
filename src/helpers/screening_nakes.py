@@ -591,6 +591,16 @@ class ScreeningNakes:
         if not self._should_run(data, self._SCREENING_KEYS["do_gizi_laki"]):
             print("Skrining Gizi Laki Dilewati (Tidak Aktif)")
             return
+        label = "Gizi (BB - TB - Lingkar Perut) Laki-laki"
+        row = self.page.locator("div.w-full.grid.grid-cols-5").filter(
+            has=self.page.get_by_text(label, exact=True)
+        )
+        already_done = row.get_by_text(
+            "Selesai Pemeriksaan", exact=True
+        ).count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
         self._start_screening("Skrining Gizi Laki")
         self.page.locator('[id="rowfrm000093"]').click()
         self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(self.required(data, "berat_badan"))
@@ -908,10 +918,9 @@ class ScreeningNakes:
             print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
             return
     
-
         self.page.locator("#rowfrm000265").click()
         self._start_screening("Skrining Tekanan Darah Dewasa")
-        self.page.locator('[id="rowfrm000265"]').click()
+        # self.page.locator('[id="rowfrm000265"]').click()
         pernah_hipertensi = self.required(data, "pernah_hipertensi")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=pernah_hipertensi
@@ -1183,15 +1192,27 @@ class ScreeningNakes:
         if not self._should_run(data, self._SCREENING_KEYS["do_telinga_mata"]):
             print("Skrining Telinga dan Mata Dilewati (Tidak Aktif)")
             return
+        label = "Skrining Telinga dan Mata (=>40 tahun)"
+        row = self.page.locator("div.w-full.grid.grid-cols-5").filter(
+            has=self.page.get_by_text(label, exact=True)
+        )
+        already_done = row.get_by_text(
+            "Selesai Pemeriksaan", exact=True
+        ).count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
         self._start_screening("Skrining Telinga dan Mata")
-        # do_pemeriksaan_check(page, "label[for='hasil-lab-3-0']", True)
         self.page.locator('[id="rowfrm000099"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.required(data, "serumen_impaksi")
         ).first.click()
-        self.page.locator("div[aria-controls='sq_101i_list']").click()
-        self.page.locator("#sq_101i_list [role='option']").filter(
-            has_text=self.required(data, "infeksi_telinga")).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.required(data, "infeksi_telinga")
+        ).first.click()
+        # self.page.locator("div[aria-controls='sq_101i_list']").click()
+        # self.page.locator("#sq_101i_list [role='option']").filter(
+        #     has_text=self.required(data, "infeksi_telinga")).first.click()
         tajam_pendengaran = self.required(data, "tajam_pendengaran")
         self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
             has_text=tajam_pendengaran
@@ -1284,24 +1305,37 @@ class ScreeningNakes:
         if not self._should_run(data, self._SCREENING_KEYS["do_ppok"]):
             print("Skrining PPOK Dilewati (Tidak Aktif)")
             return
+        label = "Pemeriksaan PPOK (Skrining PUMA)"
+        row = self.page.locator("div.w-full.grid.grid-cols-5").filter(
+            has=self.page.get_by_text(label, exact=True)
+        )
+        already_done = row.get_by_text(
+            "Selesai Pemeriksaan", exact=True
+        ).count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
         self._start_screening("Skrining PPOK")
-        # do_pemeriksaan_check(page, "label[for='hasil-lab-5-0']", True)
         self.page.locator('[id="rowfrm000101"]').click()
-        ppok_merokok = self.required(data, "ppok_merokok")
+        # self.page.pause()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.required(data, "usia_skor_puma")
+        ).first.click()
+        ppok_merokok = self.required(data, "ppok_merokok")
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
             has_text=ppok_merokok
         ).first.click()
         if ppok_merokok == "Iya":
-            self.page.locator("div[aria-controls='sq_101i_list']").click()
+            self.page.locator("div[aria-controls='sq_102i_list']").click()
             self.page.locator("#sq_101i_list [role='option']").filter(
                 has_text=self.required(data, "bungkus_per_tahun")).first.click()
-        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
-            has_text=self.required(data, "nafas_pendek")).first.click()
         self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
-            has_text=self.required(data, "mempunyai_dahak")).first.click()
+            has_text=self.required(data, "nafas_pendek")).first.click()
         self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
-            has_text=self.required(data, "batuk_tanpa_flu")).first.click()
+            has_text=self.required(data, "mempunyai_dahak")).first.click()
         self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
+            has_text=self.required(data, "batuk_tanpa_flu")).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_106_ariaTitle'] label").filter(
             has_text=self.required(data, "periksa_spirometri")
         ).first.click()
         self.page.locator("input:has-text('Kirim')").click()
@@ -1334,8 +1368,17 @@ class ScreeningNakes:
         if not self._should_run(data, self._SCREENING_KEYS["do_lipid"]):
             print("Skrining Lipid Dilewati (Tidak Aktif)")
             return
+        label = "POCT Lipid Panel (Khusus usia >=40 thn dan penyandang HT dan/atau DM)"
+        row = self.page.locator("div.w-full.grid.grid-cols-5").filter(
+            has=self.page.get_by_text(label, exact=True)
+        )
+        already_done = row.get_by_text(
+            "Selesai Pemeriksaan", exact=True
+        ).count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
         self._start_screening("Skrining Lipid")
-        # do_pemeriksaan_check(page, "label[for='hasil-lab-7-0']", True)
         self.page.locator('[id="rowfrm000047"]').click()
         self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(
             self.required(data, "kolesterol")
@@ -1413,8 +1456,17 @@ class ScreeningNakes:
         if not self._should_run(data, self._SCREENING_KEYS["do_fungsi_ginjal"]):
             print("Skrining Fungsi Ginjal Dilewati (Tidak Aktif)")
             return
+        label = "Skrining Fungsi Ginjal Laki-Laki (hanya untuk =>40 tahun dengan risiko HT DM)"
+        row = self.page.locator("div.w-full.grid.grid-cols-5").filter(
+            has=self.page.get_by_text(label, exact=True)
+        )
+        already_done = row.get_by_text(
+            "Selesai Pemeriksaan", exact=True
+        ).count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
         self._start_screening("Skrining Fungsi Ginjal")
-        # do_pemeriksaan_check(page, "label[for='hasil-lab-7-3']", True)
         self.page.locator('[id="rowfrm000244"]').click()
         self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(
             self.required(data, "kreatinin")
@@ -1457,8 +1509,17 @@ class ScreeningNakes:
         if not self._should_run(data, self._SCREENING_KEYS["do_kerusakan_ginjal"]):
             print("Skrining Kerusakan Ginjal Dilewati (Tidak Aktif)")
             return
+        label = "Skrining Kerusakan Ginjal (hanya untuk =>40 tahun dengan risiko HT DM)"
+        row = self.page.locator("div.w-full.grid.grid-cols-5").filter(
+            has=self.page.get_by_text(label, exact=True)
+        )
+        already_done = row.get_by_text(
+            "Selesai Pemeriksaan", exact=True
+        ).count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
         self._start_screening("Skrining Kerusakan Ginjal")
-        # do_pemeriksaan_check(page, "label[for='hasil-lab-7-4']", True)
         self.page.locator('[id="rowfrm000248"]').click()
         self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(
             self.required(data, "albumin")
@@ -1539,8 +1600,17 @@ class ScreeningNakes:
         if not self._should_run(data, self._SCREENING_KEYS["do_jantung"]):
             print("Skrining Jantung Dilewati (Tidak Aktif)")
             return
+        label = "Hasil Pemeriksaan - Skrining Jantung"
+        row = self.page.locator("div.w-full.grid.grid-cols-5").filter(
+            has=self.page.get_by_text(label, exact=True)
+        )
+        already_done = row.get_by_text(
+            "Selesai Pemeriksaan", exact=True
+        ).count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
         self._start_screening("Skrining Jantung")
-        # do_pemeriksaan_check(page, "label[for='hasil-lab-8-0']",True)  # butuh penyesuaian berdasarkan siklus hidupnya atau bisa juga tahapan ini dilewati dengan asumsi saat pertama kali dibuka semuanya akan Ya
         self.page.locator('[id="rowfrm000057"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.required(data, "ekg")
@@ -1555,8 +1625,17 @@ class ScreeningNakes:
         if not self._should_run(data, self._SCREENING_KEYS["do_kanker_usus"]):
             print("Skrining Kanker Usus Dilewati (Tidak Aktif)")
             return
+        label = "Pemeriksaan Lanjutan Kanker Usus"
+        row = self.page.locator("div.w-full.grid.grid-cols-5").filter(
+            has=self.page.get_by_text(label, exact=True)
+        )
+        already_done = row.get_by_text(
+            "Selesai Pemeriksaan", exact=True
+        ).count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
         self._start_screening("Skrining Kanker Usus")
-        # do_pemeriksaan_check(page, "label[for='hasil-lab-9-0']", True)
         self.page.locator('[id="rowfrm000050"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.required(data, "bersedia_colok_dubur")
@@ -1574,31 +1653,46 @@ class ScreeningNakes:
         if not self._should_run(data, self._SCREENING_KEYS["do_kanker_paru"]):
             print("Skrining Kanker Paru Dilewati (Tidak Aktif)")
             return
+        label = "Skrining Kanker Paru (Usia =>45 thn)"
+        row = self.page.locator("div.w-full.grid.grid-cols-5").filter(
+            has=self.page.get_by_text(label, exact=True)
+        )
+        already_done = row.get_by_text(
+            "Selesai Pemeriksaan", exact=True
+        ).count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
         self._start_screening("Skrining Kanker Paru")
-        # do_pemeriksaan_check(page, "label[for='hasil-lab-10-0']", True)
         self.page.locator('[id="rowfrm000041"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.required(data, "kanker_paru")
+            has_text=self.required(data, "jenis_kelamin_skor_apcs")
         ).first.click()
         self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
-            has_text=self.required(data, "keluarga_kanker")
+            has_text=self.required(data, "usia_skor_apcs")
         ).first.click()
         self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
-            has_text=self.required(data, "riwayat_merokok")
+            has_text=self.required(data, "kanker_paru")
         ).first.click()
         self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
-            has_text=self.required(data, "tempat_kerja_karsinogenik")
+            has_text=self.required(data, "keluarga_kanker")
         ).first.click()
         self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
-            has_text=self.required(data, "tempat_tinggal_potensi_tinggi")
+            has_text=self.required(data, "riwayat_merokok")
         ).first.click()
         self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
-            has_text=self.required(data, "lingkungan_tidak_sehat")
+            has_text=self.required(data, "tempat_kerja_karsinogenik")
         ).first.click()
         self.page.locator("fieldset[aria-labelledby='sq_106_ariaTitle'] label").filter(
-            has_text=self.required(data, "penyakit_paru_kronik")
+            has_text=self.required(data, "tempat_tinggal_potensi_tinggi")
         ).first.click()
         self.page.locator("fieldset[aria-labelledby='sq_107_ariaTitle'] label").filter(
+            has_text=self.required(data, "lingkungan_tidak_sehat")
+        ).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_108_ariaTitle'] label").filter(
+            has_text=self.required(data, "penyakit_paru_kronik")
+        ).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_109_ariaTitle'] label").filter(
             has_text=self.required(data, "foto_torax")
         ).first.click()
         self.page.locator("input:has-text('Kirim')").click()
