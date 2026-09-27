@@ -955,9 +955,12 @@ class ScreeningNakes:
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.required(data, "serumen_impaksi")
         ).click()
-        self.page.locator("div[aria-controls='sq_101i_list']").click()
-        self.page.locator("#sq_101i_list [role='option']").filter(
-            has_text=self.required(data, "infeksi_telinga")).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.required(data, "infeksi_telinga")
+        ).click()
+        # self.page.locator("div[aria-controls='sq_101i_list']").click()
+        # self.page.locator("#sq_101i_list [role='option']").filter(
+        #     has_text=self.required(data, "infeksi_telinga")).first.click()
         tajam_pendengaran = self.required(data, "tajam_pendengaran")
         self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
             has_text=tajam_pendengaran
@@ -1168,8 +1171,11 @@ class ScreeningNakes:
 
         self._start_screening("Skrining Skabies")
         self.page.locator('[id="rowfrm000201"]').click()
-        self.page.locator("div[aria-controls='sq_100i_list']").click()
-        self.page.locator("#sq_100i_list [role='option']").filter(has_text=self.required(data, "ada_ruam")).click()
+        # self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.required(data, "ada_ruam")
+        ).first.click()
+        # self.page.locator("#sq_100i_list [role='option']").filter(has_text=self.required(data, "ada_ruam")).click()
         self.page.locator("input:has-text('Kirim')").click()
         self._finish_screening()
 
