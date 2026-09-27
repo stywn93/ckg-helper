@@ -708,10 +708,11 @@ class ScreeningMandiri:
         print("Skrining Aktivitas Fisik Dimulai")
         self.page.locator('[id="rowfrm000169"]').click()
 
-        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        
         aktivitas_domestik = self.required(data, "aktivitas_domestik")
-        self.page.locator("#sq_100i_list [role='option']").filter(
-            has_text=aktivitas_domestik).click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=aktivitas_domestik
+        ).first.click()
         if aktivitas_domestik == "Ya":
             self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
                 self.required(data, "hari_domestik")
@@ -720,11 +721,10 @@ class ScreeningMandiri:
                 self.required(data, "menit_domestik")
             )
 
-        self.page.locator("div[aria-controls='sq_103i_list']").click()
-        self.page.locator("#sq_103i .sd-dropdown__value").click()
         aktivitas_pekerjaan = self.required(data, "aktivitas_pekerjaan")
-        self.page.locator("#sq_103i_list [role='option']").filter(
-            has_text=aktivitas_pekerjaan).click()
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=aktivitas_pekerjaan
+        ).first.click()
         if aktivitas_pekerjaan == "Ya":
             self.page.locator("input[aria-labelledby='sq_104_ariaTitle']").fill(
                 self.required(data, "hari_pekerjaan")
@@ -733,11 +733,14 @@ class ScreeningMandiri:
                 self.required(data, "menit_pekerjaan")
             )
 
-        self.page.locator("div[aria-controls='sq_106i_list']").click()
-        self.page.locator("#sq_106i .sd-dropdown__value").click()
         aktivitas_perjalanan = self.required(data, "aktivitas_perjalanan")
-        self.page.locator("#sq_106i_list [role='option']").filter(
-            has_text=aktivitas_perjalanan).click()
+        self.page.locator("fieldset[aria-labelledby='sq_106_ariaTitle'] label").filter(
+            has_text=aktivitas_perjalanan
+        ).first.click()
+        # self.page.locator("div[aria-controls='sq_106i_list']").click()
+        # self.page.locator("#sq_106i .sd-dropdown__value").click()
+        # self.page.locator("#sq_106i_list [role='option']").filter(
+        #     has_text=aktivitas_perjalanan).click()
         if aktivitas_perjalanan == "Ya":
             self.page.locator("input[aria-labelledby='sq_107_ariaTitle']").fill(
                 self.required(data, "hari_perjalanan")
@@ -746,11 +749,14 @@ class ScreeningMandiri:
                 self.required(data, "menit_perjalanan")
             )
 
-        self.page.locator("div[aria-controls='sq_109i_list']").click()
-        self.page.locator("#sq_109i .sd-dropdown__value").click()
         aktivitas_olahraga = self.required(data, "aktivitas_olahraga")
-        self.page.locator("#sq_109i_list [role='option']").filter(
-            has_text=aktivitas_olahraga).click()
+        self.page.locator("fieldset[aria-labelledby='sq_109_ariaTitle'] label").filter(
+            has_text=aktivitas_olahraga
+        ).first.click()
+        # self.page.locator("div[aria-controls='sq_109i_list']").click()
+        # self.page.locator("#sq_109i .sd-dropdown__value").click()
+        # self.page.locator("#sq_109i_list [role='option']").filter(
+        #     has_text=aktivitas_olahraga).click()
         if aktivitas_olahraga == "Ya":
             self.page.locator("input[aria-labelledby='sq_110_ariaTitle']").fill(
                 self.required(data, "hari_olahraga")
@@ -759,12 +765,14 @@ class ScreeningMandiri:
                 self.required(data, "menit_olahraga")
             )
 
-        self.page.locator("div[aria-controls='sq_112i_list']").click()
-        self.page.locator("#sq_112i .sd-dropdown__value").click()
-
         aktivitas_kerja_berat = self.required(data, "aktivitas_kerja_berat")
-        self.page.locator("#sq_112i_list [role='option']").filter(
-            has_text=aktivitas_kerja_berat).click()
+        self.page.locator("fieldset[aria-labelledby='sq_112_ariaTitle'] label").filter(
+            has_text=aktivitas_kerja_berat
+        ).first.click()
+        # self.page.locator("div[aria-controls='sq_112i_list']").click()
+        # self.page.locator("#sq_112i .sd-dropdown__value").click()
+        # self.page.locator("#sq_112i_list [role='option']").filter(
+        #     has_text=aktivitas_kerja_berat).click()
         if aktivitas_kerja_berat == "Ya":
             self.page.locator("input[aria-labelledby='sq_113_ariaTitle']").fill(
                 self.required(data, "hari_kerja_berat")
@@ -773,11 +781,14 @@ class ScreeningMandiri:
                 self.required(data, "menit_kerja_berat")
             )
 
-        self.page.locator("div[aria-controls='sq_115i_list']").click()
-        self.page.locator("#sq_115i .sd-dropdown__value").click()
         aktivitas_olahraga_berat = self.required(data, "aktivitas_olahraga_berat")
-        self.page.locator("#sq_115i_list [role='option']").filter(
-            has_text=aktivitas_olahraga_berat).click()
+        self.page.locator("fieldset[aria-labelledby='sq_115_ariaTitle'] label").filter(
+            has_text=aktivitas_olahraga_berat
+        ).first.click()
+        # self.page.locator("div[aria-controls='sq_115i_list']").click()
+        # self.page.locator("#sq_115i .sd-dropdown__value").click()
+        # self.page.locator("#sq_115i_list [role='option']").filter(
+        #     has_text=aktivitas_olahraga_berat).click()
         if aktivitas_olahraga_berat == "Ya":
             self.page.locator("input[aria-labelledby='sq_116_ariaTitle']").fill(
                 self.required(data, "hari_olahraga_berat")
