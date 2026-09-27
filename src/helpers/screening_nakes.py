@@ -11,6 +11,62 @@ class Colors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
+def _is_locator(value):
+    return hasattr(value, "count") and hasattr(value, "click")
+
+
+def _unwrap(value):
+    return value._locator if isinstance(value, _LoggingLocator) else value
+
+
+class _LoggingLocator:
+    def __init__(self, locator):
+        self._locator = locator
+
+    def __getattr__(self, name):
+        attribute = getattr(self._locator, name)
+        if name in {"click", "fill", "press", "press_sequentially", "set_checked", "type"}:
+            def action(*args, **kwargs):
+                print(f"mencari elemen sebelum {name}...")
+                if self._locator.count() > 0:
+                    print(f"=== elemen ditemukan, menjalankan {name}...")
+                else:
+                    print(f"=== elemen tidak ditemukan sebelum {name}")
+                return attribute(*args, **kwargs)
+
+            return action
+
+        if callable(attribute):
+            def call(*args, **kwargs):
+                result = attribute(
+                    *[_unwrap(arg) for arg in args],
+                    **{key: _unwrap(value) for key, value in kwargs.items()},
+                )
+                return _LoggingLocator(result) if _is_locator(result) else result
+
+            return call
+
+        return _LoggingLocator(attribute) if _is_locator(attribute) else attribute
+
+
+class _LoggingPage:
+    def __init__(self, page):
+        self._page = page
+
+    def __getattr__(self, name):
+        attribute = getattr(self._page, name)
+        if callable(attribute):
+            def call(*args, **kwargs):
+                result = attribute(
+                    *[_unwrap(arg) for arg in args],
+                    **{key: _unwrap(value) for key, value in kwargs.items()},
+                )
+                return _LoggingLocator(result) if _is_locator(result) else result
+
+            return call
+        return _LoggingLocator(attribute) if _is_locator(attribute) else attribute
+
 class ScreeningNakes:
     _SCREENING_KEYS = {
         "do_pertumbuhan_balita": "skrining_pertumbuhan",
@@ -79,20 +135,25 @@ class ScreeningNakes:
     }
 
     def __init__(self, page, formatter):
-        self.page = page
+        self.page = _LoggingPage(page)
         self.formatter = formatter
 
+    def _value(self, data: dict, key: str) -> str:
+        value = self.formatter(data.get(key))
+        print(f"{key} di excel : {value}")
+        return value
+
     def _should_run(self, data:dict, key: str) -> bool:
-        value = data.get(key)
+        value = self._value(data, key)
         if value is None or str(value).strip() == "":
             return False
-        return self.formatter(value) == "Ya"
+        return value == "Ya"
 
     def required(self, data: dict, key: str) -> str:
-        value = data.get(key)
+        value = self._value(data, key)
         if value is None or str(value).strip() == "":
             raise ValueError(f"kolom {key} tidak boleh kosong")
-        return self.formatter(value)
+        return value
 
     def do_pertumbuhan_balita(self, data: dict, row_number: int) -> None:
         if not self._should_run(data, self._SCREENING_KEYS["do_pertumbuhan_balita"]):
@@ -168,10 +229,11 @@ class ScreeningNakes:
         self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
             has_text=self.required(data, "pembesaran_getah_bening")
         ).click()
+        radiografi_toraks = self.required(data, "radiografi_toraks")
         self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
-            has_text=self.required(data, "radiografi_toraks")
+            has_text=radiografi_toraks
         ).click()
-        if (data["radiografi_toraks"] == "Ya"):
+        if radiografi_toraks == "Ya":
             value = self.required(data, "hasil_rontgen")
             self.page.locator(
                 "fieldset[aria-labelledby='sq_106_ariaTitle'] label"
@@ -191,24 +253,26 @@ class ScreeningNakes:
         self.page.locator('[id="rowfrm000178"]').click()
 
         self.page.locator("div[aria-controls='sq_100i_list']").click()
-        self.page.locator("#sq_100i_list [role='option']").filter(has_text=self.required(data, "kontak_tbc")).click()
-        if data["kontak_tbc"] == "Riwayat kontak serumah" or data["kontak_tbc"] == "Riwayat kontak erat":
+        kontak_tbc = self.required(data, "kontak_tbc")
+        self.page.locator("#sq_100i_list [role='option']").filter(has_text=kontak_tbc).click()
+        if kontak_tbc == "Riwayat kontak serumah" or kontak_tbc == "Riwayat kontak erat":
             self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
                 has_text=self.required(data, "jenis_tbc")
             ).click()
         self.page.locator("div[aria-controls='sq_102i_list']").click()
+        metode_pemeriksaan_tbc = self.required(data, "metode_pemeriksaan_tbc")
         self.page.locator("#sq_102i_list [role='option']").filter(
-            has_text=self.required(data, "metode_pemeriksaan_tbc")).click()
-        if data["metode_pemeriksaan_tbc"] == "TCM":
+            has_text=metode_pemeriksaan_tbc).click()
+        if metode_pemeriksaan_tbc == "TCM":
             # print("TCM")
             self.page.locator("div#sq_103i.sd-input.sd-dropdown").click()
             self.page.locator("#sq_103i_list [role='option']").filter(
                 has_text=self.required(data, "hasil_pemeriksaan_tbc")).click()
-        elif data["metode_pemeriksaan_tbc"] == "BTA":
+        elif metode_pemeriksaan_tbc == "BTA":
             self.page.locator("div[aria-controls='sq_104i_list']").click()
             self.page.locator("#sq_104i_list [role='option']").filter(
                 has_text=self.required(data, "hasil_pemeriksaan_tbc")).click()
-        elif data["metode_pemeriksaan_tbc"] == "NPOC":
+        elif metode_pemeriksaan_tbc == "NPOC":
             self.page.locator("div[aria-controls='sq_105i_list']").click()
             self.page.locator("#sq_105i_list [role='option']").filter(
                 has_text=self.required(data, "hasil_pemeriksaan_tbc")).click()
@@ -297,10 +361,11 @@ class ScreeningNakes:
             return
         print("Skrining Gula Darah Anak dimulai")
         self.page.locator('[id="rowfrm000195"]').click()
+        anak_pernah_diabetes = self.required(data, "anak_pernah_diabetes")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.required(data, "anak_pernah_diabetes")
+            has_text=anak_pernah_diabetes
         ).click()
-        if self.formatter(data["anak_pernah_diabetes"]) == "Ya":
+        if anak_pernah_diabetes == "Ya":
             self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.required(data, "berapa_bulan_diabetes"))
         self.page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill(self.required(data, "gds"))
         self.page.locator("input:has-text('Kirim')").click()
@@ -390,24 +455,27 @@ class ScreeningNakes:
             return
         print("Skrining Konfirmasi SHK dimulai")
         self.page.locator('[id="rowfrm000083"]').click()
+        dilakukan_konfirmasi_shk = self.required(data, "dilakukan_konfirmasi_shk")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.required(data, "dilakukan_konfirmasi_shk")
+            has_text=dilakukan_konfirmasi_shk
         ).click()
-        if self.formatter(data["dilakukan_konfirmasi_shk"]) == "Ya":
+        if dilakukan_konfirmasi_shk == "Ya":
             self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
                 has_text=self.required(data, "hasil_konfirm_shk")
             ).click()
+        dilakukan_konfirmasi_g6pd = self.required(data, "dilakukan_konfirmasi_g6pd")
         self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
-            has_text=self.required(data, "dilakukan_konfirmasi_g6pd")
+            has_text=dilakukan_konfirmasi_g6pd
         ).click()
-        if self.formatter(data["dilakukan_konfirmasi_g6pd"]) == "Ya":
+        if dilakukan_konfirmasi_g6pd == "Ya":
             self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
                 has_text=self.required(data, "hasil_konfirm_g6pd")
             ).click()
+        dilakukan_konfirmasi_hak = self.required(data, "dilakukan_konfirmasi_hak")
         self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
-            has_text=self.required(data, "dilakukan_konfirmasi_hak")
+            has_text=dilakukan_konfirmasi_hak
         ).click()
-        if self.formatter(data["dilakukan_konfirmasi_hak"]) == "Ya":
+        if dilakukan_konfirmasi_hak == "Ya":
             self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
                 has_text=self.required(data, "hasil_konfirm_hak")
             ).click()
@@ -782,17 +850,18 @@ class ScreeningNakes:
 
         print("Skrining Gula Darah Dewasa dimulai")
         self.page.locator('[id="rowfrm000256"]').click()
+        pernah_diabetes = self.required(data, "pernah_diabetes")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.required(data, "pernah_diabetes")
+            has_text=pernah_diabetes
         ).click()
-        if (data["pernah_diabetes"] == "Ya"):
+        if pernah_diabetes == "Ya":
             self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
                 self.required(data, "total_bulan_diabetes")
             )
         self.page.locator("input[aria-labelledby='sq_102_ariaTitle']").fill(
             self.required(data, "gula_darah_sewaktu")
         )
-        if (data["pernah_diabetes"] == "Tidak"):
+        if pernah_diabetes == "Tidak":
             self.page.locator("input[aria-labelledby='sq_103_ariaTitle']").fill(
                 self.required(data, "gula_darah_sewaktu_2")
             )
@@ -826,10 +895,11 @@ class ScreeningNakes:
         self.page.locator("#rowfrm000265").click()
         print("Skrining Tekanan Darah Dewasa dimulai")
         self.page.locator('[id="rowfrm000265"]').click()
+        pernah_hipertensi = self.required(data, "pernah_hipertensi")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.required(data, "pernah_hipertensi")
+            has_text=pernah_hipertensi
         ).click()
-        if (data["pernah_hipertensi"] == "Ya"):
+        if pernah_hipertensi == "Ya":
             self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(
                 self.required(data, "total_bulan_hipertensi")
             )
@@ -872,25 +942,29 @@ class ScreeningNakes:
         self.page.locator("div[aria-controls='sq_101i_list']").click()
         self.page.locator("#sq_101i_list [role='option']").filter(
             has_text=self.required(data, "infeksi_telinga")).first.click()
+        tajam_pendengaran = self.required(data, "tajam_pendengaran")
         self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
-            has_text=self.required(data, "tajam_pendengaran")
+            has_text=tajam_pendengaran
         ).first.click()
-        if data["tajam_pendengaran"] == "Curiga gangguan pendengaran":
+        if tajam_pendengaran == "Curiga gangguan pendengaran":
             self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
                 has_text=self.required(data, "tes_penala")
             ).first.click()
+        tajam_penglihatan = self.required(data, "tajam_penglihatan")
         self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
-            has_text=self.required(data, "tajam_penglihatan")
+            has_text=tajam_penglihatan
         ).first.click()
-        if data["tajam_penglihatan"] == "Curiga gangguan penglihatan (visus <6/12)":
+        if tajam_penglihatan == "Curiga gangguan penglihatan (visus <6/12)":
+            hasil_visus = self.required(data, "hasil_visus")
             self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
-                has_text=self.required(data, "hasil_visus")
+                has_text=hasil_visus
             ).first.click()
-            if data["hasil_visus"] != "Normal (visus 6/6 - 6/12)":
+            if hasil_visus != "Normal (visus 6/6 - 6/12)":
+                pinhole = self.required(data, "pinhole")
                 self.page.locator("fieldset[aria-labelledby='sq_106_ariaTitle'] label").filter(
-                    has_text=self.required(data, "pinhole")
+                    has_text=pinhole
                 ).first.click()
-                if data["pinhole"] == "Visus membaik":
+                if pinhole == "Visus membaik":
                     self.page.locator("fieldset[aria-labelledby='sq_107_ariaTitle'] label").filter(
                         has_text=self.required(data, "hasil_refraksi")
                     ).first.click()
@@ -935,10 +1009,11 @@ class ScreeningNakes:
         self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
             has_text=self.required(data, "pembesaran_getah_bening")
         ).click()
+        radiografi_toraks = self.required(data, "radiografi_toraks")
         self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
-            has_text=self.required(data, "radiografi_toraks")
+            has_text=radiografi_toraks
         ).click()
-        if (data["radiografi_toraks"] == "Ya"):
+        if radiografi_toraks == "Ya":
             value = self.required(data, "hasil_rontgen")
             self.page.locator(
                 "fieldset[aria-labelledby='sq_106_ariaTitle'] label"
@@ -970,24 +1045,26 @@ class ScreeningNakes:
         self.page.locator('[id="rowfrm000184"]').click()
 
         self.page.locator("div[aria-controls='sq_100i_list']").click()
-        self.page.locator("#sq_100i_list [role='option']").filter(has_text=self.required(data, "kontak_tbc")).click()
-        if data["kontak_tbc"] == "Riwayat kontak serumah" or data["kontak_tbc"] == "Riwayat kontak erat":
+        kontak_tbc = self.required(data, "kontak_tbc")
+        self.page.locator("#sq_100i_list [role='option']").filter(has_text=kontak_tbc).click()
+        if kontak_tbc == "Riwayat kontak serumah" or kontak_tbc == "Riwayat kontak erat":
             self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
                 has_text=self.required(data, "jenis_tbc")
             ).click()
         self.page.locator("div[aria-controls='sq_102i_list']").click()
+        metode_pemeriksaan_tbc = self.required(data, "metode_pemeriksaan_tbc")
         self.page.locator("#sq_102i_list [role='option']").filter(
-            has_text=self.required(data, "metode_pemeriksaan_tbc")).click()
-        if data["metode_pemeriksaan_tbc"] == "TCM":
+            has_text=metode_pemeriksaan_tbc).click()
+        if metode_pemeriksaan_tbc == "TCM":
             # print("TCM")
             self.page.locator("div#sq_103i.sd-input.sd-dropdown").click()
             self.page.locator("#sq_103i_list [role='option']").filter(
                 has_text=self.required(data, "hasil_pemeriksaan_tbc")).click()
-        elif data["metode_pemeriksaan_tbc"] == "BTA":
+        elif metode_pemeriksaan_tbc == "BTA":
             self.page.locator("div[aria-controls='sq_104i_list']").click()
             self.page.locator("#sq_104i_list [role='option']").filter(
                 has_text=self.required(data, "hasil_pemeriksaan_tbc")).click()
-        elif data["metode_pemeriksaan_tbc"] == "NPOC":
+        elif metode_pemeriksaan_tbc == "NPOC":
             self.page.locator("div[aria-controls='sq_105i_list']").click()
             self.page.locator("#sq_105i_list [role='option']").filter(
                 has_text=self.required(data, "hasil_pemeriksaan_tbc")).click()
@@ -1013,10 +1090,11 @@ class ScreeningNakes:
 
         print("Skrining Frambusia dimulai")
         self.page.locator('[id="rowfrm000199"]').click()
+        ada_papul = self.required(data, "ada_papul")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.required(data, "ada_papul")
+            has_text=ada_papul
         ).click()
-        if data["ada_papul"] == "Suspek frambusia":
+        if ada_papul == "Suspek frambusia":
             self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
                 has_text=self.required(data, "hasil_pemeriksaan_rdt")
             ).first.click()
@@ -1043,8 +1121,9 @@ class ScreeningNakes:
         print("Skrining Kusta dimulai")
         self.page.locator('[id="rowfrm000198"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
-        self.page.locator("#sq_100i_list [role='option']").filter(has_text=self.required(data, "bercak_putih")).click()
-        if data["bercak_putih"] == "Meragukan":
+        bercak_putih = self.required(data, "bercak_putih")
+        self.page.locator("#sq_100i_list [role='option']").filter(has_text=bercak_putih).click()
+        if bercak_putih == "Meragukan":
             self.page.locator("div[aria-controls='sq_101i_list']").click()
             self.page.locator("#sq_101i_list [role='option']").filter(
                 has_text=self.required(data, "hasil_bta")).first.click()
@@ -1087,25 +1166,29 @@ class ScreeningNakes:
         self.page.locator("div[aria-controls='sq_101i_list']").click()
         self.page.locator("#sq_101i_list [role='option']").filter(
             has_text=self.required(data, "infeksi_telinga")).first.click()
+        tajam_pendengaran = self.required(data, "tajam_pendengaran")
         self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
-            has_text=self.required(data, "tajam_pendengaran")
+            has_text=tajam_pendengaran
         ).first.click()
-        if data["tajam_pendengaran"] == "Curiga gangguan pendengaran":
+        if tajam_pendengaran == "Curiga gangguan pendengaran":
             self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
                 has_text=self.required(data, "tes_penala")
             ).first.click()
+        tajam_penglihatan = self.required(data, "tajam_penglihatan")
         self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
-            has_text=self.required(data, "tajam_penglihatan")
+            has_text=tajam_penglihatan
         ).first.click()
-        if data["tajam_penglihatan"] == "Curiga gangguan penglihatan (visus <6/12)":
+        if tajam_penglihatan == "Curiga gangguan penglihatan (visus <6/12)":
+            hasil_visus = self.required(data, "hasil_visus")
             self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
-                has_text=self.required(data, "hasil_visus")
+                has_text=hasil_visus
             ).first.click()
-            if data["hasil_visus"] != "Normal (visus 6/6 - 6/12)":
+            if hasil_visus != "Normal (visus 6/6 - 6/12)":
+                pinhole = self.required(data, "pinhole")
                 self.page.locator("fieldset[aria-labelledby='sq_106_ariaTitle'] label").filter(
-                    has_text=self.required(data, "pinhole")
+                    has_text=pinhole
                 ).first.click()
-                if data["pinhole"] == "Visus membaik":
+                if pinhole == "Visus membaik":
                     self.page.locator("fieldset[aria-labelledby='sq_107_ariaTitle'] label").filter(
                         has_text=self.required(data, "hasil_refraksi")
                     ).first.click()
@@ -1180,10 +1263,11 @@ class ScreeningNakes:
         print("Skrining PPOK dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-5-0']", True)
         self.page.locator('[id="rowfrm000101"]').click()
+        ppok_merokok = self.required(data, "ppok_merokok")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.required(data, "ppok_merokok")
+            has_text=ppok_merokok
         ).first.click()
-        if data["ppok_merokok"] == "Iya":
+        if ppok_merokok == "Iya":
             self.page.locator("div[aria-controls='sq_101i_list']").click()
             self.page.locator("#sq_101i_list [role='option']").filter(
                 has_text=self.required(data, "bungkus_per_tahun")).first.click()
@@ -1293,10 +1377,11 @@ class ScreeningNakes:
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.required(data, "hepatitis_b")
         ).first.click()
+        hepatitis_c = self.required(data, "hepatitis_c")
         self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
-            has_text=self.required(data, "hepatitis_c")
+            has_text=hepatitis_c
         ).first.click()
-        if data["hepatitis_c"] == "Anti HCV Reaktif":
+        if hepatitis_c == "Anti HCV Reaktif":
             self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
                 has_text=self.required(data, "vl_hepatitis_c")
             ).first.click()
@@ -1371,9 +1456,10 @@ class ScreeningNakes:
         # do_pemeriksaan_check(page, "label[for='hasil-lab-8-0']", True)
         self.page.locator('[id="rowfrm000059"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
+        pemeriksaan_payudara = self.required(data, "pemeriksaan_payudara")
         self.page.locator("#sq_100i_list [role='option']").filter(
-            has_text=self.required(data, "pemeriksaan_payudara")).first.click()
-        if data["pemeriksaan_payudara"] == "SADANIS":
+            has_text=pemeriksaan_payudara).first.click()
+        if pemeriksaan_payudara == "SADANIS":
             self.page.locator("div[aria-controls='sq_101i_list']").click()
             self.page.locator("#sq_101i_list [role='option']").filter(
                 has_text=self.required(data, "hasil_sadanis")).first.click()
@@ -1391,10 +1477,11 @@ class ScreeningNakes:
         print("Skrining HPV DNA dimulai")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-8-0']", True)
         self.page.locator('[id="rowfrm000061"]').click()
+        pemeriksaan_hpv_dna = self.required(data, "pemeriksaan_hpv_dna")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.required(data, "pemeriksaan_hpv_dna")
+            has_text=pemeriksaan_hpv_dna
         ).first.click()
-        if data["pemeriksaan_hpv_dna"] == "HPV Positif":
+        if pemeriksaan_hpv_dna == "HPV Positif":
             self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
                 has_text=self.required(data, "hpv_16")
             ).first.click()
@@ -1538,18 +1625,20 @@ class ScreeningNakes:
 
         print("Skrining HIV dimulai")
         self.page.locator('[id="rowfrm000188"]').click()
+        rapid_test = self.required(data, "rapid_test")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
-            has_text=self.required(data, "rapid_test")
+            has_text=rapid_test
         ).first.click()
-        if data["rapid_test"] == "Reaktif":
+        if rapid_test == "Reaktif":
+            r2_hiv = self.required(data, "r2_hiv")
             self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
-                has_text=self.required(data, "r2_hiv")
+                has_text=r2_hiv
             ).first.click()
-            if data["r2_hiv"] == "Reaktif":
+            if r2_hiv == "Reaktif":
                 self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
                     has_text=self.required(data, "r3_hiv")
                 ).first.click()
-            elif data["r2_hiv"] == "Non Reaktif":
+            elif r2_hiv == "Non Reaktif":
                 self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
                     has_text=self.required(data, "r1_hiv_ulang")
                 ).first.click()
