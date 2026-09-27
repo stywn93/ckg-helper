@@ -25,6 +25,7 @@ from playwright_window_layout import launch_chromium_with_layout
 from excel import ExcelStatusWorkbook, ExcelAppendWorkbook, format_cell_value, resolve_dataset
 from custom_exceptions import SkipRowException
 from api_report import monitored_main
+from sticky_stop_footer import sticky_stop_footer
 class Colors:
     OKCYAN = '\033[96m'
     OKGREEN = '\033[92m'
@@ -175,6 +176,11 @@ def register_single_entry(page, data: dict, row_number: int) -> None:
     
 
 def main() -> dict:
+    with sticky_stop_footer():
+        return _run_main()
+
+
+def _run_main() -> dict:
     excel_path, sheet_name = resolve_dataset("konfirm_kehadiran_sekolah")
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)

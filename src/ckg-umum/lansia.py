@@ -32,6 +32,7 @@ from excel import ExcelStatusWorkbook, format_cell_value, resolve_dataset
 from screening_mandiri import ScreeningMandiri
 from api_report import monitored_main
 from screening_nakes import ScreeningNakes
+from sticky_stop_footer import sticky_stop_footer
 load_dotenv(PROJECT_ROOT / ".env")
 
 USERNAME_ENV = "CKG_USERNAME"
@@ -335,6 +336,11 @@ def run_screening_steps(screening, method_names: list[str], data: dict, row_numb
 
 
 def main() -> dict:
+    with sticky_stop_footer():
+        return _run_main()
+
+
+def _run_main() -> dict:
     excel_path, sheet_name = resolve_dataset("lansia")
     username = get_required_env(USERNAME_ENV)
     password = get_required_env(PASSWORD_ENV)
