@@ -19,6 +19,48 @@ class Colors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
+_DETAIL_NUMBER = 1
+
+
+def start_section(title: str) -> None:
+    global _DETAIL_NUMBER
+    _DETAIL_NUMBER = 1
+    print(f"{Colors.OKBLUE}-- Menjalankan {title}{Colors.ENDC}")
+
+
+def print_detail(label: str, value) -> None:
+    global _DETAIL_NUMBER
+    print(f"{_DETAIL_NUMBER}. {label}: {value}")
+    _DETAIL_NUMBER += 1
+
+
+def finish_section() -> None:
+    print()
+
+
+def print_user_warning(message: str) -> None:
+    if len(message) > 50:
+        message = f"{message[:47]}..."
+    print(f"{Colors.WARNING}{message}{Colors.ENDC}")
+
+
+def readable_screening_name(method_name: str) -> str:
+    name = method_name.removeprefix("do_").replace("_", " ").title()
+    for source, target in {
+        "Tb": "TB",
+        "Hiv": "HIV",
+        "Ppok": "PPOK",
+        "Co": "CO",
+        "Hpv": "HPV",
+        "Dna": "DNA",
+        "Iva": "IVA",
+        "Keswa": "Kesehatan Jiwa",
+    }.items():
+        name = name.replace(source, target)
+    return name
+
+
 PROJECT_ROOT = Path(os.getenv("CKG_PROJECT_ROOT", Path(__file__).resolve().parents[2]))
 
 from dotenv import load_dotenv
@@ -84,6 +126,7 @@ DEWASA_MANDIRI_LAKI_SCREENINGS = [
     "do_risiko_kanker_paru",
     "do_perilaku_merokok",
     "do_aktivitas_fisik",
+    "do_imunisasi_tetanus"
 ]
 DEWASA_MANDIRI_PEREMPUAN_SCREENINGS = [
     "do_demografi_dewasa_perempuan",
@@ -95,6 +138,7 @@ DEWASA_MANDIRI_PEREMPUAN_SCREENINGS = [
     "do_risiko_kanker_paru",
     "do_perilaku_merokok",
     "do_aktivitas_fisik",
+    "do_imunisasi_tetanus"
 ]
 DEWASA_NAKES_LAKI_SCREENINGS = [
     "do_gizi_laki",
@@ -160,47 +204,32 @@ def get_required_env(name: str) -> str:
 
 
 def prepare_page(page) -> None:
-    print("membuka halaman pelayanan CKG...")
     page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
     page.wait_for_load_state("networkidle")
 
-    print("mencari checkbox verifikasi...")
     checkbox = page.locator("input[name='verify']")
     if checkbox.count() > 0:
-        print("=== checkbox verifikasi ditemukan")
-        print("mencentang checkbox verifikasi...")
         checkbox.set_checked(True, force=True)
-        print("mengklik tombol setuju...")
         page.locator("button:has-text('Setuju')").click()
         page.wait_for_load_state("networkidle")
 
-    print("mencari checkbox lokasi yang sama...")
     sameLocation = page.locator("input[name='sameLocation']")
     if sameLocation.count() > 0:
-        print("=== checkbox lokasi yang sama ditemukan")
-        print("mencentang checkbox lokasi yang sama...")
         sameLocation.set_checked(True, force=True)
-        print("mengklik tombol simpan...")
         page.locator("button:has-text('Simpan')").click()
         page.wait_for_load_state("networkidle")
-    # print("end of prepare_page")
 
 
 def login_and_wait_for_profile(page, username: str, password: str) -> None:
-    print("membuka halaman login...")
+    start_section("Login ke Sistem")
     page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pelayanan")
-    print("mengisi username...")
     page.locator("input#email").fill(username)
-    print("mengisi password...")
     page.locator("input#password").fill(password)
 
-    print("mencari tombol login...")
     submit_button = page.locator("button[type='submit']").first
     if submit_button.count() > 0:
-        print("=== tombol login ditemukan, mengklik...")
         submit_button.click()
     else:
-        print("tombol login tidak ditemukan, menjalankan Enter...")
         page.keyboard.press("Enter")
 
     try:
@@ -209,6 +238,7 @@ def login_and_wait_for_profile(page, username: str, password: str) -> None:
             timeout=LOGIN_SUCCESS_TIMEOUT_MS,
         )
         page.wait_for_load_state("networkidle")
+        finish_section()
     except PlaywrightTimeoutError as exc:
         raise RuntimeError(
             "Login belum berhasil: halaman tidak redirect ke /profile "
@@ -217,45 +247,39 @@ def login_and_wait_for_profile(page, username: str, password: str) -> None:
 
 
 def search_patient_with_status(page, data: dict, examination_status: str) -> None:
+    start_section("Pencarian Pasien")
+    print_detail("Status pemeriksaan", examination_status)
     prepare_page(page)
-    print(f"mencari status pemeriksaan: {examination_status}...")
     page.locator("div.cursor-pointer.px-3").filter(has_text=examination_status).click()
-    print("mencari field tanggal pemeriksaan...")
     page.locator("div.mx-input-wrapper").click()
     
     search_by_nik = format_cell_value(data["cari_by_nik"])
-    print(f"metode pencarian di excel : {search_by_nik}")
+    print_detail("Metode pencarian", search_by_nik)
 
     if search_by_nik == "Ya":
-        print("mengganti pencarian nama menjadi NIK...")
         page.locator("div").filter(has_text=re.compile(r"^Nama$")).nth(3).click()
-        print("mencari pilihan NIK...")
         page.get_by_text("NIK").click()
-        print("mencari field NIK...")
         nik_field = page.get_by_role("textbox", name="0/")
-        print(f"NIK di excel : {format_cell_value(data['nik'])}")
+        print_detail("NIK", format_cell_value(data["nik"]))
         nik_field.click()
         page.keyboard.type(format_cell_value(data["nik"]))
     else:
         batas_awal = format_cell_value(data["batas_awal"])
         batas_akhir = format_cell_value(data["batas_akhir"])
-        print(f"batas awal di excel : {batas_awal}")
+        print_detail("Batas awal", batas_awal)
         page.locator(f'td.cell[title="{batas_awal}"]').first.click()
-        print(f"batas akhir di excel : {batas_akhir}")
+        print_detail("Batas akhir", batas_akhir)
         page.locator(f'td.cell[title="{batas_akhir}"]').first.click()
-        print("mengganti pencarian NIK menjadi nama...")
         page.locator("span:has-text('Nama')").click()
-        print("mencari pilihan nama...")
         page.get_by_text("Nama", exact=True).nth(0).click()
-        print(f"nama di excel : {format_cell_value(data['nama'])}")
+        print_detail("Nama", format_cell_value(data["nama"]))
         page.locator("input#searchNik").fill(format_cell_value(data["nama"]))
     
-    print("menjalankan pencarian dengan Enter...")
     page.keyboard.press("Enter")
     page.wait_for_timeout(1000)
     page.wait_for_load_state("networkidle")
-    print("mencari tombol mulai...")
     page.locator("button:has-text('Mulai')").first.click(timeout=PATIENT_SEARCH_TIMEOUT_MS)
+    finish_section()
 
 
 def search_patient(page, data: dict, row_number: int) -> str:
@@ -264,19 +288,15 @@ def search_patient(page, data: dict, row_number: int) -> str:
     for examination_status in EXAMINATION_STATUS_SEARCH_ORDER:
         try:
             print(
-                f"{Colors.OKCYAN}Baris {row_number}: mencari pasien pada status "
+                f"{Colors.OKCYAN}Mencari pasien pada status "
                 f"{examination_status}.{Colors.ENDC}"
             )
             search_patient_with_status(page, data, examination_status)
-            print(
-                f"{Colors.OKGREEN}Baris {row_number}: pasien ditemukan pada status "
-                f"{examination_status}.{Colors.ENDC}"
-            )
             break
         except PlaywrightTimeoutError as exc:
             last_error = exc
             print(
-                f"{Colors.WARNING}Baris {row_number}: pasien tidak ditemukan pada status "
+                f"{Colors.WARNING}Pasien tidak ditemukan pada status "
                 f"{examination_status}.{Colors.ENDC}"
             )
     else:
@@ -297,13 +317,9 @@ def search_patient(page, data: dict, row_number: int) -> str:
 def do_pemeriksaan_check(page, selector: str, checked: bool) -> None:
     checkbox = page.locator(selector)
     if checked is False and checkbox.is_checked():
-        # print("status pemeriksaan is False")
         checkbox.click(force=True)
         page.get_by_role("button", name="Tidak Periksa").click()
     elif checked is True:
-        # print("status pemeriksaan is True")
-        # print("selector ", selector)
-        # page.pause()
         if checkbox.is_checked() != checked:
             checkbox.click()
 
@@ -343,24 +359,20 @@ def is_screening_form_available(page, method) -> bool:
 def run_screening_steps(screening, method_names: list[str], data: dict, row_number: int, page) -> None:
     for method_name in method_names:
         method = getattr(screening, method_name, None)
+        screening_name = readable_screening_name(method_name)
         if method is None:
-            print(f"{Colors.WARNING}Skip {method_name}: function tidak ditemukan.{Colors.ENDC}")
+            print_user_warning(f"Pemeriksaan {screening_name} belum tersedia.")
             continue
 
         if not is_screening_form_available(page, method):
-            print(
-                f"{Colors.WARNING}Skip {method_name}: elemen UI form tidak ditemukan "
-                f"dalam {SCREENING_UI_TIMEOUT_MS} ms.{Colors.ENDC}"
-            )
+            print_user_warning(f"Pemeriksaan {screening_name} belum dapat dibuka.")
             continue
 
         try:
-            print(f"form {method_name} ditemukan, memulai...")
-            print(f"{Colors.OKCYAN}Menjalankan {method_name}{Colors.ENDC}")
             method(data, row_number)
             page.wait_for_load_state("networkidle")
-        except PlaywrightTimeoutError as exc:
-            print(f"{Colors.WARNING}Skip {method_name}: elemen UI tidak ditemukan atau tidak tampil. Detail: {exc}{Colors.ENDC}")
+        except PlaywrightTimeoutError:
+            print_user_warning(f"Pemeriksaan {screening_name} belum selesai.")
             close_active_screening_form(page)
 
 
@@ -404,59 +416,45 @@ def _run_main() -> dict:
             data = row_entry["data"]
             try:
                 examination_status = search_patient(page, data, index)
-                print("mencari jenis kelamin pasien...")
                 gender_locator = (
                     page.locator("div.flex.flex-col.gap-2")
                     .filter(has_text="Jenis Kelamin")
                     .locator("div.font-bold")
                 )
                 gender = gender_locator.inner_text().strip()
-                print(f"jenis kelamin pasien ditemukan : {gender}")
                 if gender == "Laki-laki":
-                    print("memasuki if laki-laki...")
-                    # page.pause()
-                    print(f"{Colors.OKCYAN}Skrining Laki-Laki Dewasa{Colors.ENDC}")
-                    print(f"{Colors.BOLD}============== Skrining Mandiri Dimulai =============={Colors.ENDC}")
+                    start_section("Skrining Laki-Laki Dewasa")
+                    print_detail("Jenis kelamin", gender)
+                    finish_section()
                     if examination_status == "Belum Pemeriksaan":
-                        #butuh perbaikan di sini untuk memilih tanggal
-                        print("mengklik tombol mulai pemeriksaan...")
                         page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
-                        print("mengklik tombol simpan...")
                         page.locator("button.btn-fill-primary:has-text('Simpan')").click()
+
                     screening_mandiri = ScreeningMandiri(page, format_cell_value)
                     run_screening_steps(
                         screening_mandiri, DEWASA_MANDIRI_LAKI_SCREENINGS, data, index, page
                     )
-                    print(f"{Colors.BOLD}============== Skrining Mandiri Selesai =============={Colors.ENDC}")
-                    print(f"{Colors.BOLD}============== Skrining Oleh Nakes Dimulai =============={Colors.ENDC}")
                     screening_nakes = ScreeningNakes(page, format_cell_value)
                     run_screening_steps(
                         screening_nakes, DEWASA_NAKES_LAKI_SCREENINGS, data, index, page
                     )
-                    print(f"{Colors.BOLD}============== Skrining Oleh Nakes Selesai =============={Colors.ENDC}")
                     excel.update_status(index, "SUCCESS")
-                    # page.pause()
                 elif gender == "Perempuan":
-                    print(f"{Colors.OKCYAN}Skrining Perempuan Dewasa{Colors.ENDC}")
-                    print(f"{Colors.BOLD}============== Skrining Mandiri Dimulai =============={Colors.ENDC}")
+                    start_section("Skrining Perempuan Dewasa")
+                    print_detail("Jenis kelamin", gender)
+                    finish_section()
                     if examination_status == "Belum Pemeriksaan":
                         #butuh perbaikan di sini untuk memilih tanggal
-                        print("mengklik tombol mulai pemeriksaan...")
                         page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
-                        print("mengklik tombol simpan...")
                         page.locator("button.btn-fill-primary:has-text('Simpan')").click()
-                        print(f"{Colors.OKGREEN}Mulai Pemeriksaan dan Simpan berhasil diklik{Colors.ENDC}")
                     screening_mandiri = ScreeningMandiri(page, format_cell_value)
                     run_screening_steps(
                         screening_mandiri, DEWASA_MANDIRI_PEREMPUAN_SCREENINGS, data, index, page
                     )
-                    print(f"{Colors.BOLD}============== Skrining Mandiri Selesai =============={Colors.ENDC}")
-                    print(f"{Colors.BOLD}============== Skrining Oleh Nakes Dimulai =============={Colors.ENDC}")
                     screening_nakes = ScreeningNakes(page, format_cell_value)
                     run_screening_steps(
                         screening_nakes, DEWASA_NAKES_PEREMPUAN_SCREENINGS, data, index, page
                     )
-                    print(f"{Colors.BOLD}============== Skrining Oleh Nakes Selesai =============={Colors.ENDC}")
                     excel.update_status(index, "SUCCESS")
 
 
