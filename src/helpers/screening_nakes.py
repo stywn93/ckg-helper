@@ -1154,7 +1154,7 @@ class ScreeningNakes:
         # self.page.locator("div[aria-controls='sq_100i_list']").click()
         # self.page.locator("#sq_100i_list [role='option']").filter(has_text=bercak_putih).click()
         if bercak_putih == "Meragukan":
-            self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
                 has_text=self.required(data, "hasil_bta")
             ).first.click()
             # self.page.locator("div[aria-controls='sq_101i_list']").click()
