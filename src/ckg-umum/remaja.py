@@ -123,6 +123,8 @@ LOGIN_SUCCESS_TIMEOUT_MS = int(os.getenv("CKG_LOGIN_SUCCESS_TIMEOUT_MS", "60000"
 TEENAGER_MANDIRI_SCREENINGS = [
     "do_risiko_gula_darah_anak",
     "do_risiko_malaria",
+    "do_keswa_remaja",
+    "do_keswa_remaja_2",
     "do_cemas_anak",
     "do_gejala_depresi_anak",
     "do_riwayat_imunisasi_rutin_anak_sekolah",

@@ -95,6 +95,8 @@ class ScreeningMandiri:
         "do_risiko_kanker_paru": "skrining_kanker_paru",
         "do_perilaku_merokok": "skrining_perilaku_merokok",
         "do_aktivitas_fisik": "skrining_aktivitas_fisik",
+        "do_keswa_remaja": "skrining_keswa",
+        "do_keswa_remaja_2": "skrining_keswa_2"
     }
     
 
@@ -251,12 +253,13 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_risiko_malaria"]):
             print("Skrining Risiko Malaria Dilewati (Tidak Aktif)")
             return
+        label = "Faktor Risiko Malaria"
         row = self.page.locator("tr").filter(
-            has=self.page.get_by_text("Risiko Malaria", exact=True)
+            has=self.page.get_by_text(f"{label}", exact=True)
         )
         already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
         if already_done:
-            print("Risiko Malaria sudah selesai; dilewati")
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
             return
         
         self._start_screening("Skrining Risiko Malaria")
@@ -513,6 +516,58 @@ class ScreeningMandiri:
         self.page.locator('[id="rowfrm000180"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.required(data, "batuk_tidak_sembuh")
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        self._finish_screening()
+
+    def do_keswa_remaja(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_keswa_remaja"]):
+            print("Skrining Kesehatan Jiwa Dilewati (Tidak Aktif)")
+            return
+        label = "Kesehatan Jiwa"
+        row = self.page.locator("tr").filter(
+            has=self.page.get_by_text(f"{label}", exact=True)
+        )
+        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
+        self._start_screening("Skrining Kesehatan Jiwa")
+        self.page.locator('[id="rowfrm000112"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.required(data, "tidak_tenang")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.required(data, "berpikir_berlebihan")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.required(data, "sulit_tidur")
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        self._finish_screening()
+
+    def do_keswa_remaja_2(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_keswa_remaja_2"]):
+            print("Skrining Kesehatan Jiwa Dilewati (Tidak Aktif)")
+            return
+        label = "Kesehatan Jiwa"
+        row = self.page.locator("tr").filter(
+            has=self.page.get_by_text(f"{label}", exact=True)
+        )
+        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
+        if already_done:
+            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+            return
+        self._start_screening("Skrining Kesehatan Jiwa")
+        self.page.locator('[id="rowfrm000125"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.required(data, "merasa_sedih")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.required(data, "tidak_tertarik_lagi")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.required(data, "sulit_fokus")
         ).click()
         self.page.locator("input:has-text('Kirim')").click()
         self._finish_screening()
