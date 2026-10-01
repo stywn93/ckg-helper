@@ -131,18 +131,23 @@ class ScreeningMandiri:
             raise ValueError(f"kolom {key} tidak boleh kosong")
         return value
 
+    def _skip_if_screening_done(self, form_id: str, label: str) -> bool:
+        row = self.page.locator("tr").filter(
+            has=self.page.locator(f"#{form_id}")
+        )
+        row.wait_for()
+        if row.locator('img[src$="/icon-success.svg"]').count() == 0:
+            return False
+        print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+        return True
+
 
     def do_demografi_dewasa(self, data: dict, row_number: int) -> None:
         if not self._should_run(data, self._SCREENING_KEYS["do_demografi_dewasa"]):
             print("Skrining Demografi Dewasa Dilewati (Tidak Aktif)")
             return
         label = "Demografi Dewasa Laki-Laki"
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text(f"{label}", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+        if self._skip_if_screening_done("rowfrm000006", label):
             return
         self._start_screening("Skrining Demografi Dewasa")
         self.page.locator('[id="rowfrm000006"]').click()
@@ -171,12 +176,7 @@ class ScreeningMandiri:
             return
         
         label = "Demografi Dewasa Perempuan"
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text(f"{label}", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+        if self._skip_if_screening_done("rowfrm000007", label):
             return
 
         self._start_screening("Skrining Demografi Dewasa Perempuan")
@@ -205,12 +205,7 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_demografi_lansia"]):
             print("Skrining Demografi Lansia Dilewati (Tidak Aktif)")
             return
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text("Demografi Lansia", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print("Demografi Lansia sudah selesai; dilewati")
+        if self._skip_if_screening_done("rowfrm000008", "Demografi Lansia"):
             return
         
         self._start_screening("Skrining Demografi Lansia")
@@ -233,12 +228,7 @@ class ScreeningMandiri:
             print("Skrining Demografi Dewasa Dilewati (Tidak Aktif)")
             return
         
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text("Demografi Anak", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print("Demografi Anak sudah selesai; dilewati")
+        if self._skip_if_screening_done("rowfrm000106", "Demografi Anak"):
             return
         self._start_screening("Skrining Demografi Anak")
         self.page.locator('[id="rowfrm000106"]').click()
@@ -254,12 +244,7 @@ class ScreeningMandiri:
             print("Skrining Risiko Malaria Dilewati (Tidak Aktif)")
             return
         label = "Faktor Risiko Malaria"
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text(f"{label}", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+        if self._skip_if_screening_done("rowfrm000115", label):
             return
         
         self._start_screening("Skrining Risiko Malaria")
@@ -284,6 +269,8 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_cemas_anak"]):
             print("Skrining Cemas Anak Dilewati (Tidak Aktif)")
             return
+        if self._skip_if_screening_done("rowfrm000109", "Skrining Cemas Anak"):
+            return
         
         self._start_screening("Skrining Cemas Anak")
         self.page.locator('[id="rowfrm000109"]').click()
@@ -304,6 +291,8 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_gejala_depresi_anak"]):
             print("Skrining Gejala Depresi Anak Dilewati (Tidak Aktif)")
             return
+        if self._skip_if_screening_done("rowfrm000124", "Skrining Gejala Depresi Anak"):
+            return
         self._start_screening("Skrining Gejala Depresi Anak")
         self.page.locator('[id="rowfrm000124"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -323,6 +312,8 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_riwayat_imunisasi_rutin_anak_sekolah"]):
             print("Skrining Riwayat Imunisasi Rutin Anak Sekolah Dilewati (Tidak Aktif)")
             return
+        if self._skip_if_screening_done("rowfrm000129", "Skrining Riwayat Imunisasi Rutin Anak Sekolah"):
+            return
         self._start_screening("Skrining Riwayat Imunisasi Rutin Anak Sekolah")
         self.page.locator('[id="rowfrm000129"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
@@ -335,6 +326,8 @@ class ScreeningMandiri:
     def do_risiko_hepatitis_sd(self, data: dict, row_number: int) -> None:
         if not self._should_run(data, self._SCREENING_KEYS["do_risiko_hepatitis_sd"]):
             print("Skrining Risiko Hepatitis SD Dilewati (Tidak Aktif)")
+            return
+        if self._skip_if_screening_done("rowfrm000114", "Skrining Risiko Hepatitis SD"):
             return
         self._start_screening("Skrining Risiko Hepatitis SD")
         self.page.locator('[id="rowfrm000114"]').click()
@@ -358,6 +351,8 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_risiko_tb_anak"]):
             print("Skrining Risiko TB Anak Dilewati (Tidak Aktif)")
             return
+        if self._skip_if_screening_done("rowfrm000174", "Skrining Risiko TB Anak"):
+            return
         self._start_screening("Skrining Risiko TB Anak 1-9 Tahun")
         self.page.locator('[id="rowfrm000174"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -370,6 +365,8 @@ class ScreeningMandiri:
     def do_risiko_gula_darah_anak(self, data: dict, row_number: int) -> None:
         if not self._should_run(data, self._SCREENING_KEYS["do_risiko_gula_darah_anak"]):
             print("Skrining Risiko Gula Darah Anak Dilewati (Tidak Aktif)")
+            return
+        if self._skip_if_screening_done("rowfrm000110", "Skrining Risiko Gula Darah Anak"):
             return
         self._start_screening("Skrining Risiko Gula Darah Anak")
         self.page.locator('[id="rowfrm000110"]').click()
@@ -399,6 +396,8 @@ class ScreeningMandiri:
     def do_imunisasi_rutin_balita(self, data: dict, row_number: int) -> None:
         if not self._should_run(data, self._SCREENING_KEYS["do_imunisasi_rutin_balita"]):
             print("Skrining Imunisasi Rutin Balita Dilewati (Tidak Aktif)")
+            return
+        if self._skip_if_screening_done("rowfrm000171", "Skrining Imunisasi Rutin Balita"):
             return
         self._start_screening("Skrining Imunisasi Rutin Balita")
         self.page.locator('[id="rowfrm000171"]').click()
@@ -476,12 +475,7 @@ class ScreeningMandiri:
             print("Skrining Kanker Usus Dilewati (Tidak Aktif)")
             return
         label = "Faktor Risiko Kanker Usus"
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text(f"{label}", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+        if self._skip_if_screening_done("rowfrm000027", label):
             return
         self._start_screening("Skrining Risiko Kanker Usus")
         self.page.locator('[id="rowfrm000027"]').click()
@@ -505,12 +499,7 @@ class ScreeningMandiri:
             print("Skrining Risiko TB Dilewati (Tidak Aktif)")
             return
         label = "Faktor Risiko TB - Mandiri"
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text(f"{label}", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+        if self._skip_if_screening_done("rowfrm000180", label):
             return
         self._start_screening("Skrining Risiko TB")
         self.page.locator('[id="rowfrm000180"]').click()
@@ -525,15 +514,12 @@ class ScreeningMandiri:
             print("Skrining Kesehatan Jiwa Dilewati (Tidak Aktif)")
             return
         label = "Kesehatan Jiwa"
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text(f"{label}", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+        form_id = "rowfrm000112"
+
+        if self._skip_if_screening_done(form_id, label):
             return
         self._start_screening("Skrining Kesehatan Jiwa")
-        self.page.locator('[id="rowfrm000112"]').click()
+        self.page.locator(f'[id="{form_id}"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.required(data, "tidak_tenang")
         ).click()
@@ -551,12 +537,9 @@ class ScreeningMandiri:
             print("Skrining Kesehatan Jiwa Dilewati (Tidak Aktif)")
             return
         label = "Kesehatan Jiwa"
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text(f"{label}", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+        form_id = "rowfrm000125"
+
+        if self._skip_if_screening_done(form_id, label):
             return
         self._start_screening("Skrining Kesehatan Jiwa")
         self.page.locator('[id="rowfrm000125"]').click()
@@ -577,12 +560,7 @@ class ScreeningMandiri:
             print("Skrining Hati Dilewati (Tidak Aktif)")
             return
         label = "Faktor Risiko Hati"
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text(f"{label}", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+        if self._skip_if_screening_done("rowfrm000028", label):
             return
         self._start_screening("Skrining Hati")
         self.page.locator('[id="rowfrm000028"]').click()
@@ -620,6 +598,8 @@ class ScreeningMandiri:
         if not self._should_run(data, self._SCREENING_KEYS["do_leher_rahim"]):
             print("Skrining Kanker Leher Rahim Dilewati (Tidak Aktif)")
             return
+        if self._skip_if_screening_done("rowfrm000088", "Skrining Kanker Leher Rahim"):
+            return
         self._start_screening("Skrining Kanker Leher Rahim")
         self.page.locator('[id="rowfrm000088"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
@@ -633,12 +613,7 @@ class ScreeningMandiri:
             print("Skrining Kesehatan Jiwa Dilewati (Tidak Aktif)")
             return
         label = "Kesehatan Jiwa Dewasa"
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text(f"{label}", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+        if self._skip_if_screening_done("rowfrm000067", label):
             return
         self._start_screening("Skrining Kesehatan Jiwa")
         self.page.locator('[id="rowfrm000067"]').click()
@@ -662,12 +637,7 @@ class ScreeningMandiri:
             print("Skrining Imunisasi Tetanus Dilewati (Tidak Aktif)")
             return
         label = "Riwayat Imunisasi Tetanus(Status T)"
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text(f"{label}", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+        if self._skip_if_screening_done("rowfrm000172", label):
             return
         self._start_screening("Skrining Imunisasi Tetanus (Status T)")
         self.page.locator('[id="rowfrm000172"]').click()
@@ -684,12 +654,7 @@ class ScreeningMandiri:
             print("Skrining Risiko Kanker Paru Dilewati (Tidak Aktif)")
             return
         label = "Penapisan Risiko Kanker Paru"
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text(f"{label}", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+        if self._skip_if_screening_done("rowfrm000138", label):
             return
         self._start_screening("Skrining Kanker Paru")
         self.page.locator('[id="rowfrm000138"]').click()
@@ -734,12 +699,7 @@ class ScreeningMandiri:
             print("Skrining Perilaku Dilewati (Tidak Aktif)")
             return
         label = "Hasil Perilaku Merokok"
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text(f"{label}", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+        if self._skip_if_screening_done("rowfrm000064", label):
             return
         
         self._start_screening("Skrining Perilaku Merokok")
@@ -783,12 +743,7 @@ class ScreeningMandiri:
             print("Skrining Aktivitas Fisik Dilewati (Tidak Aktif)")
             return
         label = "Tingkat Aktivitas Fisik"
-        row = self.page.locator("tr").filter(
-            has=self.page.get_by_text(f"{label}", exact=True)
-        )
-        already_done = row.locator('img[src$="/icon-success.svg"]').count() > 0
-        if already_done:
-            print(f"{Colors.OKGREEN}{label} sudah selesai; dilewati{Colors.ENDC}")
+        if self._skip_if_screening_done("rowfrm000169", label):
             return
         
         self._start_screening("Skrining Aktivitas Fisik")
