@@ -96,7 +96,9 @@ class ScreeningMandiri:
         "do_perilaku_merokok": "skrining_perilaku_merokok",
         "do_aktivitas_fisik": "skrining_aktivitas_fisik",
         "do_keswa_remaja": "skrining_keswa",
-        "do_keswa_remaja_2": "skrining_keswa_2"
+        "do_keswa_remaja_2": "skrining_keswa_2",
+        "do_aktivitas_fisik_remaja": "skrining_aktivitas_fisik_remaja"
+
     }
     
 
@@ -554,6 +556,32 @@ class ScreeningMandiri:
         ).click()
         self.page.locator("input:has-text('Kirim')").click()
         self._finish_screening()
+
+    def do_aktivitas_fisik_remaja(self, data: dict, row_number: int) -> None:
+            if not self._should_run(data, self._SCREENING_KEYS["do_aktivitas_fisik_remaja"]):
+                print("Skrining Aktivitas Fisik Remaja Dilewati (Tidak Aktif)")
+                return
+            label = "Aktivitas Fisik Remaja"
+            form_id = "rowfrm000121"
+    
+            if self._skip_if_screening_done(form_id, label):
+                return
+            self._start_screening("Skrining Aktivitas Fisik Remaja")
+            self.page.locator('[id="rowfrm000121"]').click()
+            # self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(
+            #     self.required(data, "hari_aktivitas_fisik")
+            # )
+            self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").press_sequentially(self.required(data, "hari_aktivitas_fisik"), delay=100)
+            self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").press_sequentially(self.required(data, "menit_aktivitas_fisik"), delay=100)
+            # self.page.pause()
+            # self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            #     has_text=self.required(data, "tidak_tertarik_lagi")
+            # ).click()
+            # self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            #     has_text=self.required(data, "sulit_fokus")
+            # ).click()
+            self.page.locator("input:has-text('Kirim')").click()
+            self._finish_screening()
 
     def do_hati(self, data: dict, row_number: int) -> None:
         if not self._should_run(data, self._SCREENING_KEYS["do_hati"]):

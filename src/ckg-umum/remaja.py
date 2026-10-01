@@ -130,7 +130,8 @@ TEENAGER_MANDIRI_SCREENINGS = [
     "do_riwayat_imunisasi_rutin_anak_sekolah",
     "do_risiko_hepatitis_sd",
     "do_risiko_tb_anak",
-    "do_risiko_tb"
+    "do_risiko_tb",
+    "do_aktivitas_fisik_remaja"
 ]
 TEENAGER_NAKES_SCREENINGS = [
     "do_gizi_anak_sekolah",
