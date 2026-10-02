@@ -131,7 +131,12 @@ TEENAGER_MANDIRI_SCREENINGS = [
     "do_risiko_hepatitis_sd",
     "do_risiko_tb_anak",
     "do_risiko_tb",
-    "do_aktivitas_fisik_remaja"
+    "do_aktivitas_fisik_remaja",
+    "do_kelayakan_tes_kebugaran",
+    "do_kesehatan_reproduksi",
+    "do_imunisasi_hpv",
+    "do_faktor_risiko_hepatitis_remaja",
+    "do_perilaku_merokok_remaja"
 ]
 TEENAGER_NAKES_SCREENINGS = [
     "do_gizi_anak_sekolah",

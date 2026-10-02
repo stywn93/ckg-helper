@@ -97,7 +97,12 @@ class ScreeningMandiri:
         "do_aktivitas_fisik": "skrining_aktivitas_fisik",
         "do_keswa_remaja": "skrining_keswa",
         "do_keswa_remaja_2": "skrining_keswa_2",
-        "do_aktivitas_fisik_remaja": "skrining_aktivitas_fisik_remaja"
+        "do_aktivitas_fisik_remaja": "skrining_aktivitas_fisik_remaja",
+        "do_kelayakan_tes_kebugaran": "skrining_kelayakan_tes_kebugaran",
+        "do_kesehatan_reproduksi": "skrining_kesehatan_reproduksi",
+        "do_imunisasi_hpv": "skrining_imunisasi_hpv",
+        "do_faktor_risiko_hepatitis_remaja": "skrining_faktor_risiko_hepatitis_remaja",
+        "do_perilaku_merokok_remaja": "skrining_perilaku_merokok_remaja"
 
     }
     
@@ -558,30 +563,163 @@ class ScreeningMandiri:
         self._finish_screening()
 
     def do_aktivitas_fisik_remaja(self, data: dict, row_number: int) -> None:
-            if not self._should_run(data, self._SCREENING_KEYS["do_aktivitas_fisik_remaja"]):
-                print("Skrining Aktivitas Fisik Remaja Dilewati (Tidak Aktif)")
-                return
-            label = "Aktivitas Fisik Remaja"
-            form_id = "rowfrm000121"
+        if not self._should_run(data, self._SCREENING_KEYS["do_aktivitas_fisik_remaja"]):
+            print("Skrining Aktivitas Fisik Remaja Dilewati (Tidak Aktif)")
+            return
+        label = "Aktivitas Fisik Remaja"
+        form_id = "rowfrm000121"
+
+        if self._skip_if_screening_done(form_id, label):
+            return
+        self._start_screening("Skrining Aktivitas Fisik Remaja")
+        self.page.locator('[id="rowfrm000121"]').click()
+        
+        self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").press_sequentially(self.required(data, "hari_aktivitas_fisik"), delay=100)
+        self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").press_sequentially(self.required(data, "menit_aktivitas_fisik"), delay=100)
+        self.page.locator("input:has-text('Kirim')").click()
+        self._finish_screening()
+
+    def do_kelayakan_tes_kebugaran(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_kelayakan_tes_kebugaran"]):
+            print("Skrining Kelayakan Tes Kebugaran Dilewati (Tidak Aktif)")
+            return
+        label = "Kelayakan Tes Kebugaran"
+        form_id = "rowfrm000113"
+
+        if self._skip_if_screening_done(form_id, label):
+            return
+        self._start_screening("Skrining Kelayakan Tes Kebugaran")
+        self.page.locator('[id="rowfrm000113"]').click()
+        			
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.required(data, "masalah_tulang_dan_sendi")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.required(data, "masalah_jantung")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.required(data, "terserang_asma")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=self.required(data, "pernah_pingsan")
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        self._finish_screening()
     
-            if self._skip_if_screening_done(form_id, label):
-                return
-            self._start_screening("Skrining Aktivitas Fisik Remaja")
-            self.page.locator('[id="rowfrm000121"]').click()
-            # self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(
-            #     self.required(data, "hari_aktivitas_fisik")
-            # )
-            self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").press_sequentially(self.required(data, "hari_aktivitas_fisik"), delay=100)
-            self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").press_sequentially(self.required(data, "menit_aktivitas_fisik"), delay=100)
-            # self.page.pause()
-            # self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
-            #     has_text=self.required(data, "tidak_tertarik_lagi")
-            # ).click()
-            # self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
-            #     has_text=self.required(data, "sulit_fokus")
-            # ).click()
-            self.page.locator("input:has-text('Kirim')").click()
-            self._finish_screening()
+    
+    def do_kesehatan_reproduksi(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_kesehatan_reproduksi"]):
+            print("Skrining Kesehatan Reproduksi Dilewati (Tidak Aktif)")
+            return
+        label = "Kesehatan Reproduksi"
+        form_id = "rowfrm000123"
+
+        if self._skip_if_screening_done(form_id, label):
+            return
+        self._start_screening("Skrining Kesehatan Reproduksi")
+        self.page.locator('[id="rowfrm000123"]').click()
+        			
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.required(data, "sudah_menstruasi")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.required(data, "menstruasi_pertama")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.required(data, "keputihan")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=self.required(data, "gatal_kemaluan")
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        self._finish_screening()
+        
+    def do_imunisasi_hpv(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_imunisasi_hpv"]):
+            print("Skrining Imunisasi HPV Dilewati (Tidak Aktif)")
+            return
+        label = "Imunisasi HPV"
+        form_id = "rowfrm000130"
+
+        if self._skip_if_screening_done(form_id, label):
+            return
+        self._start_screening("Skrining Imunisasi HPV")
+        self.page.locator('[id="rowfrm000130"]').click()
+        			
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.required(data, "sudah_hpv")
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        self._finish_screening()
+
+    def do_faktor_risiko_hepatitis_remaja(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_faktor_risiko_hepatitis_remaja"]):
+            print("Skrining Faktor Risiko Hepatitis Remaja Dilewati (Tidak Aktif)")
+            return
+        label = "Faktor Risiko Hepatitis Remaja"
+        form_id = "rowfrm000122"
+
+        if self._skip_if_screening_done(form_id, label):
+            return
+        self._start_screening("Skrining Faktor Risiko Hepatitis Remaja")
+        self.page.locator('[id="rowfrm000122"]').click()
+        			
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.required(data, "pernah_positif_hepatitis_b")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.required(data, "keluarga_hepatitis_b")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.required(data, "pernah_seksual_berisiko")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=self.required(data, "pernah_menerima_transfusi_darah")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+            has_text=self.required(data, "pernah_cuci_darah")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
+            has_text=self.required(data, "pernah_narkoba")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_106_ariaTitle'] label").filter(
+            has_text=self.required(data, "odhiv")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_107_ariaTitle'] label").filter(
+            has_text=self.required(data, "pernah_pengobatan_hepatitis_c")
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        self._finish_screening()
+    
+    def do_perilaku_merokok_remaja(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_perilaku_merokok_remaja"]):
+            print("Skrining Perilaku Merokok Remaja Dilewati (Tidak Aktif)")
+            return
+        label = "Perilaku Merokok"
+        form_id = "rowfrm000118"
+
+        if self._skip_if_screening_done(form_id, label):
+            return
+        self._start_screening("Skrining Perilaku Merokok Remaja")
+        self.page.locator('[id="rowfrm000118"]').click()
+        merokok_setahun_terakhir = self.required(data, "merokok_setahun_terakhir")
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=merokok_setahun_terakhir
+        ).click()
+        if merokok_setahun_terakhir == "Ya":
+            self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+                has_text=self.required(data, "jenis_rokok")
+            ).click()
+            self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+                has_text=self.required(data, "berapa_tahun")
+            ).click()
+            self.page.locator("input[aria-labelledby='sq_103_ariaTitle']").press_sequentially(self.required(data, "berapa_batang"), delay=100)
+        self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+            has_text=self.required(data, "terpapar_asap_rokok")
+        ).click()
+        self.page.locator("input:has-text('Kirim')").click()
+        self._finish_screening()
+
 
     def do_hati(self, data: dict, row_number: int) -> None:
         if not self._should_run(data, self._SCREENING_KEYS["do_hati"]):
