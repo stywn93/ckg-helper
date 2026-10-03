@@ -12,6 +12,7 @@ import openpyxl
 from src.helpers.api_report import report_execution
 from src.helpers.auto_update import __version__, check_for_update, install_update
 from src.helpers.excel import DEFAULT_COMBINED_WORKBOOK_NAME, resolve_dataset
+from src.helpers.suppress_asyncio_noise import install_asyncio_exception_filter
 
 BANNER = r"""
   _______ _______  __ __    __            
@@ -22,7 +23,7 @@ BANNER = r"""
 """
 
 
-APP_NAME = f"CKG No Worry {__version__}"
+APP_NAME = f"CKG Helper {__version__}"
 RESET = "\033[0m"
 GREEN = "\033[32m"
 BLUE = "\033[38;2;124;206;254m"
@@ -168,7 +169,12 @@ def print_welcome(app_root: Path) -> None:
     print("Panduan singkat:")
     print("- Pastikan file Excel sudah disimpan dan ditutup.")
     print("- Login CKG disimpan otomatis di file .env pada folder ini.")
-    print("- Konsultasi via Telegram @stywn93")
+    print(f"{BLUE}- Konsultasi via Telegram @stywn93{RESET}")
+
+
+def print_support() -> None:
+    print("\nSupport kami untuk mengembangkan software bermanfaat dengan link di bawah ini")
+    print(f"{GREEN}https://saweria.co/stywn93{RESET}")
 
 
 def read_env_file(env_path: Path) -> dict[str, str]:
@@ -308,7 +314,7 @@ def print_menu(menu_keys: list[str], selected_index: int) -> None:
         marker = "➤" if index == selected_index else " "
         line = f"{marker} {key.upper()}. {labels[key]:<{MENU_COLUMN_WIDTH}} {details[key]}"
         print(f"{BLUE}{line}{RESET}" if index == selected_index else line)
-    print(f"\n{FADED}↑/↓  |  Enter  |  I Info  |  V Versi  |  Q Quit{RESET}")
+    print(f"\n{FADED}↑/↓  |  Enter  |  I Info  |  V Versi  |  S Support  |  Q Quit{RESET}")
 
 
 def select_menu() -> str:
@@ -328,7 +334,7 @@ def select_menu() -> str:
             selected_index = next_menu_index(selected_index, 1, len(menu_keys))
         elif key in {"\r", "\n"}:
             return menu_keys[selected_index]
-        elif key.lower() in {"i", "v", "q"}:
+        elif key.lower() in {"i", "v", "s", "q"}:
             return key.lower()
 
 
@@ -401,6 +407,7 @@ def run_selected_option(app_root: Path, option: dict[str, Path | str]) -> None:
 def main() -> None:
     global _update_available
 
+    install_asyncio_exception_filter()
     show_banner()
     app_root = get_app_root()
     load_app_env(app_root)
@@ -425,6 +432,11 @@ def main() -> None:
 
         if choice == "i":
             print_welcome(app_root)
+            pause()
+            continue
+
+        if choice == "s":
+            print_support()
             pause()
             continue
 
