@@ -58,6 +58,18 @@ def report_execution(
 
 
 def monitored_main(script_name: str, main_func):
+    try:
+        from suppress_asyncio_noise import install_asyncio_exception_filter
+
+        install_asyncio_exception_filter()
+    except ImportError:
+        try:
+            from src.helpers.suppress_asyncio_noise import install_asyncio_exception_filter
+
+            install_asyncio_exception_filter()
+        except ImportError:
+            pass
+
     start = time.monotonic()
     try:
         result = main_func()
