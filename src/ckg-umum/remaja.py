@@ -152,7 +152,11 @@ TEENAGER_NAKES_SCREENINGS = [
     "do_skabies",
     "do_periksa_gigi_anak",
     "do_hepatitis_b_7_12", #belum selesai
-    "do_rdt_malaria"
+    "do_rdt_malaria",
+    "do_kadar_co",
+    "do_gula_darah_remaja",
+    "do_kebugaran_jasmani_anak",
+    "do_hepatitis_anak_sekolah"
 ]
 
 def get_required_env(name: str) -> str:
