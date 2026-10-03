@@ -315,7 +315,7 @@ def print_menu(menu_keys: list[str], selected_index: int) -> None:
         marker = "➤" if index == selected_index else " "
         line = f"{marker} {key.upper()}. {labels[key]:<{MENU_COLUMN_WIDTH}} {details[key]}"
         print(f"{BLUE}{line}{RESET}" if index == selected_index else line)
-    print(f"\n{FADED}↑/↓  |  Enter  |  I Info  |  V Versi  |  S Support  |  Q Quit{RESET}")
+    print(f"\n{FADED}↑/↓  |  Enter  |  I Info  |  S Support  |  Q Quit{RESET}")
 
 
 def select_menu() -> str:
