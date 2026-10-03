@@ -165,6 +165,7 @@ def load_app_env(app_root: Path) -> None:
 def print_welcome(app_root: Path) -> None:
     # print(f"\n{APP_NAME}")
     # print("=" * len(APP_NAME))
+    print(f"{APP_NAME}")
     print("Panduan singkat:")
     print("- Pastikan file Excel sudah disimpan dan ditutup.")
     print("- Login CKG disimpan otomatis di file .env pada folder ini.")
