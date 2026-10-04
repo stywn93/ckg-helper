@@ -123,10 +123,11 @@ MONTH_TO_NUMBER = {
 LOGIN_SUCCESS_TIMEOUT_MS = int(os.getenv("CKG_LOGIN_SUCCESS_TIMEOUT_MS", "60000"))
 CHILD_MANDIRI_SCREENINGS = [
     "do_demografi_anak",
-    "do_risiko_gula_darah_anak",
-    "do_imunisasi_rutin_balita"
+    "do_risiko_gula_darah_anak"
 ]
 CHILD_NAKES_SCREENINGS = [
+    "do_gizi_anak_sekolah",
+    "do_gula_darah_anak",
     "do_riwayat_imunisasi_hepatitis_b",
     "do_berat_lahir",
     "do_jantung_bawaan",
@@ -386,7 +387,7 @@ def _run_main() -> dict:
                 #     continue
 
                 # if badge_text == "Bayi Balita":
-                page.pause()
+                # page.pause()
                 gender_locator = (
                     page.locator("div.flex.flex-col.gap-2")
                     .filter(has_text="Jenis Kelamin")
@@ -394,7 +395,7 @@ def _run_main() -> dict:
                 )
                 gender = gender_locator.inner_text().strip()
                 if gender == "Laki-laki":
-                    page.pause()
+                    # page.pause()
                     start_section("Skrining Laki-Laki Bayi Balita")
                     print_detail("Jenis kelamin", gender)
                     finish_section()

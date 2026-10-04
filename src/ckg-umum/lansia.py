@@ -130,6 +130,7 @@ LANSIA_MANDIRI_SCREENINGS = [
     "do_risiko_kanker_paru",
     "do_perilaku_merokok",
     "do_aktivitas_fisik",
+    "do_leher_rahim"
 ]
 LANSIA_NAKES_LAKI_SCREENINGS = [
     "do_gizi_laki",
@@ -163,6 +164,7 @@ LANSIA_NAKES_LAKI_SCREENINGS = [
     "do_jantung",
     "do_kanker_usus",
     "do_kanker_paru",
+    "do_hpv_dna"
 ]
 LANSIA_NAKES_PEREMPUAN_SCREENINGS = [
     "do_gizi_perempuan",
@@ -196,6 +198,9 @@ LANSIA_NAKES_PEREMPUAN_SCREENINGS = [
     "do_jantung",
     "do_kanker_usus",
     "do_kanker_paru",
+    "do_kanker_payudara",
+    "do_inspekulo_iva",
+    "do_hpv_dna"
 ]
 
 def get_required_env(name: str) -> str:
@@ -416,53 +421,53 @@ def _run_main() -> dict:
             data = row_entry["data"]
             try:
                 examination_status = search_patient(page, data, index)
-                badge = page.locator("div.border-rd-full.px-3.py-1").first
-                badge.wait_for(state="visible", timeout=15000)
-                badge_text = badge.inner_text().strip()
-                start_section("Validasi Pasien")
-                print_detail("Kategori pasien", badge_text)
-                if badge_text != "Lansia":
-                    print_user_warning(f"Data ini bukan pasien Lansia ({badge_text}).")
-                    finish_section()
-                    excel.update_status(index, f"Gagal - ini bukan pasien lansia. Ini adalah pasien {badge_text}")
-                    any_failed = True
-                    page.wait_for_load_state("networkidle")
-                    continue
+                # badge = page.locator("div.border-rd-full.px-3.py-1").first
+                # badge.wait_for(state="visible", timeout=15000)
+                # badge_text = badge.inner_text().strip()
+                # start_section("Validasi Pasien")
+                # print_detail("Kategori pasien", badge_text)
+                # if badge_text != "Lansia":
+                #     print_user_warning(f"Data ini bukan pasien Lansia ({badge_text}).")
+                #     finish_section()
+                #     excel.update_status(index, f"Gagal - ini bukan pasien lansia. Ini adalah pasien {badge_text}")
+                #     any_failed = True
+                #     page.wait_for_load_state("networkidle")
+                #     continue
 
-                if badge_text == "Lansia":
-                    gender_locator = (
-                        page.locator("div.flex.flex-col.gap-2")
-                        .filter(has_text="Jenis Kelamin")
-                        .locator("div.font-bold")
-                    )
-                    gender = gender_locator.inner_text().strip()
-                    if gender == "Laki-Laki":
-                        start_section("Skrining Laki-Laki Lansia")
-                        print_detail("Jenis kelamin", gender)
-                        finish_section()
-                        if examination_status == "Belum Pemeriksaan":
-                            #butuh perbaikan di sini untuk memilih tanggal
-                            page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
-                            page.locator("button.btn-fill-primary:has-text('Simpan')").click()
-                        screening_mandiri = ScreeningMandiri(page, format_cell_value)
-                        run_screening_steps(screening_mandiri, LANSIA_MANDIRI_SCREENINGS, data, index, page)
-                        screening_nakes = ScreeningNakes(page, format_cell_value)
-                        run_screening_steps(screening_nakes, LANSIA_NAKES_LAKI_SCREENINGS, data, index, page)
-                        excel.update_status(index, "SUCCESS")
-                        # page.pause()
-                    elif gender == "Perempuan":
-                        start_section("Skrining Perempuan Lansia")
-                        print_detail("Jenis kelamin", gender)
-                        finish_section()
-                        if examination_status == "Belum Pemeriksaan":
-                            #butuh perbaikan di sini untuk memilih tanggal
-                            page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
-                            page.locator("button.btn-fill-primary:has-text('Simpan')").click()
-                        screening_mandiri = ScreeningMandiri(page, format_cell_value)
-                        run_screening_steps(screening_mandiri, LANSIA_MANDIRI_SCREENINGS, data, index, page)
-                        screening_nakes = ScreeningNakes(page, format_cell_value)
-                        run_screening_steps(screening_nakes, LANSIA_NAKES_PEREMPUAN_SCREENINGS, data, index, page)
-                        excel.update_status(index, "SUCCESS")
+                # if badge_text == "Lansia":
+                gender_locator = (
+                    page.locator("div.flex.flex-col.gap-2")
+                    .filter(has_text="Jenis Kelamin")
+                    .locator("div.font-bold")
+                )
+                gender = gender_locator.inner_text().strip()
+                if gender == "Laki-laki":
+                    start_section("Skrining Laki-Laki Lansia")
+                    print_detail("Jenis kelamin", gender)
+                    finish_section()
+                    if examination_status == "Belum Pemeriksaan":
+                        #butuh perbaikan di sini untuk memilih tanggal
+                        page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
+                        page.locator("button.btn-fill-primary:has-text('Simpan')").click()
+                    screening_mandiri = ScreeningMandiri(page, format_cell_value)
+                    run_screening_steps(screening_mandiri, LANSIA_MANDIRI_SCREENINGS, data, index, page)
+                    screening_nakes = ScreeningNakes(page, format_cell_value)
+                    run_screening_steps(screening_nakes, LANSIA_NAKES_LAKI_SCREENINGS, data, index, page)
+                    excel.update_status(index, "SUCCESS")
+                    # page.pause()
+                elif gender == "Perempuan":
+                    start_section("Skrining Perempuan Lansia")
+                    print_detail("Jenis kelamin", gender)
+                    finish_section()
+                    if examination_status == "Belum Pemeriksaan":
+                        #butuh perbaikan di sini untuk memilih tanggal
+                        page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
+                        page.locator("button.btn-fill-primary:has-text('Simpan')").click()
+                    screening_mandiri = ScreeningMandiri(page, format_cell_value)
+                    run_screening_steps(screening_mandiri, LANSIA_MANDIRI_SCREENINGS, data, index, page)
+                    screening_nakes = ScreeningNakes(page, format_cell_value)
+                    run_screening_steps(screening_nakes, LANSIA_NAKES_PEREMPUAN_SCREENINGS, data, index, page)
+                    excel.update_status(index, "SUCCESS")
 
 
                 page.wait_for_load_state("networkidle")
