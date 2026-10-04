@@ -151,6 +151,10 @@ class TestExcelMultiSheet(unittest.TestCase):
             valid = validate_excel_file(self.temp_dir, opt)
             self.assertTrue(valid, f"Menu {key} validation should succeed with combined workbook")
 
+    def test_menu_options_sequential_keys(self):
+        expected_keys = [str(i) for i in range(1, len(MENU_OPTIONS) + 1)]
+        self.assertEqual(list(MENU_OPTIONS.keys()), expected_keys)
+
 
 if __name__ == "__main__":
     unittest.main()

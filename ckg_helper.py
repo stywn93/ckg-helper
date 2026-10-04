@@ -467,8 +467,7 @@ def main() -> None:
         try:
             run_selected_option(app_root, option)
         except KeyboardInterrupt:
-            print("\nProses dihentikan oleh user.")
-            pause()
+            continue
         except Exception as exc:
             print(f"\nTerjadi error: {exc}")
             pause()
