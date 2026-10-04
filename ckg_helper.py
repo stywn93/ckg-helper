@@ -34,8 +34,8 @@ _update_available: dict | None = None
 USERNAME_ENV = "CKG_USERNAME"
 PASSWORD_ENV = "CKG_PASSWORD"
 
-MENU_OPTIONS = {
-    "1": {
+MENU_ITEMS = [
+    {
         "label": "CKG Umum",
         "detail": "Pendaftaran Baru",
         "script": Path("src") / "ckg-umum" / "daftar_baru.py",
@@ -43,7 +43,7 @@ MENU_OPTIONS = {
         "sheet": "pendaftaran_umum",
         "excel": Path("dataset") / "pendaftaran_umum.xlsx",
     },
-    "3": {
+    {
         "label": "CKG Umum",
         "detail": "Pelayanan CKG Anak",
         "script": Path("src") / "ckg-umum" / "anak.py",
@@ -51,7 +51,7 @@ MENU_OPTIONS = {
         "sheet": "anak",
         "excel": Path("dataset") / "anak.xlsx",
     },
-    "4": {
+    {
         "label": "CKG Umum",
         "detail": "Pelayanan CKG Remaja",
         "script": Path("src") / "ckg-umum" / "remaja.py",
@@ -59,7 +59,7 @@ MENU_OPTIONS = {
         "sheet": "remaja",
         "excel": Path("dataset") / "remaja.xlsx",
     },
-    "5": {
+    {
         "label": "CKG Umum",
         "detail": "Pelayanan CKG Dewasa",
         "script": Path("src") / "ckg-umum" / "dewasa.py",
@@ -67,7 +67,7 @@ MENU_OPTIONS = {
         "sheet": "dewasa",
         "excel": Path("dataset") / "dewasa.xlsx",
     },
-    "6": {
+    {
         "label": "CKG Umum",
         "detail": "Pelayanan CKG Lansia",
         "script": Path("src") / "ckg-umum" / "lansia.py",
@@ -75,7 +75,7 @@ MENU_OPTIONS = {
         "sheet": "lansia",
         "excel": Path("dataset") / "lansia.xlsx",
     },
-    "7": {
+    {
         "label": "CKG Sekolah",
         "detail": "Pendaftaran CKG Sekolah",
         "script": Path("src") / "ckg-sekolah" / "pendaftaran.py",
@@ -83,7 +83,7 @@ MENU_OPTIONS = {
         "sheet": "pendaftaran_sekolah",
         "excel": Path("dataset") / "pendaftaran_sekolah.xlsx",
     },
-    "8": {
+    {
         "label": "CKG Sekolah",
         "detail": "Konfirmasi Kehadiran",
         "script": Path("src") / "ckg-sekolah" / "konfirm_kehadiran.py",
@@ -91,7 +91,7 @@ MENU_OPTIONS = {
         "sheet": "konfirm_kehadiran_sekolah",
         "excel": Path("dataset") / "konfirm_kehadiran_sekolah.xlsx",
     },
-    "9": {
+    {
         "label": "CKG Sekolah",
         "detail": "Pelayanan CKG Sekolah",
         "script": Path("src") / "ckg-sekolah" / "pelayanan.py",
@@ -99,6 +99,10 @@ MENU_OPTIONS = {
         "sheet": "pelayanan_sekolah",
         "excel": Path("dataset") / "pelayanan_sekolah.xlsx",
     },
+]
+
+MENU_OPTIONS = {
+    str(index): option for index, option in enumerate(MENU_ITEMS, start=1)
 }
 
 def show_banner():
@@ -335,7 +339,9 @@ def select_menu() -> str:
             selected_index = next_menu_index(selected_index, 1, len(menu_keys))
         elif key in {"\r", "\n"}:
             return menu_keys[selected_index]
-        elif key.lower() in {"i", "v", "s", "q"}:
+        elif key in MENU_OPTIONS:
+            return key
+        elif key.lower() in {"i", "v", "s", "q", "u"}:
             return key.lower()
 
 
