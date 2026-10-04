@@ -231,6 +231,8 @@ def search_patient_with_status(page, data: dict, examination_status: str) -> Non
     page.wait_for_timeout(1000)
     page.wait_for_load_state("networkidle")
     page.locator("button:has-text('Mulai')").first.click(timeout=PATIENT_SEARCH_TIMEOUT_MS)
+    # print("this is the end...")
+    # page.pause()
     finish_section()
 
 
@@ -366,56 +368,60 @@ def _run_main() -> dict:
         for row_entry in data_rows:
             index = row_entry["row_number"]
             data = row_entry["data"]
+            # print("memasuki baris 371")
+            # page.pause()
             try:
                 examination_status = search_patient(page, data, index)
-                badge = page.locator("div.border-rd-full.px-3.py-1").first
-                badge.wait_for(state="visible", timeout=15000)
-                badge_text = badge.inner_text().strip()
-                start_section("Validasi Pasien")
-                print_detail("Kategori pasien", badge_text)
-                if badge_text != "Bayi Balita":
-                    print_user_warning(f"Data ini bukan pasien Bayi Balita ({badge_text}).")
-                    finish_section()
-                    excel.update_status(index, f"Gagal - ini bukan pasien Bayi Balita. Ini adalah pasien {badge_text}")
-                    any_failed = True
-                    page.wait_for_load_state("networkidle")
-                    continue
+                # badge = page.locator("div.border-rd-full.px-3.py-1").first
+                # badge.wait_for(state="visible", timeout=15000)
+                # badge_text = badge.inner_text().strip()
+                # start_section("Validasi Pasien")
+                # print_detail("Kategori pasien", badge_text)
+                # if badge_text != "Bayi Balita":
+                #     print_user_warning(f"Data ini bukan pasien Bayi Balita ({badge_text}).")
+                #     finish_section()
+                #     excel.update_status(index, f"Gagal - ini bukan pasien Bayi Balita. Ini adalah pasien {badge_text}")
+                #     any_failed = True
+                #     page.wait_for_load_state("networkidle")
+                #     continue
 
-                if badge_text == "Bayi Balita":
-                    gender_locator = (
-                        page.locator("div.flex.flex-col.gap-2")
-                        .filter(has_text="Jenis Kelamin")
-                        .locator("div.font-bold")
-                    )
-                    gender = gender_locator.inner_text().strip()
-                    if gender == "Laki-Laki":
-                        start_section("Skrining Laki-Laki Bayi Balita")
-                        print_detail("Jenis kelamin", gender)
-                        finish_section()
-                        if examination_status == "Belum Pemeriksaan":
-                            #butuh perbaikan di sini untuk memilih tanggal
-                            page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
-                            page.locator("button.btn-fill-primary:has-text('Simpan')").click()
-                        # page.pause()
-                        screening_mandiri = ScreeningMandiri(page, format_cell_value)
-                        run_screening_steps(screening_mandiri, CHILD_MANDIRI_SCREENINGS, data, index, page)
-                        screening_nakes = ScreeningNakes(page, format_cell_value)
-                        run_screening_steps(screening_nakes, CHILD_NAKES_SCREENINGS, data, index, page)
-                        excel.update_status(index, "SUCCESS")
-                        # page.pause()
-                    elif gender == "Perempuan":
-                        start_section("Skrining Perempuan Bayi Balita")
-                        print_detail("Jenis kelamin", gender)
-                        finish_section()
-                        if examination_status == "Belum Pemeriksaan":
-                            #butuh perbaikan di sini untuk memilih tanggal
-                            page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
-                            page.locator("button.btn-fill-primary:has-text('Simpan')").click()
-                        screening_mandiri = ScreeningMandiri(page, format_cell_value)
-                        run_screening_steps(screening_mandiri, CHILD_MANDIRI_SCREENINGS, data, index, page)
-                        screening_nakes = ScreeningNakes(page, format_cell_value)
-                        run_screening_steps(screening_nakes, CHILD_NAKES_SCREENINGS, data, index, page)
-                        excel.update_status(index, "SUCCESS")
+                # if badge_text == "Bayi Balita":
+                page.pause()
+                gender_locator = (
+                    page.locator("div.flex.flex-col.gap-2")
+                    .filter(has_text="Jenis Kelamin")
+                    .locator("div.font-bold")
+                )
+                gender = gender_locator.inner_text().strip()
+                if gender == "Laki-laki":
+                    page.pause()
+                    start_section("Skrining Laki-Laki Bayi Balita")
+                    print_detail("Jenis kelamin", gender)
+                    finish_section()
+                    if examination_status == "Belum Pemeriksaan":
+                        #butuh perbaikan di sini untuk memilih tanggal
+                        page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
+                        page.locator("button.btn-fill-primary:has-text('Simpan')").click()
+                    # page.pause()
+                    screening_mandiri = ScreeningMandiri(page, format_cell_value)
+                    run_screening_steps(screening_mandiri, CHILD_MANDIRI_SCREENINGS, data, index, page)
+                    screening_nakes = ScreeningNakes(page, format_cell_value)
+                    run_screening_steps(screening_nakes, CHILD_NAKES_SCREENINGS, data, index, page)
+                    excel.update_status(index, "SUCCESS")
+                    # page.pause()
+                elif gender == "Perempuan":
+                    start_section("Skrining Perempuan Bayi Balita")
+                    print_detail("Jenis kelamin", gender)
+                    finish_section()
+                    if examination_status == "Belum Pemeriksaan":
+                        #butuh perbaikan di sini untuk memilih tanggal
+                        page.locator("button.btn-fill-primary:has-text('Mulai Pemeriksaan')").click()
+                        page.locator("button.btn-fill-primary:has-text('Simpan')").click()
+                    screening_mandiri = ScreeningMandiri(page, format_cell_value)
+                    run_screening_steps(screening_mandiri, CHILD_MANDIRI_SCREENINGS, data, index, page)
+                    screening_nakes = ScreeningNakes(page, format_cell_value)
+                    run_screening_steps(screening_nakes, CHILD_NAKES_SCREENINGS, data, index, page)
+                    excel.update_status(index, "SUCCESS")
 
 
                 page.wait_for_load_state("networkidle")
