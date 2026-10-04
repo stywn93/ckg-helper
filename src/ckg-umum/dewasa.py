@@ -75,6 +75,7 @@ from screening_mandiri import ScreeningMandiri
 from api_report import monitored_main
 from screening_nakes import ScreeningNakes
 from sticky_stop_footer import sticky_stop_footer
+from custom_exceptions import PatientNotFoundException
 load_dotenv(PROJECT_ROOT / ".env")
 
 USERNAME_ENV = "CKG_USERNAME"
@@ -283,8 +284,6 @@ def search_patient_with_status(page, data: dict, examination_status: str) -> Non
 
 
 def search_patient(page, data: dict, row_number: int) -> str:
-    last_error = None
-
     for examination_status in EXAMINATION_STATUS_SEARCH_ORDER:
         try:
             print(
@@ -293,16 +292,16 @@ def search_patient(page, data: dict, row_number: int) -> str:
             )
             search_patient_with_status(page, data, examination_status)
             break
-        except PlaywrightTimeoutError as exc:
-            last_error = exc
+        except PlaywrightTimeoutError:
             print(
                 f"{Colors.WARNING}Pasien tidak ditemukan pada status "
                 f"{examination_status}.{Colors.ENDC}"
             )
     else:
-        raise RuntimeError(
+        finish_section()
+        raise PatientNotFoundException(
             "Pasien tidak ditemukan pada semua status pemeriksaan."
-        ) from last_error
+        )
 
     page.wait_for_load_state("networkidle")
     # page.wait_for_timeout(3000)
@@ -461,6 +460,11 @@ def _run_main() -> dict:
                 page.wait_for_load_state("networkidle")
 
 
+            except PatientNotFoundException as exc:
+                failed_rows.append(index)
+                any_failed = True
+                print_user_warning(f"Baris {index}: {exc}")
+                excel.update_status(index, f"FAILED: {exc}")
             except Exception as exc:
                 failed_rows.append(index)
                 any_failed = True
