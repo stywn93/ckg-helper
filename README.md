@@ -34,7 +34,7 @@ Versi stabil adalah 0.3.9 yang dapat [diunduh di sini.](https://github.com/stywn
 ## 🖥️ Preview
 
 <p align="center">
-  <img src="./Screenshot 2026-09-16 at 20.03.43.png" alt="CKG Helper Dashboard" width="100%">
+  <img src="./screenshot.png" alt="CKG Helper Dashboard" width="100%">
 </p>
 
 > **Simplify knowledge work without losing structure.**
