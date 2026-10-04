@@ -123,7 +123,8 @@ MONTH_TO_NUMBER = {
 LOGIN_SUCCESS_TIMEOUT_MS = int(os.getenv("CKG_LOGIN_SUCCESS_TIMEOUT_MS", "60000"))
 CHILD_MANDIRI_SCREENINGS = [
     "do_demografi_anak",
-    "do_risiko_gula_darah_anak"
+    "do_risiko_gula_darah_anak",
+    "do_imunisasi_rutin_balita"
 ]
 CHILD_NAKES_SCREENINGS = [
     "do_gizi_anak_sekolah",
