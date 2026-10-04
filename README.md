@@ -1,5 +1,5 @@
 # CKG No Worry
-<img src="https://wordpress.com" alt="Website Preview" width="600">
+<img src="./stywn93.jpg" alt="Website Preview" width="70" style="border-radius: 50%; object-fit: cover; display: block; margin: 0 auto;">
 
 <p>
   <strong>Otomasi untuk membantu proses entri data CKG (Cek Kesehatan Gratis).</strong>

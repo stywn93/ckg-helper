@@ -22,3 +22,4 @@ dataset/sumber.xlsx
 .DS_Store
 .idea/
 .wrangler/
+Playwright_Status_API.postman_collection.json
