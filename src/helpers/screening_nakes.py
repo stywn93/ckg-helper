@@ -854,12 +854,18 @@ class ScreeningNakes:
             return
         self._start_screening("Skrining SKILAS Gejala Depresi")
         self.page.locator('[id="rowfrm000038"]').click()
-        self.page.locator("div[aria-controls='sq_100i_list']").click()
-        self.page.locator("#sq_100i_list [role='option']").filter(
-            has_text=self.required(data, "2_minggu_terakhir_sedih")).click()
-        self.page.locator("div[aria-controls='sq_101i_list']").click()
-        self.page.locator("#sq_101i_list [role='option']").filter(
-            has_text=self.required(data, "2_minggu_sedikit_minat")).click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.required(data, "2_minggu_terakhir_sedih")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.required(data, "2_minggu_sedikit_minat")
+        ).click()
+        # self.page.locator("div[aria-controls='sq_100i_list']").click()
+        # self.page.locator("#sq_100i_list [role='option']").filter(
+        #     has_text=self.required(data, "2_minggu_terakhir_sedih")).click()
+        # self.page.locator("div[aria-controls='sq_101i_list']").click()
+        # self.page.locator("#sq_101i_list [role='option']").filter(
+        #     has_text=self.required(data, "2_minggu_sedikit_minat")).click()
         self.page.locator("input:has-text('Kirim')").click()
         self._finish_screening()
 
@@ -881,25 +887,41 @@ class ScreeningNakes:
         self.page.locator("div[aria-controls='sq_102i_list']").click()
         self.page.locator("#sq_102i_list [role='option']").filter(
             has_text=self.required(data, "membersihkan_diri")).click()
-        self.page.locator("div[aria-controls='sq_103i_list']").click()
-        self.page.locator("#sq_103i_list [role='option']").filter(
-            has_text=self.required(data, "penggunaan_jamban")).click()
-        self.page.locator("div[aria-controls='sq_104i_list']").click()
+
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=self.required(data, "penggunaan_jamban")
+        ).click()
+        # self.page.locator("div[aria-controls='sq_103i_list']").click()
+        # self.page.locator("#sq_103i_list [role='option']").filter(
+        #     has_text=self.required(data, "penggunaan_jamban")).click()
+        # self.page.locator("div[aria-controls='sq_104i_list']").click()
+        self.page.locator('div.sd-dropdown[aria-label^="Makan dan Minum"]').click()
+        # self.page.pause()
         self.page.locator("#sq_104i_list [role='option']").filter(
             has_text=self.required(data, "makan_minum")).click()
-        self.page.locator("div[aria-controls='sq_105i_list']").click()
+
+        self.page.locator('div.sd-dropdown[aria-label^="Berubah sikap dari berbaring ke duduk"]').click()
+        # self.page.locator("div[aria-controls='sq_105i_list']").click()
         self.page.locator("#sq_105i_list [role='option']").filter(
             has_text=self.required(data, "berubah_sikap")).click()
-        self.page.locator("div[aria-controls='sq_106i_list']").click()
+        
+        # self.page.locator("div[aria-controls='sq_106i_list']").click()
+        self.page.locator('div.sd-dropdown[aria-label^="Berpindah/berjalan"]').click()
         self.page.locator("#sq_106i_list [role='option']").filter(
             has_text=self.required(data, "berpindah")).click()
-        self.page.locator("div[aria-controls='sq_107i_list']").click()
+        
+        # self.page.locator("div[aria-controls='sq_107i_list']").click()
+        self.page.locator('div.sd-dropdown[aria-label^="Memakai baju"]').click()
         self.page.locator("#sq_107i_list [role='option']").filter(
             has_text=self.required(data, "memakai_baju")).click()
-        self.page.locator("div[aria-controls='sq_108i_list']").click()
+        
+        # self.page.locator("div[aria-controls='sq_108i_list']").click()
+        self.page.locator('div.sd-dropdown[aria-label^="Naik turun tangga"]').click()
         self.page.locator("#sq_108i_list [role='option']").filter(
             has_text=self.required(data, "naik_turun_tangga")).click()
-        self.page.locator("div[aria-controls='sq_109i_list']").click()
+        
+        # self.page.locator("div[aria-controls='sq_109i_list']").click()
+        self.page.locator('div.sd-dropdown[aria-label^="Mandi"]').click()
         self.page.locator("#sq_109i_list [role='option']").filter(
             has_text=self.required(data, "mandi")).click()
         self.page.locator("input:has-text('Kirim')").click()
@@ -974,18 +996,31 @@ class ScreeningNakes:
         self.page.locator("div[aria-controls='sq_100i_list']").click()
         self.page.locator("#sq_100i_list [role='option']").filter(
             has_text=self.required(data, "sppb_1")).first.click()
-        self.page.locator("div[aria-controls='sq_101i_list']").click()
-        self.page.locator("#sq_101i_list [role='option']").filter(
-            has_text=self.required(data, "sppb_2")).first.click()
-        self.page.locator("div[aria-controls='sq_102i_list']").click()
-        self.page.locator("#sq_102i_list [role='option']").filter(
-            has_text=self.required(data, "sppb_3")).first.click()
-        self.page.locator("div[aria-controls='sq_103i_list']").click()
-        self.page.locator("#sq_103i_list [role='option']").filter(
-            has_text=self.required(data, "sppb_4")).click()
-        self.page.locator("div[aria-controls='sq_104i_list']").click()
-        self.page.locator("#sq_104i_list [role='option']").filter(
-            has_text=self.required(data, "sppb_5")).click()
+
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.required(data, "sppb_2")
+        ).first.click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.required(data, "sppb_3")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=self.required(data, "sppb_4")
+        ).click()
+        self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+            has_text=self.required(data, "sppb_5")
+        ).click()
+        # self.page.locator("div[aria-controls='sq_101i_list']").click()
+        # self.page.locator("#sq_101i_list [role='option']").filter(
+        #     has_text=self.required(data, "sppb_2")).first.click()
+        # self.page.locator("div[aria-controls='sq_102i_list']").click()
+        # self.page.locator("#sq_102i_list [role='option']").filter(
+        #     has_text=self.required(data, "sppb_3")).first.click()
+        # self.page.locator("div[aria-controls='sq_103i_list']").click()
+        # self.page.locator("#sq_103i_list [role='option']").filter(
+        #     has_text=self.required(data, "sppb_4")).click()
+        # self.page.locator("div[aria-controls='sq_104i_list']").click()
+        # self.page.locator("#sq_104i_list [role='option']").filter(
+        #     has_text=self.required(data, "sppb_5")).click()
         self.page.locator("input:has-text('Kirim')").click()
         self._finish_screening()
 
@@ -1031,9 +1066,13 @@ class ScreeningNakes:
             return
         self._start_screening("Skrining Depresi Lanjutan")
         self.page.locator('[id="rowfrm000039"]').click()
-        self.page.locator("div[aria-controls='sq_100i_list']").click()
-        self.page.locator("#sq_100i_list [role='option']").filter(
-            has_text=self.required(data, "depresi_lanjutan_1")).click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.required(data, "depresi_lanjutan_1")
+        ).click()
+
+        # self.page.locator("div[aria-controls='sq_100i_list']").click()
+        # self.page.locator("#sq_100i_list [role='option']").filter(
+        #     has_text=self.required(data, "depresi_lanjutan_1")).click()
         self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
             has_text=self.required(data, "depresi_lanjutan_2")
         ).click()
