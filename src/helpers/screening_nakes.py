@@ -143,6 +143,7 @@ class ScreeningNakes:
         "do_penapisan_kmpe_gpph": "skrining_penapisan_kmpe_gpph",
         "do_kuesioner_kmpe": "skrining_kuesioner_kmpe",
         "do_kuesioner_gpph": "skrining_kuesioner_gpph",
+        "do_telinga_mata_anak_balita": "skrining_telinga_mata_anak_balita",
     }
 
     def __init__(self, page, formatter):
@@ -260,6 +261,38 @@ class ScreeningNakes:
         self.page.locator('[id="rowfrm000086"]').click()
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
             has_text=self.required(data, "hasil_gpph")
+        ).first.click()
+        
+        self.page.locator("input:has-text('Kirim')").click()
+        self._finish_screening()
+    
+    def do_telinga_mata_anak_balita(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_telinga_mata_anak_balita"]):
+            print("Skrining Telinga dan Mata Anak Balita Dilewati (Tidak Aktif)")
+            return
+        label = "Skrining Telinga dan Mata Anak Balita"
+        if self._skip_if_screening_done("rowfrm000021", label):
+            return
+        self._start_screening("Skrining Telinga dan Mata Anak Balita")
+        self.page.locator('[id="rowfrm000021"]').click()
+        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("#sq_100i_list [role='option']").filter(
+            has_text=self.required(data, "tes_daya_dengar")).first.click()
+        
+        self.page.locator("div[aria-controls='sq_101i_list']").click()
+        self.page.locator("#sq_101i_list [role='option']").filter(
+            has_text=self.required(data, "tes_daya_lihat")).first.click()
+
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.required(data, "serumen_impaksi")
+        ).first.click()
+        
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=self.required(data, "infeksi_telinga")
+        ).first.click()
+        
+        self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
+            has_text=self.required(data, "selaput_mata_merah")
         ).first.click()
         
         self.page.locator("input:has-text('Kirim')").click()
@@ -403,7 +436,7 @@ class ScreeningNakes:
         self._finish_screening()
 
     def do_berat_lahir(self, data: dict, row_number: int) -> None:
-        if not self._should_run(data, self._SCREENING_KEYS["do__berat_lahir"]):
+        if not self._should_run(data, self._SCREENING_KEYS["do_berat_lahir"]):
             print("Skrining Berat Lahir Dilewati (Tidak Aktif)")
             return
         label = "Skrining Berat Lahir"

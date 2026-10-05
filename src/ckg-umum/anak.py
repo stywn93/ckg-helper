@@ -128,6 +128,7 @@ CHILD_MANDIRI_SCREENINGS = [
 ]
 CHILD_NAKES_SCREENINGS = [
     "do_kuesioner_gpph",
+    "do_telinga_mata_anak_balita",
     "do_gizi_anak_sekolah",
     "do_gula_darah_anak",
     "do_riwayat_imunisasi_hepatitis_b",
