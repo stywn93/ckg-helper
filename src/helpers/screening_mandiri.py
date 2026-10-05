@@ -411,72 +411,45 @@ class ScreeningMandiri:
 
         imunisasi_24_bulan = self.required(data, "imunisasi_24_bulan")
         self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(has_text=imunisasi_24_bulan).first.click()
-        # self.page.locator("div[aria-controls='sq_100i_list']").click()
-        # imunisasi_24_bulan = self.required(data, "imunisasi_24_bulan")
-        # self.page.locator("#sq_100i_list [role='option']").filter(
-        #     has_text=imunisasi_24_bulan).click()
         if imunisasi_24_bulan == "Ya":
-            # self.page.locator("div[aria-controls='sq_101i_list']").click()
             membawa_buku_imunisasi = self.required(data, "membawa_buku_imunisasi")
             self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(has_text=membawa_buku_imunisasi).first.click()
-            # self.page.locator("#sq_101i_list [role='option']").filter(
-            #     has_text=membawa_buku_imunisasi).click()
             if membawa_buku_imunisasi == "Ya":
-                # self.page.locator("fieldset[aria-labelledby='sq_102i_list']").click()
                 self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_hepatitis_b")).click()
                 self.page.locator("div[aria-controls='sq_103i_list']").click()
                 self.page.locator('div.sd-dropdown[aria-label^="Apakah anak anda sudah pernah menerima imunisasi BCG"]').click()
                 self.page.locator("#sq_103i_list [role='option']").filter(has_text=self.required(data, "menerima_imunisasi_bcg")).click()
-                # self.page.locator("input[aria-labelledby='sq_103_ariaTitle']").click()
-                self.page.pause()
-                # self.page.locator("#sq_103i_list [role='option']").filter(
-                #     has_text=self.required(data, "menerima_imunisasi_bcg")).click()
-                # self.page.locator("div[aria-controls='sq_104i_list']").click()
-
                 self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_opv")).click()
-                # self.page.locator("div[aria-controls='sq_105i_list']").click()
                 self.page.locator("fieldset[aria-labelledby='sq_105_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_dpt")).click()
-                # self.page.locator("div[aria-controls='sq_106i_list']").click()
                 self.page.locator("fieldset[aria-labelledby='sq_106_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_opv_2")).click()
-                # self.page.locator("div[aria-controls='sq_107i_list']").click()
                 self.page.locator("fieldset[aria-labelledby='sq_107_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_pcv")).click()
-                # self.page.locator("div[aria-controls='sq_108i_list']").click()
                 self.page.locator("fieldset[aria-labelledby='sq_108_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_rotavirus")).click()
-                # self.page.locator("div[aria-controls='sq_109i_list']").click()
                 self.page.locator("fieldset[aria-labelledby='sq_109_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_dpt_2")).click()
-                # self.page.locator("div[aria-controls='sq_110i_list']").click()
                 self.page.locator("fieldset[aria-labelledby='sq_110_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_opv_3")).click()
-                # self.page.locator("div[aria-controls='sq_111i_list']").click()
                 self.page.locator("fieldset[aria-labelledby='sq_111_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_pcv_2")).click()
-                # self.page.locator("div[aria-controls='sq_112i_list']").click()
                 self.page.locator("fieldset[aria-labelledby='sq_112_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_rotavirus_2")).click()
-                # self.page.locator("div[aria-controls='sq_113i_list']").click()
                 self.page.locator("fieldset[aria-labelledby='sq_113_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_dpt_3")).click()
-                # self.page.locator("div[aria-controls='sq_114i_list']").click()
                 self.page.locator("fieldset[aria-labelledby='sq_114_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_opv_4")).click()
-                # self.page.locator("div[aria-controls='sq_115i_list']").click()
                 self.page.locator("fieldset[aria-labelledby='sq_115_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_rotavirus_3")).click()
                 self.page.locator("fieldset[aria-labelledby='sq_116_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_ipv")).click()
                 self.page.locator("fieldset[aria-labelledby='sq_117_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_campak")).click()
-                # self.page.locator("div[aria-controls='sq_118i_list']").click()
                 self.page.locator("fieldset[aria-labelledby='sq_118_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_dpt_4")).click()
-                # self.page.locator("div[aria-controls='sq_119i_list']").click()
                 self.page.locator("fieldset[aria-labelledby='sq_119_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_campak_2")).click()
 

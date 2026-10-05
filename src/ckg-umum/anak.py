@@ -127,6 +127,7 @@ CHILD_MANDIRI_SCREENINGS = [
     "do_imunisasi_rutin_balita"
 ]
 CHILD_NAKES_SCREENINGS = [
+    "do_kuesioner_gpph",
     "do_gizi_anak_sekolah",
     "do_gula_darah_anak",
     "do_riwayat_imunisasi_hepatitis_b",
@@ -150,6 +151,9 @@ CHILD_NAKES_SCREENINGS = [
     "do_skabies",
     "do_telinga_mata_anak",
     "do_periksa_gigi_anak",
+    "do_penapisan_kmpe_gpph",
+    "do_kuesioner_kmpe"
+    
 ]
 
 def get_required_env(name: str) -> str:

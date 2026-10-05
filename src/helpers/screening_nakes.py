@@ -140,6 +140,9 @@ class ScreeningNakes:
         "do_gula_darah_remaja": "skrining_gula_darah_remaja",
         "do_kebugaran_jasmani_anak": "skrining_kebugaran_jasmani_anak",
         "do_hepatitis_anak_sekolah": "skrining_hepatitis_anak_sekolah",
+        "do_penapisan_kmpe_gpph": "skrining_penapisan_kmpe_gpph",
+        "do_kuesioner_kmpe": "skrining_kuesioner_kmpe",
+        "do_kuesioner_gpph": "skrining_kuesioner_gpph",
     }
 
     def __init__(self, page, formatter):
@@ -207,6 +210,58 @@ class ScreeningNakes:
         self.page.locator("#sq_103i_list [role='option']").filter(
             has_text=self.required(data, "status_lingkar_kepala")).click()
 
+        self.page.locator("input:has-text('Kirim')").click()
+        self._finish_screening()
+
+    def do_penapisan_kmpe_gpph(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_penapisan_kmpe_gpph"]):
+            print("Skrining Penapisan KMPE GPPH Dilewati (Tidak Aktif)")
+            return
+        label = "Skrining Penapisan KMPE GPPH"
+        if self._skip_if_screening_done("rowfrm000096", label):
+            return
+        self._start_screening("Skrining Penapisan KMPE GPPH")
+        self.page.locator('[id="rowfrm000096"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.required(data, "anak_tantrum")
+        ).click()
+        
+        self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
+            has_text=self.required(data, "anak_impulsif")
+        ).click()
+
+        self.page.locator("input:has-text('Kirim')").click()
+        self._finish_screening()
+
+    def do_kuesioner_kmpe(self, data: dict, row_number: int) -> None:
+            if not self._should_run(data, self._SCREENING_KEYS["do_kuesioner_kmpe"]):
+                print("Skrining Kuesioner KMPE Dilewati (Tidak Aktif)")
+                return
+            label = "Skrining Kuesioner KMPE"
+            if self._skip_if_screening_done("rowfrm000018", label):
+                return
+            self._start_screening("Skrining Kuesioner KMPE")
+            self.page.locator('[id="rowfrm000018"]').click()
+            self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+                has_text=self.required(data, "hasil_kmpe")
+            ).click()
+            
+            self.page.locator("input:has-text('Kirim')").click()
+            self._finish_screening()
+    
+    def do_kuesioner_gpph(self, data: dict, row_number: int) -> None:
+        if not self._should_run(data, self._SCREENING_KEYS["do_kuesioner_gpph"]):
+            print("Skrining Kuesioner GPPH Dilewati (Tidak Aktif)")
+            return
+        label = "Skrining Kuesioner GPPH"
+        if self._skip_if_screening_done("rowfrm000086", label):
+            return
+        self._start_screening("Skrining Kuesioner GPPH")
+        self.page.locator('[id="rowfrm000086"]').click()
+        self.page.locator("fieldset[aria-labelledby='sq_100_ariaTitle'] label").filter(
+            has_text=self.required(data, "hasil_gpph")
+        ).first.click()
+        
         self.page.locator("input:has-text('Kirim')").click()
         self._finish_screening()
 
