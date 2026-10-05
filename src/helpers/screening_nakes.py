@@ -205,9 +205,11 @@ class ScreeningNakes:
         self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(self.required(data, "berat_badan"))
         self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.required(data, "tinggi_badan"))
         self.page.locator("div[aria-controls='sq_102i_list']").click()
+        self.page.locator("div[aria-controls='sq_102i_list']").press_sequentially(self.required(data, "posisi_pengukuran"), delay=100)
         self.page.locator("#sq_102i_list [role='option']").filter(
             has_text=self.required(data, "posisi_pengukuran")).click()
         self.page.locator("div[aria-controls='sq_103i_list']").click()
+        self.page.locator("div[aria-controls='sq_103i_list']").press_sequentially(self.required(data, "status_lingkar_kepala"), delay=100)
         self.page.locator("#sq_103i_list [role='option']").filter(
             has_text=self.required(data, "status_lingkar_kepala")).click()
 
@@ -276,10 +278,12 @@ class ScreeningNakes:
         self._start_screening("Skrining Telinga dan Mata Anak Balita")
         self.page.locator('[id="rowfrm000021"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("div[aria-controls='sq_100i_list']").press_sequentially(self.required(data, "tes_daya_dengar"), delay=100)
         self.page.locator("#sq_100i_list [role='option']").filter(
             has_text=self.required(data, "tes_daya_dengar")).first.click()
         
         self.page.locator("div[aria-controls='sq_101i_list']").click()
+        self.page.locator("div[aria-controls='sq_101i_list']").press_sequentially(self.required(data, "tes_daya_lihat"), delay=100)
         self.page.locator("#sq_101i_list [role='option']").filter(
             has_text=self.required(data, "tes_daya_lihat")).first.click()
 
@@ -308,6 +312,7 @@ class ScreeningNakes:
         self._start_screening("Skrining KPSP")
         self.page.locator('[id="rowfrm000017"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("div[aria-controls='sq_100i_list']").press_sequentially(self.required(data, "hasil_kpsp"), delay=100)
         self.page.locator("#sq_100i_list [role='option']").filter(
             has_text=self.required(data, "hasil_kpsp")).click()
         self.page.locator("input:has-text('Kirim')").click()
@@ -392,15 +397,17 @@ class ScreeningNakes:
         # do_pemeriksaan_check(page, "label[for='hasil-lab-1-1']", True)
         self.page.locator('[id="rowfrm000178"]').click()
 
-        self.page.locator("div[aria-controls='sq_100i_list']").click()
         kontak_tbc = self.required(data, "kontak_tbc")
+        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("div[aria-controls='sq_100i_list']").press_sequentially(kontak_tbc, delay=100)
         self.page.locator("#sq_100i_list [role='option']").filter(has_text=kontak_tbc).click()
         if kontak_tbc == "Riwayat kontak serumah" or kontak_tbc == "Riwayat kontak erat":
             self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
                 has_text=self.required(data, "jenis_tbc")
             ).click()
-        self.page.locator("div[aria-controls='sq_102i_list']").click()
         metode_pemeriksaan_tbc = self.required(data, "metode_pemeriksaan_tbc")
+        self.page.locator("div[aria-controls='sq_102i_list']").click()
+        self.page.locator("div[aria-controls='sq_102i_list']").press_sequentially(metode_pemeriksaan_tbc, delay=100)
         self.page.locator("#sq_102i_list [role='option']").filter(
             has_text=metode_pemeriksaan_tbc).click()
         if metode_pemeriksaan_tbc == "TCM":
@@ -410,10 +417,12 @@ class ScreeningNakes:
                 has_text=self.required(data, "hasil_pemeriksaan_tbc")).click()
         elif metode_pemeriksaan_tbc == "BTA":
             self.page.locator("div[aria-controls='sq_104i_list']").click()
+            self.page.locator("div[aria-controls='sq_104i_list']").press_sequentially(self.required(data, "hasil_pemeriksaan_tbc"), delay=100)
             self.page.locator("#sq_104i_list [role='option']").filter(
                 has_text=self.required(data, "hasil_pemeriksaan_tbc")).click()
         elif metode_pemeriksaan_tbc == "NPOC":
             self.page.locator("div[aria-controls='sq_105i_list']").click()
+            self.page.locator("div[aria-controls='sq_105i_list']").press_sequentially(self.required(data, "hasil_pemeriksaan_tbc"), delay=100)
             self.page.locator("#sq_105i_list [role='option']").filter(
                 has_text=self.required(data, "hasil_pemeriksaan_tbc")).click()
         # page.pause()
@@ -683,6 +692,7 @@ class ScreeningNakes:
         self._start_screening("Skrining Hasil Kramer pada Bayi Kuning")
         self.page.locator('[id="rowfrm000240"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("div[aria-controls='sq_100i_list']").press_sequentially(self.required(data, "nilai_hasil_kramer"), delay=100)
         self.page.locator("#sq_100i_list [role='option']").filter(
             has_text=self.required(data, "nilai_hasil_kramer")).first.click()
         
@@ -725,15 +735,19 @@ class ScreeningNakes:
         # do_pemeriksaan_check(page, "label[for='hasil-lab-3-0']", True)
         self.page.locator('[id="rowfrm000085"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("div[aria-controls='sq_100i_list']").press_sequentially(self.required(data, "serumen_impaksi"), delay=100)
         self.page.locator("#sq_100i_list [role='option']").filter(
             has_text=self.required(data, "serumen_impaksi")).first.click()
         self.page.locator("div[aria-controls='sq_101i_list']").click()
+        self.page.locator("div[aria-controls='sq_101i_list']").press_sequentially(self.required(data, "infeksi_telinga"), delay=100)
         self.page.locator("#sq_101i_list [role='option']").filter(
             has_text=self.required(data, "infeksi_telinga")).first.click()
         self.page.locator("div[aria-controls='sq_102i_list']").click()
+        self.page.locator("div[aria-controls='sq_102i_list']").press_sequentially(self.required(data, "tes_daya_dengar"), delay=100)
         self.page.locator("#sq_102i_list [role='option']").filter(
             has_text=self.required(data, "tes_daya_dengar")).first.click()
         self.page.locator("div[aria-controls='sq_103i_list']").click()
+        self.page.locator("div[aria-controls='sq_103i_list']").press_sequentially(self.required(data, "selaput_mata_merah"), delay=100)
         self.page.locator("#sq_103i_list [role='option']").filter(
             has_text=self.required(data, "selaput_mata_merah")).first.click()
         self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
@@ -879,12 +893,15 @@ class ScreeningNakes:
         self._start_screening("Skrining Gangguan Fungsional")
         self.page.locator('[id="rowfrm000040"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("div[aria-controls='sq_100i_list']").press_sequentially(self.required(data, "kendali_bab"), delay=100)
         self.page.locator("#sq_100i_list [role='option']").filter(
             has_text=self.required(data, "kendali_bab")).click()
         self.page.locator("div[aria-controls='sq_101i_list']").click()
+        self.page.locator("div[aria-controls='sq_101i_list']").press_sequentially(self.required(data, "kendali_bak"), delay=100)
         self.page.locator("#sq_101i_list [role='option']").filter(
             has_text=self.required(data, "kendali_bak")).click()
         self.page.locator("div[aria-controls='sq_102i_list']").click()
+        self.page.locator("div[aria-controls='sq_102i_list']").press_sequentially(self.required(data, "membersihkan_diri"), delay=100)
         self.page.locator("#sq_102i_list [role='option']").filter(
             has_text=self.required(data, "membersihkan_diri")).click()
 
@@ -896,32 +913,38 @@ class ScreeningNakes:
         #     has_text=self.required(data, "penggunaan_jamban")).click()
         # self.page.locator("div[aria-controls='sq_104i_list']").click()
         self.page.locator('div.sd-dropdown[aria-label^="Makan dan Minum"]').click()
-        # self.page.pause()
+        self.page.locator('div.sd-dropdown[aria-label^="Makan dan Minum"]').press_sequentially(self.required(data, "makan_minum"), delay=100)
         self.page.locator("#sq_104i_list [role='option']").filter(
             has_text=self.required(data, "makan_minum")).click()
+        # self.page.pause()
 
         self.page.locator('div.sd-dropdown[aria-label^="Berubah sikap dari berbaring ke duduk"]').click()
+        self.page.locator('div.sd-dropdown[aria-label^="Berubah sikap dari berbaring ke duduk"]').press_sequentially(self.required(data, "berubah_sikap"), delay=100)
         # self.page.locator("div[aria-controls='sq_105i_list']").click()
         self.page.locator("#sq_105i_list [role='option']").filter(
             has_text=self.required(data, "berubah_sikap")).click()
         
         # self.page.locator("div[aria-controls='sq_106i_list']").click()
         self.page.locator('div.sd-dropdown[aria-label^="Berpindah/berjalan"]').click()
+        self.page.locator('div.sd-dropdown[aria-label^="Berpindah/berjalan"]').press_sequentially(self.required(data, "berpindah"), delay=100)
         self.page.locator("#sq_106i_list [role='option']").filter(
             has_text=self.required(data, "berpindah")).click()
         
         # self.page.locator("div[aria-controls='sq_107i_list']").click()
         self.page.locator('div.sd-dropdown[aria-label^="Memakai baju"]').click()
+        self.page.locator('div.sd-dropdown[aria-label^="Memakai baju"]').press_sequentially(self.required(data, "memakai_baju"), delay=100)
         self.page.locator("#sq_107i_list [role='option']").filter(
             has_text=self.required(data, "memakai_baju")).click()
         
         # self.page.locator("div[aria-controls='sq_108i_list']").click()
         self.page.locator('div.sd-dropdown[aria-label^="Naik turun tangga"]').click()
+        self.page.locator('div.sd-dropdown[aria-label^="Naik turun tangga"]').press_sequentially(self.required(data, "naik_turun_tangga"), delay=100)
         self.page.locator("#sq_108i_list [role='option']").filter(
             has_text=self.required(data, "naik_turun_tangga")).click()
         
         # self.page.locator("div[aria-controls='sq_109i_list']").click()
         self.page.locator('div.sd-dropdown[aria-label^="Mandi"]').click()
+        self.page.locator('div.sd-dropdown[aria-label^="Mandi"]').press_sequentially(self.required(data, "mandi"), delay=100)
         self.page.locator("#sq_109i_list [role='option']").filter(
             has_text=self.required(data, "mandi")).click()
         self.page.locator("input:has-text('Kirim')").click()
@@ -958,27 +981,35 @@ class ScreeningNakes:
         self._start_screening("Skrining AD-8 INA")
         self.page.locator('[id="rowfrm000031"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("div[aria-controls='sq_100i_list']").press_sequentially(self.required(data, "ina_1"), delay=100)
         self.page.locator("#sq_100i_list [role='option']").filter(
             has_text=self.required(data, "ina_1")).click()
         self.page.locator("div[aria-controls='sq_101i_list']").click()
+        self.page.locator("div[aria-controls='sq_101i_list']").press_sequentially(self.required(data, "ina_2"), delay=100)
         self.page.locator("#sq_101i_list [role='option']").filter(
             has_text=self.required(data, "ina_2")).click()
         self.page.locator("div[aria-controls='sq_102i_list']").click()
+        self.page.locator("div[aria-controls='sq_102i_list']").press_sequentially(self.required(data, "ina_3"), delay=100)
         self.page.locator("#sq_102i_list [role='option']").filter(
             has_text=self.required(data, "ina_3")).click()
         self.page.locator("div[aria-controls='sq_103i_list']").click()
+        self.page.locator("div[aria-controls='sq_103i_list']").press_sequentially(self.required(data, "ina_4"), delay=100)
         self.page.locator("#sq_103i_list [role='option']").filter(
             has_text=self.required(data, "ina_4")).click()
         self.page.locator("div[aria-controls='sq_104i_list']").click()
+        self.page.locator("div[aria-controls='sq_104i_list']").press_sequentially(self.required(data, "ina_5"), delay=100)
         self.page.locator("#sq_104i_list [role='option']").filter(
             has_text=self.required(data, "ina_5")).click()
         self.page.locator("div[aria-controls='sq_105i_list']").click()
+        self.page.locator("div[aria-controls='sq_105i_list']").press_sequentially(self.required(data, "ina_6"), delay=100)
         self.page.locator("#sq_105i_list [role='option']").filter(
             has_text=self.required(data, "ina_6")).click()
         self.page.locator("div[aria-controls='sq_106i_list']").click()
+        self.page.locator("div[aria-controls='sq_106i_list']").press_sequentially(self.required(data, "ina_7"), delay=100)
         self.page.locator("#sq_106i_list [role='option']").filter(
             has_text=self.required(data, "ina_7")).click()
         self.page.locator("div[aria-controls='sq_107i_list']").click()
+        self.page.locator("div[aria-controls='sq_107i_list']").press_sequentially(self.required(data, "ina_8"), delay=100)
         self.page.locator("#sq_107i_list [role='option']").filter(
             has_text=self.required(data, "ina_8")).click()
         self.page.locator("input:has-text('Kirim')").click()
@@ -994,6 +1025,7 @@ class ScreeningNakes:
         self._start_screening("Skrining Mobilisasi Lanjutan")
         self.page.locator('[id="rowfrm000033"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("div[aria-controls='sq_100i_list']").press_sequentially(self.required(data, "sppb_1"), delay=100)
         self.page.locator("#sq_100i_list [role='option']").filter(
             has_text=self.required(data, "sppb_1")).first.click()
 
@@ -1034,24 +1066,30 @@ class ScreeningNakes:
         self._start_screening("Skrining Malnutrisi Lanjutan")
         self.page.locator('[id="rowfrm000035"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("div[aria-controls='sq_100i_list']").press_sequentially(self.required(data, "mna_sf_1"), delay=100)
         self.page.locator("#sq_100i_list [role='option']").filter(
             has_text=self.required(data, "mna_sf_1")).click()
         self.page.locator("div[aria-controls='sq_101i_list']").click()
+        self.page.locator("div[aria-controls='sq_101i_list']").press_sequentially(self.required(data, "mna_sf_2"), delay=100)
         self.page.locator("#sq_101i_list [role='option']").filter(
             has_text=self.required(data, "mna_sf_2")).click()
         self.page.locator("div[aria-controls='sq_102i_list']").click()
+        self.page.locator("div[aria-controls='sq_102i_list']").press_sequentially(self.required(data, "mna_sf_3"), delay=100)
         self.page.locator("#sq_102i_list [role='option']").filter(
             has_text=self.required(data, "mna_sf_3")).click()
         self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
             has_text=self.required(data, "mna_sf_4")
         ).click()
         self.page.locator("div[aria-controls='sq_104i_list']").click()
+        self.page.locator("div[aria-controls='sq_104i_list']").press_sequentially(self.required(data, "mna_sf_5"), delay=100)
         self.page.locator("#sq_104i_list [role='option']").filter(
             has_text=self.required(data, "mna_sf_5")).click()
         self.page.locator("div[aria-controls='sq_105i_list']").click()
+        self.page.locator("div[aria-controls='sq_105i_list']").press_sequentially(self.required(data, "mna_sf_6"), delay=100)
         self.page.locator("#sq_105i_list [role='option']").filter(
             has_text=self.required(data, "mna_sf_6")).click()
         self.page.locator("div[aria-controls='sq_106i_list']").click()
+        self.page.locator("div[aria-controls='sq_106i_list']").press_sequentially(self.required(data, "mna_sf_7"), delay=100)
         self.page.locator("#sq_106i_list [role='option']").filter(
             has_text=self.required(data, "mna_sf_7")).click()
         self.page.locator("input:has-text('Kirim')").click()
@@ -1252,15 +1290,17 @@ class ScreeningNakes:
         self._start_screening("Skrining TB")
         self.page.locator('[id="rowfrm000184"]').click()
 
-        self.page.locator("div[aria-controls='sq_100i_list']").click()
         kontak_tbc = self.required(data, "kontak_tbc")
+        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("div[aria-controls='sq_100i_list']").press_sequentially(kontak_tbc, delay=100)
         self.page.locator("#sq_100i_list [role='option']").filter(has_text=kontak_tbc).click()
         if kontak_tbc == "Riwayat kontak serumah" or kontak_tbc == "Riwayat kontak erat":
             self.page.locator("fieldset[aria-labelledby='sq_101_ariaTitle'] label").filter(
                 has_text=self.required(data, "jenis_tbc")
             ).click()
-        self.page.locator("div[aria-controls='sq_102i_list']").click()
         metode_pemeriksaan_tbc = self.required(data, "metode_pemeriksaan_tbc")
+        self.page.locator("div[aria-controls='sq_102i_list']").click()
+        self.page.locator("div[aria-controls='sq_102i_list']").press_sequentially(metode_pemeriksaan_tbc, delay=100)
         self.page.locator("#sq_102i_list [role='option']").filter(
             has_text=metode_pemeriksaan_tbc).click()
         if metode_pemeriksaan_tbc == "TCM":
@@ -1270,10 +1310,12 @@ class ScreeningNakes:
                 has_text=self.required(data, "hasil_pemeriksaan_tbc")).click()
         elif metode_pemeriksaan_tbc == "BTA":
             self.page.locator("div[aria-controls='sq_104i_list']").click()
+            self.page.locator("div[aria-controls='sq_104i_list']").press_sequentially(self.required(data, "hasil_pemeriksaan_tbc"), delay=100)
             self.page.locator("#sq_104i_list [role='option']").filter(
                 has_text=self.required(data, "hasil_pemeriksaan_tbc")).click()
         elif metode_pemeriksaan_tbc == "NPOC":
             self.page.locator("div[aria-controls='sq_105i_list']").click()
+            self.page.locator("div[aria-controls='sq_105i_list']").press_sequentially(self.required(data, "hasil_pemeriksaan_tbc"), delay=100)
             self.page.locator("#sq_105i_list [role='option']").filter(
                 has_text=self.required(data, "hasil_pemeriksaan_tbc")).click()
         # page.pause()
@@ -1515,6 +1557,7 @@ class ScreeningNakes:
         ).first.click()
         if ppok_merokok == "Iya":
             self.page.locator("div[aria-controls='sq_102i_list']").click()
+            self.page.locator("div[aria-controls='sq_102i_list']").press_sequentially(self.required(data, "bungkus_per_tahun"), delay=100)
             self.page.locator("#sq_101i_list [role='option']").filter(
                 has_text=self.required(data, "bungkus_per_tahun")).first.click()
         self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
@@ -1686,16 +1729,19 @@ class ScreeningNakes:
         self._start_screening("Skrining Kanker Payudara")
         # do_pemeriksaan_check(page, "label[for='hasil-lab-8-0']", True)
         self.page.locator('[id="rowfrm000059"]').click()
-        self.page.locator("div[aria-controls='sq_100i_list']").click()
         pemeriksaan_payudara = self.required(data, "pemeriksaan_payudara")
+        self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("div[aria-controls='sq_100i_list']").press_sequentially(pemeriksaan_payudara, delay=100)
         self.page.locator("#sq_100i_list [role='option']").filter(
             has_text=pemeriksaan_payudara).first.click()
         if pemeriksaan_payudara == "SADANIS":
             self.page.locator("div[aria-controls='sq_101i_list']").click()
+            self.page.locator("div[aria-controls='sq_101i_list']").press_sequentially(self.required(data, "hasil_sadanis"), delay=100)
             self.page.locator("#sq_101i_list [role='option']").filter(
                 has_text=self.required(data, "hasil_sadanis")).first.click()
         else:
             self.page.locator("div[aria-controls='sq_102i_list']").click()
+            self.page.locator("div[aria-controls='sq_102i_list']").press_sequentially(self.required(data, "hasil_usg_payudara"), delay=100)
             self.page.locator("#sq_102i_list [role='option']").filter(
                 has_text=self.required(data, "hasil_usg_payudara")).first.click()
         self.page.locator("input:has-text('Kirim')").click()

@@ -324,6 +324,7 @@ class ScreeningMandiri:
         self._start_screening("Skrining Riwayat Imunisasi Rutin Anak Sekolah")
         self.page.locator('[id="rowfrm000129"]').click()
         self.page.locator("div[aria-controls='sq_100i_list']").click()
+        self.page.locator("div[aria-controls='sq_100i_list']").press_sequentially(self.required(data, "memperoleh_imunisasi_polio"), delay=100)
         self.page.locator("#sq_100i_list [role='option']").filter(
             has_text=self.required(data, "memperoleh_imunisasi_polio")).click()
         self.page.locator("input:has-text('Kirim')").click()
@@ -418,6 +419,7 @@ class ScreeningMandiri:
                 self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_hepatitis_b")).click()
                 self.page.locator("div[aria-controls='sq_103i_list']").click()
+                self.page.locator("div[aria-controls='sq_103i_list']").press_sequentially(self.required(data, "menerima_imunisasi_bcg"), delay=100)
                 self.page.locator('div.sd-dropdown[aria-label^="Apakah anak anda sudah pernah menerima imunisasi BCG"]').click()
                 self.page.locator("#sq_103i_list [role='option']").filter(has_text=self.required(data, "menerima_imunisasi_bcg")).click()
                 self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
