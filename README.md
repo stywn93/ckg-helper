@@ -18,16 +18,11 @@
   <img src="https://img.shields.io/badge/Free-Yes-success" alt="free">
 </p>
 
----
-
-## ⚠️ Early Beta Tester
-
-Beta tester (uji coba) untuk CKG Sekolah dapat diakses pada versi 0.4.0 yang dapat [diunduh di sini.](https://github.com/stywn93/ckg-helper/releases/tag/v0.4.0)
 
 ---
 ## ✅ Stable Release
 
-Versi stabil adalah 0.3.9 yang dapat [diunduh di sini.](https://github.com/stywn93/ckg-helper/releases#release-v0.3.9)
+Versi stabil adalah 1.1.0 yang dapat [diunduh di sini.](https://github.com/stywn93/ckg-helper/releases/download/v1.1.0/ckg-helper-v1.1.0-windows.zip)
 
 ---
 
