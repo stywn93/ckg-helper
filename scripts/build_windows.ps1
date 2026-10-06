@@ -19,39 +19,45 @@ $Version = $VersionLine.Matches.Groups[1].Value
   --add-data "src;src" `
   ckg_helper.py
 
-if (Test-Path "dist\dataset") {
-  Remove-Item "dist\dataset" -Recurse -Force
+# Create a versioned folder for the release
+$ReleaseDir = Join-Path $RootDir "dist\$Version"
+if (Test-Path $ReleaseDir) {
+  Remove-Item $ReleaseDir -Recurse -Force
 }
-Copy-Item "dataset" "dist\dataset" -Recurse
-Copy-Item ".env.example" "dist\.env.example"
-Copy-Item "scripts\Jalankan CKG Helper.bat" "dist\Jalankan CKG Helper.bat"
+New-Item -ItemType Directory -Force -Path $ReleaseDir | Out-Null
 
-if (Test-Path "dist\kamus") {
-  Remove-Item "dist\kamus" -Recurse -Force
-}
-New-Item -ItemType Directory -Force -Path "dist\kamus"
-Copy-Item "docs\skrining-nakes.pdf", "docs\skrining-mandiri.pdf" "dist\kamus\"
+Remove-Item "dist\dataset" -Recurse -Force -ErrorAction SilentlyContinue
+Copy-Item "dataset" "$ReleaseDir\dataset" -Recurse
+Copy-Item ".env.example" "$ReleaseDir\.env.example"
+Copy-Item "scripts\Jalankan CKG Helper.bat" "$ReleaseDir\Jalankan CKG Helper.bat"
+
+Remove-Item "dist\kamus" -Recurse -Force -ErrorAction SilentlyContinue
+New-Item -ItemType Directory -Force -Path "$ReleaseDir\kamus" | Out-Null
+Copy-Item "docs\skrining-nakes.pdf", "docs\skrining-mandiri.pdf" "$ReleaseDir\kamus\"
+
+Move-Item "dist\ckg-helper.exe" "$ReleaseDir\ckg-helper.exe" -Force
 
 # Create release zip + checksum for auto-update
 $ZipName = "ckg-helper-v$Version-windows.zip"
-$ZipPath = "dist\$ZipName"
+$ZipPath = Join-Path $RootDir "dist\$ZipName"
 if (Test-Path $ZipPath) { Remove-Item $ZipPath -Force }
-Compress-Archive -Path "dist\ckg-helper.exe" -DestinationPath $ZipPath -Force
+$ReleaseItems = Get-ChildItem -LiteralPath $ReleaseDir -Force
+Compress-Archive -Path $ReleaseItems.FullName -DestinationPath $ZipPath -Force
 $Hash = (Get-FileHash $ZipPath -Algorithm SHA256).Hash.ToLower()
 Set-Content -Path "$ZipPath.sha256" -Value "$Hash  $ZipName" -Encoding ASCII
 
 Write-Host ""
 Write-Host "Build selesai:"
-Write-Host "  dist\ckg-helper.exe"
+Write-Host "  $ReleaseDir\ckg-helper.exe"
 Write-Host "  dist\$ZipName"
 Write-Host "  dist\$ZipName.sha256"
-Write-Host "  dist\Jalankan CKG Helper.bat"
-Write-Host "  dist\dataset\"
-Write-Host "  dist\kamus\"
+Write-Host "  $ReleaseDir\Jalankan CKG Helper.bat"
+Write-Host "  $ReleaseDir\dataset\"
+Write-Host "  $ReleaseDir\kamus\"
 Write-Host ""
 Write-Host "Jalankan dengan double-click:"
-Write-Host "  dist\Jalankan CKG Helper.bat"
+Write-Host "  $ReleaseDir\Jalankan CKG Helper.bat"
 Write-Host ""
 Write-Host "Atau dari Command Prompt atau PowerShell:"
-Write-Host "  cd dist"
+Write-Host "  cd $ReleaseDir"
 Write-Host "  .\ckg-helper.exe"

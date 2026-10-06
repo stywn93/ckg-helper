@@ -19,21 +19,22 @@ VERSION="$(python3 -c "exec(open('src/helpers/auto_update.py').read()); print(__
   --add-data "src:src" \
   ckg_helper.py
 
-rm -rf dist/dataset
-cp -R dataset dist/dataset
-cp .env.example dist/.env.example
-cp "scripts/Jalankan CKG Helper.command" "dist/Jalankan CKG Helper.command"
-chmod +x "dist/Jalankan CKG Helper.command"
+# create a new folder for dist
+mkdir "dist/$VERSION"
 
-rm -rf dist/kamus
-mkdir -p dist/kamus
-cp docs/skrining-nakes.pdf docs/skrining-mandiri.pdf dist/kamus/
+rm -rf "dist/$VERSION/dataset"
+cp -R dataset "dist/$VERSION/dataset"
+cp .env.example "dist/$VERSION/.env.example"
+cp "scripts/Jalankan CKG Helper.command" "dist/$VERSION/Jalankan CKG Helper.command"
+chmod +x "dist/$VERSION/Jalankan CKG Helper.command"
+mv "dist/ckg-helper" "dist/$VERSION/ckg-helper"
+
 
 # Create release zip + checksum for auto-update
 ZIP_NAME="ckg-helper-v$VERSION-macos.zip"
 ZIP_PATH="dist/$ZIP_NAME"
 rm -f "$ZIP_PATH"
-zip -j "$ZIP_PATH" dist/ckg-helper
+zip -r "$ZIP_PATH" "dist/$VERSION"
 SHA_HASH="$(shasum -a 256 "$ZIP_PATH" | cut -d' ' -f1)"
 echo "$SHA_HASH  $ZIP_NAME" > "$ZIP_PATH.sha256"
 

@@ -204,14 +204,20 @@ class ScreeningNakes:
         self.page.locator('[id="rowfrm000016"]').click()
         self.page.locator("input[aria-labelledby='sq_100_ariaTitle']").fill(self.required(data, "berat_badan"))
         self.page.locator("input[aria-labelledby='sq_101_ariaTitle']").fill(self.required(data, "tinggi_badan"))
-        self.page.locator("div[aria-controls='sq_102i_list']").click()
-        self.page.locator("div[aria-controls='sq_102i_list']").press_sequentially(self.required(data, "posisi_pengukuran"), delay=100)
-        self.page.locator("#sq_102i_list [role='option']").filter(
-            has_text=self.required(data, "posisi_pengukuran")).click()
-        self.page.locator("div[aria-controls='sq_103i_list']").click()
-        self.page.locator("div[aria-controls='sq_103i_list']").press_sequentially(self.required(data, "status_lingkar_kepala"), delay=100)
-        self.page.locator("#sq_103i_list [role='option']").filter(
-            has_text=self.required(data, "status_lingkar_kepala")).click()
+        self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
+            has_text=self.required(data, "posisi_pengukuran")
+        ).click()
+        # self.page.locator("div[aria-controls='sq_102i_list']").click()
+        # self.page.locator("div[aria-controls='sq_102i_list']").press_sequentially(self.required(data, "posisi_pengukuran"), delay=100)
+        # self.page.locator("#sq_102i_list [role='option']").filter(
+        #     has_text=self.required(data, "posisi_pengukuran")).click()
+        self.page.locator("fieldset[aria-labelledby='sq_103_ariaTitle'] label").filter(
+            has_text=self.required(data, "status_lingkar_kepala")
+        ).click()
+        # self.page.locator("div[aria-controls='sq_103i_list']").click()
+        # self.page.locator("div[aria-controls='sq_103i_list']").press_sequentially(self.required(data, "status_lingkar_kepala"), delay=100)
+        # self.page.locator("#sq_103i_list [role='option']").filter(
+        #     has_text=self.required(data, "status_lingkar_kepala")).click()
 
         self.page.locator("input:has-text('Kirim')").click()
         self._finish_screening()
