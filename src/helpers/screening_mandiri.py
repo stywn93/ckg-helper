@@ -419,8 +419,9 @@ class ScreeningMandiri:
                 self.page.locator("fieldset[aria-labelledby='sq_102_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_hepatitis_b")).click()
                 self.page.locator("div[aria-controls='sq_103i_list']").click()
-                self.page.locator("div[aria-controls='sq_103i_list']").press_sequentially(self.required(data, "menerima_imunisasi_bcg"), delay=100)
-                self.page.locator('div.sd-dropdown[aria-label^="Apakah anak anda sudah pernah menerima imunisasi BCG"]').click()
+                # self.page.locator("div[aria-controls='sq_103i_list']").press_sequentially(self.required(data, "menerima_imunisasi_bcg"), delay=100)
+                self.page.locator("input[aria-labelledby='sq_103_ariaTitle']").press_sequentially(self.required(data, "menerima_imunisasi_bcg"), delay=100)
+                # self.page.locator('div.sd-dropdown[aria-label^="Apakah anak anda sudah pernah menerima imunisasi BCG"]').click()
                 self.page.locator("#sq_103i_list [role='option']").filter(has_text=self.required(data, "menerima_imunisasi_bcg")).click()
                 self.page.locator("fieldset[aria-labelledby='sq_104_ariaTitle'] label").filter(
                     has_text=self.required(data, "menerima_imunisasi_opv")).click()

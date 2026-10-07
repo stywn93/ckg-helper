@@ -123,6 +123,9 @@ MONTH_TO_NUMBER = {
 LOGIN_SUCCESS_TIMEOUT_MS = int(os.getenv("CKG_LOGIN_SUCCESS_TIMEOUT_MS", "60000"))
 LANSIA_MANDIRI_SCREENINGS = [
     "do_demografi_lansia",
+    "do_demografi_dewasa",
+    "do_demografi_dewasa_perempuan",
+    "do_demografi_anak",
     "do_risiko_kanker_usus",
     "do_risiko_tb",
     "do_hati",
@@ -130,7 +133,24 @@ LANSIA_MANDIRI_SCREENINGS = [
     "do_risiko_kanker_paru",
     "do_perilaku_merokok",
     "do_aktivitas_fisik",
-    "do_leher_rahim"
+    "do_leher_rahim",
+    "do_imunisasi_tetanus",
+    "do_risiko_gula_darah_anak",
+    "do_risiko_malaria",
+    "do_keswa_remaja",
+    "do_keswa_remaja_2",
+    "do_cemas_anak",
+    "do_gejala_depresi_anak",
+    "do_riwayat_imunisasi_rutin_anak_sekolah",
+    "do_imunisasi_rutin_balita",
+    "do_risiko_hepatitis_sd",
+    "do_risiko_tb_anak",
+    "do_aktivitas_fisik_remaja",
+    "do_kelayakan_tes_kebugaran",
+    "do_kesehatan_reproduksi",
+    "do_imunisasi_hpv",
+    "do_faktor_risiko_hepatitis_remaja",
+    "do_perilaku_merokok_remaja",
 ]
 LANSIA_NAKES_LAKI_SCREENINGS = [
     "do_gizi_laki",

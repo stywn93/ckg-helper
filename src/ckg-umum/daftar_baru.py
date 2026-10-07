@@ -82,6 +82,13 @@ def target_sheet_for_age(diff_days: int) -> str:
     return "lansia"
 
 
+def target_sheets_for_age(diff_days: int) -> list[str]:
+    primary = target_sheet_for_age(diff_days)
+    if primary in ("anak", "remaja"):
+        return ["anak", "remaja"]
+    return [primary]
+
+
 def prepare_registration_page(page) -> None:
     page.goto("https://sehatindonesiaku.kemkes.go.id/ckg-pendaftaran-individu")
     page.wait_for_load_state("networkidle")
@@ -186,7 +193,7 @@ def isi_data_wali(page, data: dict, date_picker: DatePicker) -> None:
         format_cell_value(data["no_whatsapp_wali"])
     )
 
-def register_single_entry(page, data: dict, row_number: int, date_picker: DatePicker) -> str:
+def register_single_entry(page, data: dict, row_number: int, date_picker: DatePicker) -> list[str]:
     prepare_registration_page(page)
     start_section("Pendaftaran Baru")
     nik_input = page.locator("form input#nik")
@@ -220,6 +227,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     # print(f"Total days: {diff.days}")
 
     target_sheet = target_sheet_for_age(diff.days)
+    target_sheets = target_sheets_for_age(diff.days)
 
     day = datetime.now().day
     # day = 7
@@ -372,7 +380,7 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     #     locators["tutup"].click()
     #     print(f"{Colors.OKGREEN}{Colors.BOLD}============ Pendaftaran Berhasil ==========={Colors.ENDC}")
 
-    return target_sheet
+    return target_sheets
 
 
 def main() -> dict:
@@ -406,15 +414,16 @@ def _run_main() -> dict:
             index = row_entry["row_number"]
             data = row_entry["data"]
             try:
-                target_sheet = register_single_entry(page, data, index, date_picker)
+                target_sheets = register_single_entry(page, data, index, date_picker)
                 excel.update_status(index, "SUCCESS")
                 excel.append_row_to_dataset("konfirm_kehadiran", {
                     "nama_lengkap": format_cell_value(data["nama_lengkap"]),
                     "tgl_pemeriksaan": datetime.now(ZoneInfo("Asia/Jakarta")).strftime("%Y-%m-%d"),
                 })
-                excel.append_row_to_dataset(target_sheet, {
-                    "nama": format_cell_value(data["nama_lengkap"]),
-                })
+                for sheet in target_sheets:
+                    excel.append_row_to_dataset(sheet, {
+                        "nama": format_cell_value(data["nama_lengkap"]),
+                    })
             except SkipRowException as exc:
                 # excel.update_status(index, f"SKIPPED: {str(exc)}")
                 excel.update_status(index, str(exc))

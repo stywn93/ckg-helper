@@ -122,6 +122,10 @@ MONTH_TO_NUMBER = {
 }
 LOGIN_SUCCESS_TIMEOUT_MS = int(os.getenv("CKG_LOGIN_SUCCESS_TIMEOUT_MS", "60000"))
 TEENAGER_MANDIRI_SCREENINGS = [
+    "do_demografi_anak",
+    "do_demografi_dewasa",
+    "do_demografi_dewasa_perempuan",
+    "do_demografi_lansia",
     "do_risiko_gula_darah_anak",
     "do_risiko_malaria",
     "do_keswa_remaja",
@@ -129,6 +133,7 @@ TEENAGER_MANDIRI_SCREENINGS = [
     "do_cemas_anak",
     "do_gejala_depresi_anak",
     "do_riwayat_imunisasi_rutin_anak_sekolah",
+    "do_imunisasi_rutin_balita",
     "do_risiko_hepatitis_sd",
     "do_risiko_tb_anak",
     "do_risiko_tb",
@@ -137,7 +142,15 @@ TEENAGER_MANDIRI_SCREENINGS = [
     "do_kesehatan_reproduksi",
     "do_imunisasi_hpv",
     "do_faktor_risiko_hepatitis_remaja",
-    "do_perilaku_merokok_remaja"
+    "do_perilaku_merokok_remaja",
+    "do_risiko_kanker_usus",
+    "do_hati",
+    "do_leher_rahim",
+    "do_keswa",
+    "do_imunisasi_tetanus",
+    "do_risiko_kanker_paru",
+    "do_perilaku_merokok",
+    "do_aktivitas_fisik",
 ]
 TEENAGER_NAKES_SCREENINGS = [
     "do_gizi_anak_sekolah",
