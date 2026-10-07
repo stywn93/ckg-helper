@@ -395,7 +395,7 @@ def _run_main() -> dict:
                     .locator("div.font-bold")
                 )
                 gender = gender_locator.inner_text().strip()
-                if gender == "Laki-Laki":
+                if gender == "Laki-laki":
                     start_section("Skrining Laki-Laki Remaja")
                     print_detail("Jenis kelamin", gender)
                     finish_section()
@@ -423,6 +423,8 @@ def _run_main() -> dict:
                     screening_nakes = ScreeningNakes(page, format_cell_value)
                     run_screening_steps(screening_nakes, TEENAGER_NAKES_SCREENINGS, data, index, page)
                     excel.update_status(index, "SUCCESS")
+                # else:
+                #     page.pause()
 
 
                 page.wait_for_load_state("networkidle")
