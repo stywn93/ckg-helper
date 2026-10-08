@@ -22,7 +22,7 @@
 ---
 ## ✅ Stable Release
 
-Versi stabil adalah 1.1.0 yang dapat [diunduh di sini.](https://github.com/stywn93/ckg-helper/releases/download/v1.1.0/ckg-helper-v1.1.0-windows.zip)
+Versi stabil adalah 1.1.1 yang dapat [diunduh di sini.]([https://github.com/stywn93/ckg-helper/releases/download/v1.1.0/ckg-helper-v1.1.0-windows.zip](https://github.com/stywn93/ckg-helper/releases/tag/v1.1.1))
 
 ---
 
