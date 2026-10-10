@@ -12,6 +12,7 @@ import openpyxl
 from src.helpers.api_report import report_execution
 from src.helpers.auto_update import __version__, check_for_update, install_update
 from src.helpers.excel import DEFAULT_COMBINED_WORKBOOK_NAME, resolve_dataset
+from src.helpers.power_management import SleepPreventer
 from src.helpers.suppress_asyncio_noise import install_asyncio_exception_filter
 
 BANNER = r"""
@@ -394,7 +395,8 @@ def run_selected_option(app_root: Path, option: dict[str, Path | str]) -> None:
     sys.argv = [str(script_path)]
     start = time.monotonic()
     try:
-        runpy.run_path(str(script_path), run_name="__main__")
+        with SleepPreventer():
+            runpy.run_path(str(script_path), run_name="__main__")
     except Exception as exc:
         duration_ms = int((time.monotonic() - start) * 1000)
         report_execution(script_name, "failed", duration_ms, str(exc))
