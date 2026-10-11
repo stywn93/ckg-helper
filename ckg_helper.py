@@ -100,6 +100,14 @@ MENU_ITEMS = [
         "sheet": "pelayanan_sekolah",
         "excel": Path("dataset") / "pelayanan_sekolah.xlsx",
     },
+    {
+        "label": "ePuskesmas",
+        "detail": "Ambil data dari ePuskesmas",
+        "script": Path("src") / "epuskesmas" / "laporan_bpjs.py",
+        "dataset_key": "pendaftaran_umum",
+        "sheet": "pendaftaran_umum",
+        "excel": Path("dataset") / "pendaftaran_umum.xlsx",
+    },
 ]
 
 MENU_OPTIONS = {
