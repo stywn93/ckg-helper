@@ -205,11 +205,28 @@ def read_env_file(env_path: Path) -> dict[str, str]:
 
 
 def write_env_file(env_path: Path, values: dict[str, str]) -> None:
-    lines = [
-        f"{USERNAME_ENV}={values[USERNAME_ENV]}",
-        f"{PASSWORD_ENV}={values[PASSWORD_ENV]}",
-    ]
-    env_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    existing_lines = []
+    if env_path.exists():
+        existing_lines = env_path.read_text(encoding="utf-8").splitlines()
+
+    updated = set()
+    new_lines = []
+    for line in existing_lines:
+        if line.startswith(f"{USERNAME_ENV}="):
+            new_lines.append(f"{USERNAME_ENV}={values[USERNAME_ENV]}")
+            updated.add(USERNAME_ENV)
+        elif line.startswith(f"{PASSWORD_ENV}="):
+            new_lines.append(f"{PASSWORD_ENV}={values[PASSWORD_ENV]}")
+            updated.add(PASSWORD_ENV)
+        else:
+            new_lines.append(line)
+
+    if USERNAME_ENV not in updated:
+        new_lines.append(f"{USERNAME_ENV}={values[USERNAME_ENV]}")
+    if PASSWORD_ENV not in updated:
+        new_lines.append(f"{PASSWORD_ENV}={values[PASSWORD_ENV]}")
+
+    env_path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 
 
 def ensure_credentials(app_root: Path) -> None:
@@ -380,6 +397,9 @@ def run_selected_option(app_root: Path, option: dict[str, Path | str]) -> None:
         return
 
     ensure_credentials(app_root)
+    if option.get("detail") == "Pendaftaran Baru":
+        from src.helpers.wali_config import ensure_wali_credentials
+        ensure_wali_credentials(app_root)
     if not ensure_chromium_installed():
         pause()
         return
