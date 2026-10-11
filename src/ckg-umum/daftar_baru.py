@@ -22,6 +22,7 @@ from excel import ExcelStatusWorkbook, ExcelAppendWorkbook, format_cell_value, r
 from custom_exceptions import SkipRowException
 from api_report import monitored_main
 from sticky_stop_footer import sticky_stop_footer
+from wali_config import ensure_wali_credentials, apply_wali_fallback
 class Colors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -299,11 +300,19 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
 
     page.get_by_text("Pilih status pernikahan", exact=True).click()
     print_detail("Status pernikahan", format_cell_value(data["pernikahan"]))
-    page.get_by_text(format_cell_value(data["pernikahan"]), exact=True).click()
+    pernikahan_val = format_cell_value(data["pernikahan"])
+    pilihan_pernikahan = page.get_by_text(pernikahan_val, exact=True)
+    if pilihan_pernikahan.count() == 0:
+        pilihan_pernikahan = page.get_by_text(re.compile(rf"^{re.escape(pernikahan_val)}$", re.IGNORECASE))
+    pilihan_pernikahan.first.click()
 
     page.get_by_text("Pilih pekerjaan", exact=True).click()
     print_detail("Pekerjaan", format_cell_value(data["pekerjaan"]))
-    page.get_by_text(format_cell_value(data["pekerjaan"]), exact=True).click()
+    pekerjaan_val = format_cell_value(data["pekerjaan"])
+    pilihan_pekerjaan = page.get_by_text(pekerjaan_val, exact=True)
+    if pilihan_pekerjaan.count() == 0:
+        pilihan_pekerjaan = page.get_by_text(re.compile(rf"^{re.escape(pekerjaan_val)}$", re.IGNORECASE))
+    pilihan_pekerjaan.first.click()
 
     page.get_by_text("Pilih alamat domisili", exact=True).click()
     # fProvinsi = page.get_by_role("textbox", name="Cari Provinsi")
@@ -398,6 +407,8 @@ def _run_main() -> dict:
         print(f"{Colors.WARNING}Tidak ada data pada file Excel.{Colors.ENDC}")
         return {"status": "success"}
 
+    wali_config = ensure_wali_credentials(PROJECT_ROOT)
+
     any_failed = False
 
     with sync_playwright() as p:
@@ -412,7 +423,7 @@ def _run_main() -> dict:
 
         for row_entry in data_rows:
             index = row_entry["row_number"]
-            data = row_entry["data"]
+            data = apply_wali_fallback(row_entry["data"], wali_config)
             try:
                 target_sheets = register_single_entry(page, data, index, date_picker)
                 excel.update_status(index, "SUCCESS")
