@@ -134,6 +134,34 @@ class ExcelStatusWorkbook:
         self.sheet.cell(row=row_number, column=column_index, value=status)
         self.workbook.save(str(self.path))
 
+    def get_template_row(self, target_dataset_key: str) -> dict:
+        """
+        Mengambil nilai baris ke-2 (template data) dari target sheet
+        sebagai dictionary {header: value}.
+        """
+        matched_sheet = find_matching_sheet(self.workbook.sheetnames, target_dataset_key)
+        if matched_sheet:
+            sheet = self.workbook[matched_sheet]
+            if sheet.max_row < 2:
+                return {}
+            headers = [cell.value for cell in sheet[1]]
+            row2_values = [cell.value for cell in sheet[2]]
+            return {h: v for h, v in zip(headers, row2_values) if h is not None}
+
+        target_path = self.path.parent / f"{target_dataset_key}.xlsx"
+        if not target_path.exists():
+            return {}
+        try:
+            wb = load_workbook(target_path, data_only=True)
+            sheet = wb.active
+            if sheet.max_row < 2:
+                return {}
+            headers = [cell.value for cell in sheet[1]]
+            row2_values = [cell.value for cell in sheet[2]]
+            return {h: v for h, v in zip(headers, row2_values) if h is not None}
+        except Exception:
+            return {}
+
     def append_row_to_dataset(self, target_dataset_key: str, data: dict) -> None:
         """
         Appends to target sheet using the SAME openpyxl instance in combined mode
