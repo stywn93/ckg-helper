@@ -3,7 +3,7 @@ import re
 import sys
 import time
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 
@@ -327,20 +327,34 @@ def register_single_entry(page, data: dict, row_number: int, date_picker: DatePi
     page.get_by_text(format_cell_value(data["kab"]), exact=True).click()
     print_detail("Kecamatan", format_cell_value(data["kec"]))
     page.get_by_text(format_cell_value(data["kec"]), exact=True).click()
-    # page.pause()
-    # page.get_by_text(format_cell_value(data["desa"]), exact=True).first.click()
-    fDesa = page.get_by_text(format_cell_value(data["desa"]), exact=True)
+    page.wait_for_timeout(500)
+
+    desa_val = format_cell_value(data["desa"])
+    fDesa = page.get_by_text(desa_val, exact=True)
     count = fDesa.count()
+
+    if count == 0 and desa_val:
+        fDesa_case = page.get_by_text(re.compile(rf"^{re.escape(desa_val)}$", re.IGNORECASE))
+        if fDesa_case.count() > 0:
+            fDesa = fDesa_case
+            count = fDesa.count()
+
     if count == 0:
-        raise ValueError(f"Elemen '{data['desa']}' tidak ditemukan")
+        opsi_desa = page.locator(".flex.items-center.justify-between.gap-2")
+        if opsi_desa.count() > 0:
+            desa_pertama = opsi_desa.first
+            nama_desa_fallback = desa_pertama.inner_text().strip().split("\n")[0]
+            print_detail("Desa (Fallback - opsi pertama)", nama_desa_fallback)
+            desa_pertama.click()
+        else:
+            raise ValueError(f"Elemen '{desa_val}' tidak ditemukan dan tidak ada opsi desa yang muncul di layar")
     elif count == 1:
-        print_detail("Desa", format_cell_value(data["desa"]))
+        print_detail("Desa", desa_val)
         fDesa.first.click()
     else:
         # ada duplikat, misal nama desa sama di kecamatan berbeda
-        print_detail("Desa", format_cell_value(data["desa"]))
+        print_detail("Desa", desa_val)
         fDesa.nth(1).click()
-    # page.get_by_text(format_cell_value(data["desa"]), exact=True).nth(1).click()
     print_detail("Detail domisili", format_cell_value(data["domisili"]))
     page.locator("textarea#detail-domisili").fill(format_cell_value(data["domisili"]))
 
@@ -427,14 +441,27 @@ def _run_main() -> dict:
             try:
                 target_sheets = register_single_entry(page, data, index, date_picker)
                 excel.update_status(index, "SUCCESS")
+
+                today_dt = datetime.now(ZoneInfo("Asia/Jakarta"))
+                today_str = today_dt.strftime("%Y-%m-%d")
+                batas_awal_str = (today_dt - timedelta(days=3)).strftime("%Y-%m-%d")
+                nik_peserta = format_cell_value(data.get("nik"))
+                nama_peserta = format_cell_value(data.get("nama_lengkap"))
+
                 excel.append_row_to_dataset("konfirm_kehadiran", {
-                    "nama_lengkap": format_cell_value(data["nama_lengkap"]),
-                    "tgl_pemeriksaan": datetime.now(ZoneInfo("Asia/Jakarta")).strftime("%Y-%m-%d"),
+                    "nama_lengkap": nama_peserta,
+                    "tgl_pemeriksaan": today_str,
                 })
                 for sheet in target_sheets:
-                    excel.append_row_to_dataset(sheet, {
-                        "nama": format_cell_value(data["nama_lengkap"]),
-                    })
+                    row_payload = excel.get_template_row(sheet)
+                    row_payload["batas_akhir"] = today_str
+                    row_payload["batas_awal"] = batas_awal_str
+                    row_payload["nik"] = nik_peserta
+                    row_payload["nama"] = nama_peserta
+                    if "status" in row_payload:
+                        row_payload["status"] = None
+
+                    excel.append_row_to_dataset(sheet, row_payload)
             except SkipRowException as exc:
                 # excel.update_status(index, f"SKIPPED: {str(exc)}")
                 excel.update_status(index, str(exc))
