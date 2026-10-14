@@ -66,6 +66,8 @@ PAGES = [
     ("Support", "Support & Donasi", "heart"),
 ]
 PAGE_TITLES = {key: title for key, title, _ in PAGES}
+WALI_GENDER_OPTIONS = ("Laki-laki", "Perempuan")
+WALI_GENDER_PLACEHOLDER = "Pilih Jenis Kelamin"
 
 
 class CKGHelperApp(ctk.CTk):
@@ -465,7 +467,30 @@ class CKGHelperApp(ctk.CTk):
         wali_cfg = get_wali_config()
         self.wali_entries = {}
         for i, (key, label) in enumerate(WALI_ENV_KEYS.items()):
-            self.wali_entries[key] = self._labeled_entry(f_wali, i, f"{label}:", wali_cfg.get(key, ""))
+            if key == "WALI_TGL_LAHIR":
+                ui.field_label(f_wali, f"{label}:").grid(
+                    row=i, column=0, sticky="w", pady=5, padx=(0, 14)
+                )
+                picker = CTkDatePicker(f_wali, fg_color="transparent")
+                picker.set_date_format("%Y-%m-%d")
+                picker.set_date(wali_cfg.get(key, ""))
+                picker.set_allow_manual_input(False)
+                picker.grid(row=i, column=1, sticky="w", pady=5)
+                self.wali_entries[key] = picker
+            elif key == "WALI_GENDER":
+                ui.field_label(f_wali, f"{label}:").grid(
+                    row=i, column=0, sticky="w", pady=5, padx=(0, 14)
+                )
+                gender_menu = ui.option_menu(
+                    f_wali,
+                    values=[WALI_GENDER_PLACEHOLDER, *WALI_GENDER_OPTIONS],
+                    width=320,
+                )
+                gender_menu.set(wali_cfg.get(key) if wali_cfg.get(key) in WALI_GENDER_OPTIONS else WALI_GENDER_PLACEHOLDER)
+                gender_menu.grid(row=i, column=1, sticky="w", pady=5)
+                self.wali_entries[key] = gender_menu
+            else:
+                self.wali_entries[key] = self._labeled_entry(f_wali, i, f"{label}:", wali_cfg.get(key, ""))
         ui.primary_button(f_wali, "Simpan Data Wali", self._save_wali_config).grid(
             row=len(WALI_ENV_KEYS), column=1, sticky="w", pady=(12, 0)
         )
@@ -900,7 +925,30 @@ class CKGHelperApp(ctk.CTk):
         messagebox.showinfo("Sukses", "Kredensial akun CKG berhasil disimpan.")
 
     def _save_wali_config(self):
-        cfg = {k: self.wali_entries[k].get().strip() for k in WALI_ENV_KEYS}
+        cfg = {}
+        for key in WALI_ENV_KEYS:
+            widget = self.wali_entries[key]
+            if key == "WALI_TGL_LAHIR":
+                cfg[key] = widget.get_date().strip()
+            else:
+                cfg[key] = widget.get().strip()
+
+        try:
+            datetime.strptime(cfg["WALI_TGL_LAHIR"], "%Y-%m-%d")
+        except ValueError:
+            messagebox.showwarning(
+                "Peringatan Data Wali",
+                "Tanggal lahir wali harus dipilih dari kalender.",
+            )
+            return
+
+        if cfg["WALI_GENDER"] not in WALI_GENDER_OPTIONS:
+            messagebox.showwarning(
+                "Peringatan Data Wali",
+                "Silakan pilih jenis kelamin wali.",
+            )
+            return
+
         env_path = self.app_root / ".env"
         save_wali_config_to_env(env_path, cfg)
         for k, v in cfg.items():
