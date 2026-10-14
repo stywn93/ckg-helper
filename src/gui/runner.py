@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 from typing import Callable, Any
 
+from ckg_helper import get_bundle_root
 from src.helpers.api_report import report_execution
 from src.helpers.power_management import SleepPreventer
 
@@ -108,7 +109,11 @@ class TaskExecutionWorker:
         if self.on_started:
             self.on_started()
 
-        script_path = self.app_root / self.option["script"]
+        script_name_path = Path(self.option["script"])
+        if getattr(sys, "frozen", False):
+            script_path = get_bundle_root() / script_name_path
+        else:
+            script_path = self.app_root / script_name_path
         script_name = Path(self.option["script"]).stem
 
         self.log_queue.put("\n==========================================\n")
@@ -126,8 +131,13 @@ class TaskExecutionWorker:
 
         try:
             with SleepPreventer():
+                if getattr(sys, "frozen", False):
+                    command = [sys.executable, "--run-script", str(script_name_path)]
+                else:
+                    command = [sys.executable, "-u", str(script_path)]
+
                 self._process = subprocess.Popen(
-                    [sys.executable, "-u", str(script_path)],
+                    command,
                     cwd=str(self.app_root),
                     env=env,
                     stdout=subprocess.PIPE,
