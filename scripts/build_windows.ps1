@@ -17,7 +17,8 @@ $Version = $VersionLine.Matches.Groups[1].Value
   --hidden-import zoneinfo `
   --hidden-import tzdata `
   --add-data "src;src" `
-  ckg_helper.py
+  --add-data "icons;icons" `
+  ckg_helper_gui.py
 
 # Create a versioned folder for the release
 $ReleaseDir = Join-Path $RootDir "dist\$Version"
@@ -29,6 +30,7 @@ New-Item -ItemType Directory -Force -Path $ReleaseDir | Out-Null
 Remove-Item "dist\dataset" -Recurse -Force -ErrorAction SilentlyContinue
 Copy-Item "dataset" "$ReleaseDir\dataset" -Recurse
 Copy-Item ".env.example" "$ReleaseDir\.env.example"
+Copy-Item "icon.png" "$ReleaseDir\icon.png"
 Copy-Item "scripts\Jalankan CKG Helper.bat" "$ReleaseDir\Jalankan CKG Helper.bat"
 
 Remove-Item "dist\kamus" -Recurse -Force -ErrorAction SilentlyContinue

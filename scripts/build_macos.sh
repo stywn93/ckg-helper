@@ -17,7 +17,8 @@ VERSION="$(python3 -c "exec(open('src/helpers/auto_update.py').read()); print(__
   --hidden-import zoneinfo \
   --hidden-import tzdata \
   --add-data "src:src" \
-  ckg_helper.py
+  --add-data "icons:icons" \
+  ckg_helper_gui.py
 
 # create a new folder for dist
 mkdir "dist/$VERSION"
@@ -25,6 +26,7 @@ mkdir "dist/$VERSION"
 rm -rf "dist/$VERSION/dataset"
 cp -R dataset "dist/$VERSION/dataset"
 cp .env.example "dist/$VERSION/.env.example"
+cp icon.png "dist/$VERSION/icon.png"
 cp "scripts/Jalankan CKG Helper.command" "dist/$VERSION/Jalankan CKG Helper.command"
 chmod +x "dist/$VERSION/Jalankan CKG Helper.command"
 mv "dist/ckg-helper" "dist/$VERSION/ckg-helper"
