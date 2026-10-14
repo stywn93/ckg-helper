@@ -12,8 +12,27 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+
+def configure_worker_output() -> None:
+    """Keep worker output flowing to the parent GUI process immediately."""
+    for stream_name, fd in (("stdout", 1), ("stderr", 2)):
+        stream = getattr(sys, stream_name, None)
+        if stream is None:
+            try:
+                stream = os.fdopen(os.dup(fd), "w", buffering=1)
+                setattr(sys, stream_name, stream)
+            except OSError:
+                continue
+
+        try:
+            stream.reconfigure(line_buffering=True, write_through=True)
+        except (AttributeError, OSError):
+            pass
+
+
 def run_script(script_name: str) -> int:
     """Run a bundled automation script in a worker subprocess."""
+    configure_worker_output()
     bundle_root = Path(getattr(sys, "_MEIPASS", PROJECT_ROOT)).resolve()
     script_path = Path(script_name)
     if not script_path.is_absolute():
