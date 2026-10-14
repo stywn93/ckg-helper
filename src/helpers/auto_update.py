@@ -9,7 +9,7 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
-__version__ = "1.1.1"
+__version__ = "2.0.0"
 
 GITHUB_API = "https://api.github.com/repos/stywn93/CKG-Helper/releases/latest"
 

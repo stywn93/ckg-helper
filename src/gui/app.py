@@ -9,7 +9,6 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 
 import customtkinter as ctk
-from dotenv import load_dotenv
 
 from ckg_helper import (
     APP_NAME,
@@ -17,6 +16,7 @@ from ckg_helper import (
     PASSWORD_ENV,
     USERNAME_ENV,
     get_app_root,
+    load_app_env,
     read_env_file,
     write_env_file,
     chromium_is_installed,
@@ -78,7 +78,7 @@ class CKGHelperApp(ctk.CTk):
         super().__init__()
 
         self.app_root = root_dir
-        load_dotenv(self.app_root / ".env")
+        load_app_env(self.app_root)
 
         self.title("CKG Helper - Otomasi Cek Kesehatan Gratis")
         self.geometry("980x700")
@@ -974,7 +974,7 @@ class CKGHelperApp(ctk.CTk):
 
             def do_install():
                 code = run_playwright_cli(["install", "chromium"])
-                if code == 0:
+                if code == 0 and chromium_is_installed():
                     self.after(0, lambda: messagebox.showinfo("Sukses", "Chromium berhasil dipasang."))
                     self.after(0, lambda: self._set_status("Status: Siap", "ok"))
                 else:
