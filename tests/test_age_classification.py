@@ -21,6 +21,14 @@ class TestTargetSheetForAge(unittest.TestCase):
         self.assertEqual(DAFTAR_BARU.target_sheet_for_age(DAFTAR_BARU.ADULT_MAX_DAYS), "dewasa")
         self.assertEqual(DAFTAR_BARU.target_sheet_for_age(DAFTAR_BARU.ADULT_MAX_DAYS + 1), "lansia")
 
+    def test_target_sheets_dual_mapping(self):
+        self.assertEqual(DAFTAR_BARU.target_sheets_for_age(0), ["anak", "remaja"])
+        self.assertEqual(DAFTAR_BARU.target_sheets_for_age(DAFTAR_BARU.CHILD_MAX_DAYS), ["anak", "remaja"])
+        self.assertEqual(DAFTAR_BARU.target_sheets_for_age(DAFTAR_BARU.CHILD_MAX_DAYS + 1), ["anak", "remaja"])
+        self.assertEqual(DAFTAR_BARU.target_sheets_for_age(DAFTAR_BARU.TEENAGER_MAX_DAYS), ["anak", "remaja"])
+        self.assertEqual(DAFTAR_BARU.target_sheets_for_age(DAFTAR_BARU.TEENAGER_MAX_DAYS + 1), ["dewasa"])
+        self.assertEqual(DAFTAR_BARU.target_sheets_for_age(DAFTAR_BARU.ADULT_MAX_DAYS + 1), ["lansia"])
+
 
 if __name__ == "__main__":
     unittest.main()

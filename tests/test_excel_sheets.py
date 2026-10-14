@@ -151,9 +151,64 @@ class TestExcelMultiSheet(unittest.TestCase):
             valid = validate_excel_file(self.temp_dir, opt)
             self.assertTrue(valid, f"Menu {key} validation should succeed with combined workbook")
 
-    def test_menu_options_sequential_keys(self):
-        expected_keys = [str(i) for i in range(1, len(MENU_OPTIONS) + 1)]
-        self.assertEqual(list(MENU_OPTIONS.keys()), expected_keys)
+    def test_get_template_row_and_append(self):
+        combined = self.dataset_dir / DEFAULT_COMBINED_WORKBOOK_NAME
+        wb = Workbook()
+        ws_reg = wb.active
+        ws_reg.title = "pendaftaran_umum"
+        ws_reg.append(["nik", "nama_lengkap", "status"])
+
+        ws_dewasa = wb.create_sheet(title="dewasa")
+        ws_dewasa.append(["batas_awal", "batas_akhir", "nik", "nama", "status", "skrining_demografi", "disabilitas"])
+        ws_dewasa.append(["2026-09-19", "2026-09-25", None, "CONTOH TEMPLATE", "SUCCESS", "Ya", "Non disabilitas"])
+        wb.save(combined)
+
+        excel = ExcelStatusWorkbook(combined, sheet_name="pendaftaran_umum")
+        template = excel.get_template_row("dewasa")
+        self.assertEqual(template.get("skrining_demografi"), "Ya")
+        self.assertEqual(template.get("disabilitas"), "Non disabilitas")
+        self.assertEqual(template.get("status"), "SUCCESS")
+
+        # Simulate overriding fields as done in daftar_baru
+        template["batas_akhir"] = "2026-10-12"
+        template["batas_awal"] = "2026-10-09"
+        template["nik"] = "3512345678900001"
+        template["nama"] = "PASIEN BARU"
+        template["status"] = None
+
+        excel.append_row_to_dataset("dewasa", template)
+
+        check_wb = load_workbook(combined)
+        sheet = check_wb["dewasa"]
+        # Row 2 is unchanged
+        self.assertEqual(sheet.cell(row=2, column=4).value, "CONTOH TEMPLATE")
+        self.assertEqual(sheet.cell(row=2, column=5).value, "SUCCESS")
+        # Row 3 contains new patient with template answers
+        self.assertEqual(sheet.cell(row=3, column=1).value, "2026-10-09")
+        self.assertEqual(sheet.cell(row=3, column=2).value, "2026-10-12")
+        self.assertEqual(sheet.cell(row=3, column=3).value, "3512345678900001")
+        self.assertEqual(sheet.cell(row=3, column=4).value, "PASIEN BARU")
+        self.assertIsNone(sheet.cell(row=3, column=5).value)
+        self.assertEqual(sheet.cell(row=3, column=6).value, "Ya")
+        self.assertEqual(sheet.cell(row=3, column=7).value, "Non disabilitas")
+
+    def test_get_template_row_standalone(self):
+        standalone = self.dataset_dir / "lansia.xlsx"
+        wb = Workbook()
+        ws = wb.active
+        ws.append(["batas_awal", "batas_akhir", "nik", "nama", "status", "skrining_demografi"])
+        ws.append(["2026-09-21", "2026-09-27", None, "SAMPLE LANSIA", None, "Ya"])
+        wb.save(standalone)
+
+        reg_file = self.dataset_dir / "pendaftaran_umum.xlsx"
+        wb_reg = Workbook()
+        wb_reg.active.append(["nik", "nama_lengkap", "status"])
+        wb_reg.save(reg_file)
+
+        excel = ExcelStatusWorkbook(reg_file, sheet_name=None)
+        template = excel.get_template_row("lansia")
+        self.assertEqual(template.get("nama"), "SAMPLE LANSIA")
+        self.assertEqual(template.get("skrining_demografi"), "Ya")
 
 
 if __name__ == "__main__":

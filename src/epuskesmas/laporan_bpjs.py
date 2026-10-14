@@ -23,9 +23,48 @@ LOGIN_TIMEOUT_MS = int(os.getenv("EPUSKESMAS_LOGIN_TIMEOUT_MS", "120000"))
 COLOR_RESET = "\033[0m"
 COLOR_GREEN = "\033[32m"
 COLOR_RED = "\033[91m"
+MAX_DATE_RANGE_DAYS = 3
+
+
+def validate_date_range(tgl_awal: str, tgl_akhir: str) -> tuple[str, str]:
+    today = datetime.today().date()
+    today_str = today.strftime("%d-%m-%Y")
+    try:
+        dt_awal = datetime.strptime(tgl_awal, "%d-%m-%Y").date()
+    except ValueError:
+        raise ValueError(f"Format tanggal awal tidak valid ({tgl_awal})! Gunakan format dd-mm-yyyy.")
+
+    try:
+        dt_akhir = datetime.strptime(tgl_akhir, "%d-%m-%Y").date()
+    except ValueError:
+        raise ValueError(f"Format tanggal akhir tidak valid ({tgl_akhir})! Gunakan format dd-mm-yyyy.")
+
+    if dt_awal > today:
+        raise ValueError(f"Tanggal awal ({tgl_awal}) tidak boleh lebih besar daripada hari ini ({today_str})!")
+    if dt_akhir > today:
+        raise ValueError(f"Tanggal akhir ({tgl_akhir}) tidak boleh lebih besar daripada hari ini ({today_str})!")
+    if dt_akhir < dt_awal:
+        raise ValueError(f"Tanggal akhir ({tgl_akhir}) tidak boleh lebih kecil daripada tanggal awal ({tgl_awal})!")
+
+    selisih_hari = (dt_akhir - dt_awal).days
+    if selisih_hari > MAX_DATE_RANGE_DAYS:
+        raise ValueError(f"Rentang tanggal melebihi batas maksimal ({selisih_hari} hari > {MAX_DATE_RANGE_DAYS} hari)!")
+
+    return tgl_awal, tgl_akhir
 
 
 def input_date_range() -> tuple[str, str]:
+    # Jika di-set lewat GUI atau variabel environment
+    env_start = os.getenv("EPUSKESMAS_START_DATE", "").strip()
+    env_end = os.getenv("EPUSKESMAS_END_DATE", "").strip()
+    if env_start and env_end:
+        try:
+            val_start, val_end = validate_date_range(env_start, env_end)
+            print(f"Periode tanggal (dari GUI/env): {val_start} s/d {val_end}\n")
+            return val_start, val_end
+        except ValueError as err:
+            print(f"{COLOR_RED}[Error Periode Tanggal] {err}{COLOR_RESET}")
+
     today = datetime.today().date()
     today_str = today.strftime("%d-%m-%Y")
     print("\n--- Filter Periode Tanggal Laporan (Format: dd-mm-yyyy) ---")
@@ -70,7 +109,6 @@ def input_date_range() -> tuple[str, str]:
             continue
 
         # 4. Validasi rentang maksimal 3 hari
-        MAX_DATE_RANGE_DAYS = 3
         selisih_hari = (dt_akhir - dt_awal).days
         if selisih_hari > MAX_DATE_RANGE_DAYS:
             print(f"\n{COLOR_RED}[Error] Rentang tanggal melebihi batas maksimal ({selisih_hari} hari > {MAX_DATE_RANGE_DAYS} hari)!{COLOR_RESET}")
@@ -79,6 +117,7 @@ def input_date_range() -> tuple[str, str]:
 
         print(f"Periode terpilih: {tgl_awal} s/d {tgl_akhir} ({selisih_hari + 1} hari)\n")
         return tgl_awal, tgl_akhir
+
 
 
 def parse_birth_date(birth_place_and_date: str) -> str | None:
