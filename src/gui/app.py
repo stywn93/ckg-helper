@@ -51,20 +51,36 @@ from PIL import Image, ImageTk
 from src.gui.components import CTkDatePicker
 from src.gui.runner import TaskExecutionWorker
 
+import ui_theme as ui
+from ui_theme import C, font
 
 
-ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("blue")
+
+# (category key used by the logic, title shown in header/sidebar, icon file in ./icons)
+PAGES = [
+    ("CKG Umum", "CKG Umum", "clipboard-list"),
+    ("CKG Sekolah", "CKG Sekolah", "school"),
+    ("ePuskesmas", "ePuskesmas", "hospital"),
+    ("Pengaturan", "Pengaturan Akun", "settings"),
+    ("Support", "Support & Donasi", "heart"),
+]
+PAGE_TITLES = {key: title for key, title, _ in PAGES}
 
 
 class CKGHelperApp(ctk.CTk):
     def __init__(self, auto_check_update: bool = True):
+        # Appearance must be set before the window exists. Default: follow the OS.
+        root_dir = get_app_root()
+        self._appearance_mode = ui.load_appearance(root_dir)
+        ui.init_appearance(self._appearance_mode)
+
         super().__init__()
 
-        self.app_root = get_app_root()
+        self.app_root = root_dir
         load_dotenv(self.app_root / ".env")
 
-        self.title(f"CKG Helper v{__version__} - Otomasi Cek Kesehatan Gratis")
+        self.title("CKG Helper - Otomasi Cek Kesehatan Gratis")
         self.geometry("980x700")
         self.minsize(860, 580)
 
@@ -83,6 +99,13 @@ class CKGHelperApp(ctk.CTk):
 
         self._build_sidebar()
         self._build_main_area()
+
+        # Cmd+, (Settings) on macOS, Cmd/Ctrl+1..5 to switch pages
+        ui.setup_window(
+            self,
+            on_preferences=lambda: self._select_category("Pengaturan"),
+            page_shortcuts=[lambda k=key: self._select_category(k) for key, _, _ in PAGES],
+        )
 
         self.update_info: dict | None = None
         self.is_checking_update: bool = False
@@ -109,18 +132,76 @@ class CKGHelperApp(ctk.CTk):
             except Exception:
                 pass
 
+    # -------------------------------------------------------------
+    # Small UI helpers
+    # -------------------------------------------------------------
+    def _set_status(self, text: str, kind: str = "ok"):
+        """kind: ok (green) | warn (amber) | danger (red) | muted"""
+        ui.set_status(self.lbl_status, text, kind)
+
+    def _ui_idle(self):
+        ui.style_button(self.btn_run, "primary", "play")
+        self.btn_run.configure(state="normal")
+        ui.style_button(self.btn_stop, "secondary", "square")
+        self.btn_stop.configure(state="disabled")
+
+    def _ui_running(self):
+        ui.style_button(self.btn_run, "secondary", "play")
+        self.btn_run.configure(state="disabled")
+        ui.style_button(self.btn_stop, "danger", "square")
+        self.btn_stop.configure(state="normal")
+
+    def _set_update_status(self, text: str, kind: str = "info"):
+        icon_name, color_kind = {
+            "info": ("refresh-cw", "muted"),
+            "ok": ("circle-check", "ok"),
+            "new": ("download", "accent"),
+        }[kind]
+        ui.set_status(self.lbl_update_status, text, color_kind, icon_name)
+
+    def _section_card(self, parent, title: str, subtitle: str | None = None):
+        """Card with a title (and optional muted subtitle). Returns (card, body)."""
+        c = ui.card(parent)
+        c.pack(fill="x", padx=2, pady=(0, 14))
+        ui.section_title(c, title).pack(anchor="w", padx=20, pady=(16, 2))
+        if subtitle:
+            ui.muted_label(c, subtitle, wrap_in=c).pack(anchor="w", padx=20, pady=(0, 4))
+        body = ctk.CTkFrame(c, fg_color="transparent")
+        body.pack(fill="x", padx=20, pady=(8, 18))
+        body.grid_columnconfigure(0, minsize=170)
+        body.grid_columnconfigure(1, weight=1)
+        return c, body
+
+    def _labeled_entry(self, body, row: int, label: str, value: str = "",
+                       show: str | None = None, placeholder: str | None = None):
+        ui.field_label(body, label).grid(row=row, column=0, sticky="w", pady=5, padx=(0, 14))
+        kwargs = {}
+        if show:
+            kwargs["show"] = show
+        if placeholder:
+            kwargs["placeholder_text"] = placeholder
+        ent = ui.entry(body, **kwargs)
+        ent.insert(0, value)
+        ent.grid(row=row, column=1, sticky="ew", pady=5)
+        return ent
 
     # -------------------------------------------------------------
     # Sidebar
     # -------------------------------------------------------------
+    def _make_nav_button(self, key: str, title: str, icon_name: str):
+        return ui.NavButton(
+            self.sidebar_frame, title, icon_name,
+            command=lambda k=key: self._select_category(k),
+        )
+
     def _build_sidebar(self):
-        self.sidebar_frame = ctk.CTkFrame(self, width=200, corner_radius=0)
+        self.sidebar_frame = ctk.CTkFrame(self, width=230, corner_radius=0, fg_color=C.SIDEBAR)
         self.sidebar_frame.grid(row=0, column=0, sticky="nsew")
-        self.sidebar_frame.grid_rowconfigure(7, weight=1)
+        self.sidebar_frame.pack_propagate(False)
 
         # Title & Icon Logo
         header_sidebar = ctk.CTkFrame(self.sidebar_frame, fg_color="transparent")
-        header_sidebar.grid(row=0, column=0, padx=15, pady=(15, 2), sticky="w")
+        header_sidebar.pack(fill="x", padx=16, pady=(20, 0))
 
         icon_path = self.app_root / "icon.png"
         if icon_path.exists():
@@ -132,267 +213,216 @@ class CKGHelperApp(ctk.CTk):
             except Exception:
                 pass
 
-
         self.logo_label = ctk.CTkLabel(
             header_sidebar,
             text="CKG Helper",
-            font=ctk.CTkFont(size=20, weight="bold"),
+            font=font(19, "bold"),
+            text_color=C.TEXT,
         )
         self.logo_label.pack(side="left")
 
         self.version_badge = ctk.CTkLabel(
             self.sidebar_frame,
-            text=f"v{__version__} • Desktop GUI",
-            font=ctk.CTkFont(size=12),
-            text_color="gray",
-        )
-        self.version_badge.grid(row=1, column=0, padx=20, pady=(0, 15), sticky="w")
-
-
-        # Category buttons
-        self.btn_umum = ctk.CTkButton(
-            self.sidebar_frame,
-            text="📋  CKG Umum",
+            text=f"v{__version__}",
+            font=font(12),
+            text_color=C.TEXT_MUTED,
             anchor="w",
-            command=lambda: self._select_category("CKG Umum"),
         )
-        self.btn_umum.grid(row=2, column=0, padx=15, pady=6, sticky="ew")
+        self.version_badge.pack(fill="x", padx=18, pady=(2, 16))
 
-        self.btn_sekolah = ctk.CTkButton(
+        # Functional pages on top
+        self.nav_buttons = {}
+        for key, title, icon_name in PAGES:
+            if key == "Support":
+                continue
+            btn = self._make_nav_button(key, title, icon_name)
+            btn.pack(fill="x", padx=10, pady=2)
+            self.nav_buttons[key] = btn
+
+        # Bottom group, packed bottom-up: theme switcher, label, divider, Support
+        self.theme_switcher = ui.ThemeSwitcher(
             self.sidebar_frame,
-            text="🏫  CKG Sekolah",
-            anchor="w",
-            command=lambda: self._select_category("CKG Sekolah"),
+            current=self._appearance_mode,
+            save_cb=self._change_appearance_mode,
         )
-        self.btn_sekolah.grid(row=3, column=0, padx=15, pady=6, sticky="ew")
+        self.theme_switcher.pack(side="bottom", fill="x", padx=12, pady=(0, 16))
 
-        self.btn_epuskesmas = ctk.CTkButton(
-            self.sidebar_frame,
-            text="🏥  ePuskesmas",
-            anchor="w",
-            command=lambda: self._select_category("ePuskesmas"),
+        self.theme_label = ctk.CTkLabel(
+            self.sidebar_frame, text="Tema", font=font(12), text_color=C.TEXT_MUTED, anchor="w"
         )
-        self.btn_epuskesmas.grid(row=4, column=0, padx=15, pady=6, sticky="ew")
+        self.theme_label.pack(side="bottom", fill="x", padx=18, pady=(0, 4))
 
-        self.btn_settings = ctk.CTkButton(
-            self.sidebar_frame,
-            text="⚙️  Pengaturan Akun",
-            anchor="w",
-            command=lambda: self._select_category("Pengaturan"),
+        ctk.CTkFrame(self.sidebar_frame, height=1, fg_color=C.BORDER).pack(
+            side="bottom", fill="x", padx=14, pady=(8, 12)
         )
-        self.btn_settings.grid(row=5, column=0, padx=15, pady=6, sticky="ew")
 
-        self.btn_support = ctk.CTkButton(
-            self.sidebar_frame,
-            text="💖  Support",
-            anchor="w",
-            command=lambda: self._select_category("Support"),
-        )
-        self.btn_support.grid(row=6, column=0, padx=15, pady=6, sticky="ew")
+        support_btn = self._make_nav_button("Support", PAGE_TITLES["Support"], "heart")
+        support_btn.pack(side="bottom", fill="x", padx=10, pady=2)
+        self.nav_buttons["Support"] = support_btn
 
-        # Bottom settings in sidebar
-        self.theme_label = ctk.CTkLabel(self.sidebar_frame, text="Tema:", anchor="w")
-        self.theme_label.grid(row=8, column=0, padx=20, pady=(10, 0), sticky="w")
-
-        self.theme_menu = ctk.CTkOptionMenu(
-            self.sidebar_frame,
-            values=["Dark", "Light", "System"],
-            command=self._change_appearance_mode,
-        )
-        self.theme_menu.grid(row=9, column=0, padx=15, pady=(5, 20), sticky="ew")
+        # Backward-compatible names used elsewhere in the code
+        self.btn_umum = self.nav_buttons["CKG Umum"]
+        self.btn_sekolah = self.nav_buttons["CKG Sekolah"]
+        self.btn_epuskesmas = self.nav_buttons["ePuskesmas"]
+        self.btn_settings = self.nav_buttons["Pengaturan"]
+        self.btn_support = self.nav_buttons["Support"]
 
     # -------------------------------------------------------------
     # Main Content Area
     # -------------------------------------------------------------
     def _build_main_area(self):
         self.main_container = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
-        self.main_container.grid(row=0, column=1, sticky="nsew", padx=20, pady=20)
+        self.main_container.grid(row=0, column=1, sticky="nsew", padx=24, pady=22)
         self.main_container.grid_columnconfigure(0, weight=1)
         self.main_container.grid_rowconfigure(2, weight=1)
 
         # Header Title
-        self.header_title = ctk.CTkLabel(
-            self.main_container,
-            text="CKG Umum",
-            font=ctk.CTkFont(size=22, weight="bold"),
-            anchor="w",
-        )
-        self.header_title.grid(row=0, column=0, sticky="w", pady=(0, 10))
+        self.header_title = ui.title_label(self.main_container, "CKG Umum")
+        self.header_title.grid(row=0, column=0, sticky="w", pady=(0, 14))
 
         # View Frame for Task or Settings
-        self.task_view_frame = ctk.CTkFrame(self.main_container)
-        self.task_view_frame.grid(row=1, column=0, sticky="ew", pady=(0, 15))
+        self.task_view_frame = ui.card(self.main_container)
+        self.task_view_frame.grid(row=1, column=0, sticky="ew", pady=(0, 14))
+        self.task_view_frame.grid_columnconfigure(0, minsize=150)
         self.task_view_frame.grid_columnconfigure(1, weight=1)
 
         self._build_task_controls()
 
         # Settings Frame (hidden by default)
-        self.settings_frame = ctk.CTkScrollableFrame(self.main_container)
+        self.settings_frame = ui.scroll_area(self.main_container)
         self._build_settings_controls()
 
         # Support Frame (hidden by default)
-        self.support_frame = ctk.CTkScrollableFrame(self.main_container)
+        self.support_frame = ui.scroll_area(self.main_container)
         self._build_support_controls()
-
 
         # Log Console Area
         self._build_log_console()
 
     def _build_task_controls(self):
         # 1. Pilihan Sub-Tugas
-        lbl_task = ctk.CTkLabel(self.task_view_frame, text="Pilih Layanan:", font=ctk.CTkFont(weight="bold"))
-        lbl_task.grid(row=0, column=0, padx=15, pady=(12, 6), sticky="w")
+        ui.field_label(self.task_view_frame, "Pilih Layanan:").grid(
+            row=0, column=0, padx=(20, 0), pady=(18, 6), sticky="w"
+        )
 
-        self.task_option_menu = ctk.CTkOptionMenu(
+        self.task_option_menu = ui.option_menu(
             self.task_view_frame,
             values=["Pendaftaran Baru"],
             command=self._on_task_selected,
             width=320,
         )
-        self.task_option_menu.grid(row=0, column=1, padx=15, pady=(12, 6), sticky="w")
+        self.task_option_menu.grid(row=0, column=1, padx=(0, 20), pady=(18, 6), sticky="w")
 
         # 2. Form Periode Tanggal (Khusus ePuskesmas)
         today_str = datetime.today().strftime("%d-%m-%Y")
         self.epuskesmas_date_frame = ctk.CTkFrame(self.task_view_frame, fg_color="transparent")
+        self.epuskesmas_date_frame.grid_columnconfigure(0, minsize=130)
         self.epuskesmas_date_frame.grid_columnconfigure(1, weight=1)
 
-        lbl_date = ctk.CTkLabel(self.epuskesmas_date_frame, text="Periode Laporan:", font=ctk.CTkFont(weight="bold"))
-        lbl_date.grid(row=0, column=0, padx=(0, 15), pady=4, sticky="w")
+        ui.field_label(self.epuskesmas_date_frame, "Periode Laporan:").grid(
+            row=0, column=0, pady=4, sticky="w"
+        )
 
         date_inputs = ctk.CTkFrame(self.epuskesmas_date_frame, fg_color="transparent")
         date_inputs.grid(row=0, column=1, sticky="w")
 
-        ctk.CTkLabel(date_inputs, text="Dari:").grid(row=0, column=0, padx=(0, 5))
+        ctk.CTkLabel(date_inputs, text="Dari:", font=font(13), text_color=C.TEXT).grid(
+            row=0, column=0, padx=(0, 6)
+        )
         self.picker_tgl_awal = CTkDatePicker(date_inputs, fg_color="transparent")
         self.picker_tgl_awal.set_date_format("%d-%m-%Y")
         self.picker_tgl_awal.set_date(today_str)
-        self.picker_tgl_awal.grid(row=0, column=1, padx=(0, 10))
+        self.picker_tgl_awal.grid(row=0, column=1, padx=(0, 12))
 
-        ctk.CTkLabel(date_inputs, text="s/d:").grid(row=0, column=2, padx=(0, 5))
+        ctk.CTkLabel(date_inputs, text="s/d:", font=font(13), text_color=C.TEXT).grid(
+            row=0, column=2, padx=(0, 6)
+        )
         self.picker_tgl_akhir = CTkDatePicker(date_inputs, fg_color="transparent")
         self.picker_tgl_akhir.set_date_format("%d-%m-%Y")
         self.picker_tgl_akhir.set_date(today_str)
-        self.picker_tgl_akhir.grid(row=0, column=3, padx=(0, 15))
+        self.picker_tgl_akhir.grid(row=0, column=3, padx=(0, 16))
 
-        btn_today = ctk.CTkButton(
-            date_inputs,
-            text="Hari Ini",
-            width=70,
-            height=26,
-            command=self._set_date_today,
+        # Quick-pick buttons get their own row so the date row never overflows
+        # at the minimum window width.
+        quick_row = ctk.CTkFrame(self.epuskesmas_date_frame, fg_color="transparent")
+        quick_row.grid(row=1, column=1, sticky="w", pady=(8, 0))
+
+        btn_today = ui.secondary_button(
+            quick_row, "Hari Ini", self._set_date_today, height=28, size=12
         )
-        btn_today.grid(row=0, column=4, padx=(0, 5))
+        btn_today.pack(side="left", padx=(0, 6))
 
-        btn_yesterday = ctk.CTkButton(
-            date_inputs,
-            text="H-1 s/d Hari Ini",
-            width=110,
-            height=26,
-            fg_color="gray40",
-            hover_color="gray30",
-            command=self._set_date_yesterday,
+        btn_yesterday = ui.secondary_button(
+            quick_row, "H-1 s/d Hari Ini", self._set_date_yesterday, height=28, size=12
         )
-        btn_yesterday.grid(row=0, column=5)
+        btn_yesterday.pack(side="left")
 
-        lbl_date_hint = ctk.CTkLabel(
+        lbl_date_hint = ui.muted_label(
             self.epuskesmas_date_frame,
-            text="*Format: DD-MM-YYYY (Contoh: 13-10-2026). Rentang maksimal 3 hari.",
-            font=ctk.CTkFont(size=11),
-            text_color="gray",
+            "Format: DD-MM-YYYY (contoh: 13-10-2026). Rentang maksimal 3 hari.",
+            size=12,
         )
-        lbl_date_hint.grid(row=1, column=1, sticky="w", pady=(2, 4))
+        lbl_date_hint.grid(row=2, column=1, sticky="w", pady=(6, 4))
 
         # 3. File Excel Dataset
-        lbl_dataset = ctk.CTkLabel(self.task_view_frame, text="File Dataset:", font=ctk.CTkFont(weight="bold"))
-        lbl_dataset.grid(row=2, column=0, padx=15, pady=6, sticky="w")
+        ui.field_label(self.task_view_frame, "File Dataset:").grid(
+            row=2, column=0, padx=(20, 0), pady=6, sticky="w"
+        )
 
         dataset_row = ctk.CTkFrame(self.task_view_frame, fg_color="transparent")
-        dataset_row.grid(row=2, column=1, padx=15, pady=6, sticky="ew")
+        dataset_row.grid(row=2, column=1, padx=(0, 20), pady=6, sticky="ew")
         dataset_row.grid_columnconfigure(0, weight=1)
 
         default_dataset = str(self.app_root / "dataset" / DEFAULT_COMBINED_WORKBOOK_NAME)
-        self.dataset_entry = ctk.CTkEntry(dataset_row, placeholder_text=default_dataset)
+        self.dataset_entry = ui.entry(dataset_row, placeholder_text=default_dataset)
         self.dataset_entry.insert(0, default_dataset)
         self.dataset_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
 
-        btn_browse = ctk.CTkButton(
-            dataset_row,
-            text="Pilih File...",
-            width=90,
-            command=self._browse_excel_file,
+        btn_browse = ui.secondary_button(
+            dataset_row, "Pilih File...", self._browse_excel_file, "file-spreadsheet"
         )
         btn_browse.grid(row=0, column=1, padx=(0, 8))
 
-        btn_open_folder = ctk.CTkButton(
-            dataset_row,
-            text="Buka Folder",
-            width=90,
-            fg_color="gray40",
-            hover_color="gray30",
-            command=self._open_dataset_folder,
+        btn_open_folder = ui.secondary_button(
+            dataset_row, "Buka Folder", self._open_dataset_folder, "folder-open"
         )
         btn_open_folder.grid(row=0, column=2)
 
         # 4. Keterangan Sheet
-        self.lbl_sheet_info = ctk.CTkLabel(
-            self.task_view_frame,
-            text="Sheet yang dibutuhkan: pendaftaran_umum",
-            text_color="gray",
-            font=ctk.CTkFont(size=12),
+        self.lbl_sheet_info = ui.muted_label(
+            self.task_view_frame, "Sheet yang dibutuhkan: pendaftaran_umum", size=12
         )
-        self.lbl_sheet_info.grid(row=3, column=1, padx=15, pady=(0, 8), sticky="w")
+        self.lbl_sheet_info.grid(row=3, column=1, padx=(0, 20), pady=(0, 8), sticky="w")
 
         # 5. Action Row (Checkbox + Run Button + Stop Button + Status)
         action_frame = ctk.CTkFrame(self.task_view_frame, fg_color="transparent")
-        action_frame.grid(row=4, column=0, columnspan=2, padx=15, pady=(5, 12), sticky="ew")
+        action_frame.grid(row=4, column=0, columnspan=2, padx=20, pady=(8, 18), sticky="ew")
         action_frame.grid_columnconfigure(3, weight=1)
 
-        self.chk_excel_closed = ctk.CTkCheckBox(
-            action_frame,
-            text="File Excel sudah disimpan dan ditutup",
-        )
+        self.chk_excel_closed = ui.checkbox(action_frame, "File Excel sudah disimpan dan ditutup")
         self.chk_excel_closed.select()
-        self.chk_excel_closed.grid(row=0, column=0, sticky="w", padx=(0, 15))
+        self.chk_excel_closed.grid(row=0, column=0, sticky="w", padx=(0, 18))
 
-        self.btn_run = ctk.CTkButton(
-            action_frame,
-            text="▶  Mulai Proses",
-            font=ctk.CTkFont(size=14, weight="bold"),
-            fg_color="#2b8a3e",
-            hover_color="#237032",
-            height=36,
-            command=self._start_task_execution,
+        self.btn_run = ui.primary_button(
+            action_frame, "Mulai Proses", self._start_task_execution, "play", height=38, size=14
         )
         self.btn_run.grid(row=0, column=1, padx=(0, 8))
 
-        self.btn_stop = ctk.CTkButton(
-            action_frame,
-            text="⏹  Hentikan",
-            font=ctk.CTkFont(size=14, weight="bold"),
-            fg_color="gray40",
-            hover_color="#c92a2a",
-            height=36,
-            state="disabled",
-            command=self._stop_task_execution,
+        self.btn_stop = ui.secondary_button(
+            action_frame, "Hentikan", self._stop_task_execution, "square", height=38, size=14
         )
-        self.btn_stop.grid(row=0, column=2, padx=(0, 15))
+        self.btn_stop.configure(state="disabled")
+        self.btn_stop.grid(row=0, column=2, padx=(0, 18))
 
-        self.lbl_status = ctk.CTkLabel(
-            action_frame,
-            text="Status: Siap",
-            font=ctk.CTkFont(weight="bold"),
-            text_color="#69db7c",
-        )
+        self.lbl_status = ui.status_label(action_frame, "Status: Siap", "ok")
+        self.lbl_status.configure(font=font(13, "bold"))
         self.lbl_status.grid(row=0, column=3, sticky="w")
 
     def _stop_task_execution(self):
         if self.worker and self.worker.is_running:
-            self.lbl_status.configure(text="Status: Dihentikan", text_color="#ffd43b")
-            self.btn_run.configure(state="normal", fg_color="#2b8a3e")
-            self.btn_stop.configure(state="disabled", fg_color="gray40")
+            self._set_status("Status: Dihentikan", "warn")
+            self._ui_idle()
             self.worker.stop()
-
-
 
     @property
     def ent_tgl_awal(self):
@@ -413,321 +443,180 @@ class CKGHelperApp(ctk.CTk):
         self.picker_tgl_awal.set_date(y)
         self.picker_tgl_akhir.set_date(t)
 
-
-
     def _build_settings_controls(self):
         # Akun CKG
-        lbl_acc = ctk.CTkLabel(
-            self.settings_frame,
-            text="Kredensial Akun CKG",
-            font=ctk.CTkFont(size=16, weight="bold"),
+        _, f_acc = self._section_card(self.settings_frame, "Kredensial Akun CKG")
+        self.ent_username = self._labeled_entry(
+            f_acc, 0, "Username / Email:", os.getenv(USERNAME_ENV, "")
         )
-        lbl_acc.pack(anchor="w", padx=10, pady=(10, 5))
-
-        f_acc = ctk.CTkFrame(self.settings_frame, fg_color="transparent")
-        f_acc.pack(fill="x", padx=10, pady=5)
-        f_acc.grid_columnconfigure(1, weight=1)
-
-        ctk.CTkLabel(f_acc, text="Username / Email:").grid(row=0, column=0, sticky="w", pady=4, padx=(0, 10))
-        self.ent_username = ctk.CTkEntry(f_acc)
-        self.ent_username.insert(0, os.getenv(USERNAME_ENV, ""))
-        self.ent_username.grid(row=0, column=1, sticky="ew", pady=4)
-
-        ctk.CTkLabel(f_acc, text="Password CKG:").grid(row=1, column=0, sticky="w", pady=4, padx=(0, 10))
-        self.ent_password = ctk.CTkEntry(f_acc, show="*")
-        self.ent_password.insert(0, os.getenv(PASSWORD_ENV, ""))
-        self.ent_password.grid(row=1, column=1, sticky="ew", pady=4)
-
-        btn_save_acc = ctk.CTkButton(
-            self.settings_frame,
-            text="Simpan Kredensial CKG",
-            command=self._save_credentials,
-            width=180,
+        self.ent_password = self._labeled_entry(
+            f_acc, 1, "Password CKG:", os.getenv(PASSWORD_ENV, ""), show="•"
         )
-        btn_save_acc.pack(anchor="w", padx=10, pady=(5, 15))
+        ui.primary_button(f_acc, "Simpan Kredensial CKG", self._save_credentials).grid(
+            row=2, column=1, sticky="w", pady=(12, 0)
+        )
 
         # Data Wali
-        lbl_wali = ctk.CTkLabel(
+        _, f_wali = self._section_card(
             self.settings_frame,
-            text="Data Wali Fallback (Untuk Pendaftaran Anak/Remaja)",
-            font=ctk.CTkFont(size=16, weight="bold"),
+            "Data Wali Fallback",
+            "Dipakai untuk pendaftaran anak/remaja.",
         )
-        lbl_wali.pack(anchor="w", padx=10, pady=(5, 5))
-
         wali_cfg = get_wali_config()
         self.wali_entries = {}
-        f_wali = ctk.CTkFrame(self.settings_frame, fg_color="transparent")
-        f_wali.pack(fill="x", padx=10, pady=5)
-        f_wali.grid_columnconfigure(1, weight=1)
-
         for i, (key, label) in enumerate(WALI_ENV_KEYS.items()):
-            ctk.CTkLabel(f_wali, text=f"{label}:").grid(row=i, column=0, sticky="w", pady=3, padx=(0, 10))
-            entry = ctk.CTkEntry(f_wali)
-            entry.insert(0, wali_cfg.get(key, ""))
-            entry.grid(row=i, column=1, sticky="ew", pady=3)
-            self.wali_entries[key] = entry
-
-        btn_save_wali = ctk.CTkButton(
-            self.settings_frame,
-            text="Simpan Data Wali",
-            command=self._save_wali_config,
-            width=180,
+            self.wali_entries[key] = self._labeled_entry(f_wali, i, f"{label}:", wali_cfg.get(key, ""))
+        ui.primary_button(f_wali, "Simpan Data Wali", self._save_wali_config).grid(
+            row=len(WALI_ENV_KEYS), column=1, sticky="w", pady=(12, 0)
         )
-        btn_save_wali.pack(anchor="w", padx=10, pady=(5, 15))
 
         # Kredensial ePuskesmas
-        lbl_epus = ctk.CTkLabel(
-            self.settings_frame,
-            text="Kredensial Akun ePuskesmas",
-            font=ctk.CTkFont(size=16, weight="bold"),
+        _, f_epus = self._section_card(self.settings_frame, "Kredensial Akun ePuskesmas")
+        self.ent_epus_url = self._labeled_entry(
+            f_epus, 0, "URL ePuskesmas:", os.getenv(EPUSKESMAS_URL_ENV, ""),
+            placeholder="https://situbondo.epuskesmas.id",
         )
-        lbl_epus.pack(anchor="w", padx=10, pady=(5, 5))
-
-        f_epus = ctk.CTkFrame(self.settings_frame, fg_color="transparent")
-        f_epus.pack(fill="x", padx=10, pady=5)
-        f_epus.grid_columnconfigure(1, weight=1)
-
-        ctk.CTkLabel(f_epus, text="URL ePuskesmas:").grid(row=0, column=0, sticky="w", pady=4, padx=(0, 10))
-        self.ent_epus_url = ctk.CTkEntry(f_epus, placeholder_text="https://situbondo.epuskesmas.id")
-        self.ent_epus_url.insert(0, os.getenv(EPUSKESMAS_URL_ENV, ""))
-        self.ent_epus_url.grid(row=0, column=1, sticky="ew", pady=4)
-
-        ctk.CTkLabel(f_epus, text="Username:").grid(row=1, column=0, sticky="w", pady=4, padx=(0, 10))
-        self.ent_epus_username = ctk.CTkEntry(f_epus)
-        self.ent_epus_username.insert(0, os.getenv(EPUSKESMAS_USERNAME_ENV, ""))
-        self.ent_epus_username.grid(row=1, column=1, sticky="ew", pady=4)
-
-        ctk.CTkLabel(f_epus, text="Password:").grid(row=2, column=0, sticky="w", pady=4, padx=(0, 10))
-        self.ent_epus_password = ctk.CTkEntry(f_epus, show="*")
-        self.ent_epus_password.insert(0, os.getenv(EPUSKESMAS_PASSWORD_ENV, ""))
-        self.ent_epus_password.grid(row=2, column=1, sticky="ew", pady=4)
-
-        btn_save_epus = ctk.CTkButton(
-            self.settings_frame,
-            text="Simpan Kredensial ePuskesmas",
-            command=self._save_epuskesmas_credentials,
-            width=210,
+        self.ent_epus_username = self._labeled_entry(
+            f_epus, 1, "Username:", os.getenv(EPUSKESMAS_USERNAME_ENV, "")
         )
-        btn_save_epus.pack(anchor="w", padx=10, pady=(5, 15))
+        self.ent_epus_password = self._labeled_entry(
+            f_epus, 2, "Password:", os.getenv(EPUSKESMAS_PASSWORD_ENV, ""), show="•"
+        )
+        ui.primary_button(f_epus, "Simpan Kredensial ePuskesmas", self._save_epuskesmas_credentials).grid(
+            row=3, column=1, sticky="w", pady=(12, 0)
+        )
 
         # Chromium Browser Check
-        btn_check_browser = ctk.CTkButton(
-            self.settings_frame,
-            text="Periksa & Pasang Browser Chromium",
-            fg_color="gray40",
-            hover_color="gray30",
-            command=self._check_and_install_chromium,
-            width=240,
+        _, f_browser = self._section_card(
+            self.settings_frame, "Browser Chromium", "Browser yang digunakan untuk menjalankan otomasi."
         )
-        btn_check_browser.pack(anchor="w", padx=10, pady=(5, 15))
+        ui.secondary_button(
+            f_browser, "Periksa & Pasang Browser Chromium", self._check_and_install_chromium, "download"
+        ).grid(row=0, column=0, columnspan=2, sticky="w")
 
     def _build_support_controls(self):
         # 1. Card Pembaruan Aplikasi
-        card_update = ctk.CTkFrame(self.support_frame)
-        card_update.pack(fill="x", padx=10, pady=(10, 15))
+        card_update = ui.card(self.support_frame)
+        card_update.pack(fill="x", padx=2, pady=(0, 14))
         card_update.grid_columnconfigure(0, weight=1)
 
         header_update = ctk.CTkFrame(card_update, fg_color="transparent")
-        header_update.grid(row=0, column=0, sticky="ew", padx=15, pady=(12, 4))
+        header_update.grid(row=0, column=0, sticky="ew", padx=20, pady=(16, 6))
         header_update.grid_columnconfigure(0, weight=1)
 
-        ctk.CTkLabel(
-            header_update,
-            text="🔄 Pembaruan Aplikasi",
-            font=ctk.CTkFont(size=16, weight="bold"),
-        ).grid(row=0, column=0, sticky="w")
+        ui.section_title(header_update, "Pembaruan Aplikasi").grid(row=0, column=0, sticky="w")
 
-        self.btn_check_update = ctk.CTkButton(
-            header_update,
-            text="🔄 Periksa Pembaruan",
-            width=150,
-            height=28,
-            fg_color="gray40",
-            hover_color="gray30",
-            command=lambda: self._check_update_async(manual=True),
+        self.btn_check_update = ui.secondary_button(
+            header_update, "Periksa Pembaruan", lambda: self._check_update_async(manual=True),
+            "refresh-cw", height=30, size=12,
         )
         self.btn_check_update.grid(row=0, column=1, sticky="e")
 
-        self.lbl_update_status = ctk.CTkLabel(
-            card_update,
-            text=f"Versi saat ini: v{__version__} • Memeriksa status rilis...",
-            wraplength=650,
-            justify="left",
-            text_color="gray",
-        )
-        self.lbl_update_status.grid(row=1, column=0, sticky="w", padx=15, pady=(0, 8))
+        self.lbl_update_status = ui.status_label(card_update, "", "muted", "refresh-cw")
+        self.lbl_update_status.configure(wraplength=560)
+        ui.auto_wrap(self.lbl_update_status, card_update, padding=60)
+        self.lbl_update_status.grid(row=1, column=0, sticky="w", padx=20, pady=(0, 12))
+        self._set_update_status(f"Versi saat ini: v{__version__} • Memeriksa status rilis...", "info")
 
         # Tombol aksi pembaruan (muncul jika update tersedia)
         self.frame_update_actions = ctk.CTkFrame(card_update, fg_color="transparent")
-        self.frame_update_actions.grid(row=2, column=0, sticky="w", padx=15, pady=(0, 10))
+        self.frame_update_actions.grid(row=2, column=0, sticky="w", padx=20, pady=(0, 12))
         self.frame_update_actions.grid_remove()
 
-        self.btn_install_update = ctk.CTkButton(
-            self.frame_update_actions,
-            text="🚀 Pasang Update Otomatis",
-            fg_color="#2b8a3e",
-            hover_color="#237032",
-            command=self._apply_auto_update,
-            width=200,
+        self.btn_install_update = ui.primary_button(
+            self.frame_update_actions, "Pasang Update Otomatis", self._apply_auto_update, "rocket"
         )
-        self.btn_install_update.pack(side="left", padx=(0, 10))
+        self.btn_install_update.pack(side="left", padx=(0, 8))
 
-        self.btn_manual_download = ctk.CTkButton(
-            self.frame_update_actions,
-            text="🌐 Unduh Manual di GitHub",
-            fg_color="#1c7ed6",
-            hover_color="#1971c2",
-            command=self._open_manual_download,
-            width=200,
+        self.btn_manual_download = ui.secondary_button(
+            self.frame_update_actions, "Unduh Manual di GitHub", self._open_manual_download, "external-link"
         )
         self.btn_manual_download.pack(side="left")
 
         # Catatan rilis / changelog (muncul jika ada)
         self.frame_changelog = ctk.CTkFrame(card_update, fg_color="transparent")
-        self.frame_changelog.grid(row=3, column=0, sticky="ew", padx=15, pady=(0, 12))
+        self.frame_changelog.grid(row=3, column=0, sticky="ew", padx=20, pady=(0, 16))
         self.frame_changelog.grid_columnconfigure(0, weight=1)
         self.frame_changelog.grid_remove()
 
         ctk.CTkLabel(
             self.frame_changelog,
             text="Catatan Rilis (Changelog):",
-            font=ctk.CTkFont(size=12, weight="bold"),
+            font=font(12, "bold"),
+            text_color=C.TEXT,
         ).pack(anchor="w", pady=(0, 4))
 
-        self.txt_changelog = ctk.CTkTextbox(
-            self.frame_changelog,
-            height=100,
-            wrap="word",
-            font=ctk.CTkFont(size=12),
-        )
+        self.txt_changelog = ui.textbox(self.frame_changelog, height=100, wrap="word")
         self.txt_changelog.pack(fill="x")
         self.txt_changelog.configure(state="disabled")
 
-        # 2. Card Saweria
-        card_saweria = ctk.CTkFrame(self.support_frame)
-        card_saweria.pack(fill="x", padx=10, pady=(0, 15))
-        card_saweria.grid_columnconfigure(0, weight=1)
+        # 2. Card Saweria: satu aksi utama, salin tautan sekunder
+        card_saweria = ui.card(self.support_frame)
+        card_saweria.pack(fill="x", padx=2, pady=(0, 14))
 
-        ctk.CTkLabel(
-            card_saweria,
-            text="☕ Dukung Pembuat Aplikasi (Saweria)",
-            font=ctk.CTkFont(size=16, weight="bold"),
-        ).grid(row=0, column=0, sticky="w", padx=15, pady=(12, 4))
-
+        ui.section_title(card_saweria, "Dukung Pembuat Aplikasi").pack(anchor="w", padx=20, pady=(16, 4))
         desc_saweria = (
-            "Dukung kami untuk terus mengembangkan aplikasi yang bermanfaat, "
-            "Anda dapat melakukan request aplikasi lainnya jika dirasa memang memberikan manfaat bagi banyak orang lainnya."
+            "Dukung kami untuk terus mengembangkan aplikasi yang bermanfaat. "
+            "Anda dapat melakukan request aplikasi lainnya jika dirasa memang memberikan manfaat "
+            "bagi banyak orang lainnya."
         )
-        ctk.CTkLabel(
-            card_saweria,
-            text=desc_saweria,
-            wraplength=650,
-            justify="left",
-            text_color="gray",
-        ).grid(row=1, column=0, sticky="w", padx=15, pady=(0, 10))
+        ui.muted_label(card_saweria, desc_saweria, wrap_in=card_saweria).pack(anchor="w", padx=20)
 
         f_saweria_btn = ctk.CTkFrame(card_saweria, fg_color="transparent")
-        f_saweria_btn.grid(row=2, column=0, sticky="w", padx=15, pady=(0, 12))
+        f_saweria_btn.pack(anchor="w", padx=20, pady=(14, 18))
 
-        btn_saweria = ctk.CTkButton(
-            f_saweria_btn,
-            text="☕ Buka Saweria (saweria.co/stywn93)",
-            fg_color="#e8590c",
-            hover_color="#d9480f",
-            command=self._open_saweria,
-            width=240,
+        btn_saweria = ui.primary_button(
+            f_saweria_btn, "Buka Saweria (saweria.co/stywn93)", self._open_saweria, "coffee"
         )
-        btn_saweria.pack(side="left", padx=(0, 10))
+        btn_saweria.pack(side="left", padx=(0, 8))
 
-        btn_copy_saweria = ctk.CTkButton(
-            f_saweria_btn,
-            text="Salin Tautan Saweria",
-            fg_color="gray40",
-            hover_color="gray30",
-            command=self._copy_saweria_link,
-            width=160,
+        btn_copy_saweria = ui.secondary_button(
+            f_saweria_btn, "Salin Tautan", self._copy_saweria_link, "copy"
         )
         btn_copy_saweria.pack(side="left")
 
-        # 3. Card Telegram
-        card_tele = ctk.CTkFrame(self.support_frame)
-        card_tele.pack(fill="x", padx=10, pady=(0, 15))
-        card_tele.grid_columnconfigure(0, weight=1)
+        # 3. Card Telegram: dua tombol sekunder agar tidak bersaing dengan Saweria
+        card_tele = ui.card(self.support_frame)
+        card_tele.pack(fill="x", padx=2, pady=(0, 14))
 
-        ctk.CTkLabel(
-            card_tele,
-            text="💬 Kontak & Bantuan Otomasi (Telegram)",
-            font=ctk.CTkFont(size=16, weight="bold"),
-        ).grid(row=0, column=0, sticky="w", padx=15, pady=(12, 4))
-
+        ui.section_title(card_tele, "Kontak & Bantuan Otomasi").pack(anchor="w", padx=20, pady=(16, 4))
         desc_tele = (
             "Mengalami kendala teknis, punya ide/saran pengembangan fitur baru, "
             "atau membutuhkan konsultasi integrasi otomasi kesehatan lainnya? "
             "Silakan hubungi langsung pengembang melalui Telegram."
         )
-        ctk.CTkLabel(
-            card_tele,
-            text=desc_tele,
-            wraplength=650,
-            justify="left",
-            text_color="gray",
-        ).grid(row=1, column=0, sticky="w", padx=15, pady=(0, 10))
+        ui.muted_label(card_tele, desc_tele, wrap_in=card_tele).pack(anchor="w", padx=20)
 
         f_tele_btn = ctk.CTkFrame(card_tele, fg_color="transparent")
-        f_tele_btn.grid(row=2, column=0, sticky="w", padx=15, pady=(0, 12))
+        f_tele_btn.pack(anchor="w", padx=20, pady=(14, 18))
 
-        btn_tele = ctk.CTkButton(
-            f_tele_btn,
-            text="💬 Hubungi via Telegram (@stywn93)",
-            fg_color="#1c7ed6",
-            hover_color="#1971c2",
-            command=self._open_telegram,
-            width=240,
+        btn_tele = ui.secondary_button(
+            f_tele_btn, "Hubungi via Telegram (@stywn93)", self._open_telegram, "send"
         )
-        btn_tele.pack(side="left", padx=(0, 10))
+        btn_tele.pack(side="left", padx=(0, 8))
 
-        btn_copy_tele = ctk.CTkButton(
-            f_tele_btn,
-            text="Salin Username Telegram",
-            fg_color="gray40",
-            hover_color="gray30",
-            command=self._copy_telegram_handle,
-            width=180,
+        btn_copy_tele = ui.secondary_button(
+            f_tele_btn, "Salin Username", self._copy_telegram_handle, "copy"
         )
         btn_copy_tele.pack(side="left")
 
-        # 4. Card Tentang Aplikasi
-        card_about = ctk.CTkFrame(self.support_frame)
-        card_about.pack(fill="x", padx=10, pady=(0, 10))
-        card_about.grid_columnconfigure(0, weight=1)
-
-        ctk.CTkLabel(
-            card_about,
-            text="ℹ️ Tentang CKG Helper",
-            font=ctk.CTkFont(size=16, weight="bold"),
-        ).grid(row=0, column=0, sticky="w", padx=15, pady=(12, 4))
-
+        # 4. Tentang: teks biasa, bukan kartu (versi sudah tampil di sidebar)
         about_text = (
-            f"CKG Helper v{__version__}\n"
-            "Aplikasi Otomasi Pendaftaran & Pelaporan Cek Kesehatan Gratis (CKG) serta Integrasi ePuskesmas BPJS.\n"
-            "Dibuat untuk memudahkan tenaga kesehatan dan operator faskes dalam penginputan data."
+            "Aplikasi Otomasi Pendaftaran & Pelaporan Cek Kesehatan Gratis (CKG) serta Integrasi "
+            "ePuskesmas BPJS. Dibuat untuk memudahkan tenaga kesehatan dan operator faskes dalam "
+            "penginputan data."
         )
-        ctk.CTkLabel(
-            card_about,
-            text=about_text,
-            wraplength=650,
-            justify="left",
-            text_color="gray",
-        ).grid(row=1, column=0, sticky="w", padx=15, pady=(0, 12))
+        ui.muted_label(self.support_frame, about_text, wrap_in=self.support_frame, padding=56, size=12).pack(
+            anchor="w", padx=6, pady=(2, 10)
+        )
 
     def _check_update_async(self, manual: bool = False):
         if self.is_checking_update:
             return
         self.is_checking_update = True
         self.btn_check_update.configure(state="disabled", text="Memeriksa...")
-        self.lbl_update_status.configure(
-            text=f"Versi saat ini: v{__version__} • Sedang memeriksa pembaruan dari GitHub...",
-            text_color="gray",
+        self._set_update_status(
+            f"Versi saat ini: v{__version__} • Sedang memeriksa pembaruan dari GitHub...", "info"
         )
 
         def worker():
@@ -735,14 +624,13 @@ class CKGHelperApp(ctk.CTk):
 
             def update_ui():
                 self.is_checking_update = False
-                self.btn_check_update.configure(state="normal", text="🔄 Periksa Pembaruan")
+                self.btn_check_update.configure(state="normal", text="Periksa Pembaruan")
                 self.update_info = info
                 if info:
-                    self.lbl_update_status.configure(
-                        text=f"🎉 Versi baru tersedia: {info['version']}! (Versi Anda: v{__version__})",
-                        text_color="#69db7c",
+                    self._set_update_status(
+                        f"Versi baru tersedia: {info['version']} (versi Anda: v{__version__})", "new"
                     )
-                    self.btn_support.configure(text="💖  Support & Donasi 🟢")
+                    self.btn_support.set_badge(True)
                     self.frame_update_actions.grid()
                     if info.get("changelog"):
                         self.txt_changelog.configure(state="normal")
@@ -760,11 +648,10 @@ class CKGHelperApp(ctk.CTk):
                             "Anda dapat memasang update otomatis atau mengunduh rilis secara manual.",
                         )
                 else:
-                    self.lbl_update_status.configure(
-                        text=f"✅ Aplikasi sudah menggunakan versi terbaru (v{__version__}).",
-                        text_color="#69db7c",
+                    self._set_update_status(
+                        f"Sudah menggunakan versi terbaru (v{__version__}).", "ok"
                     )
-                    self.btn_support.configure(text="💖  Support & Donasi")
+                    self.btn_support.set_badge(False)
                     self.frame_update_actions.grid_remove()
                     self.frame_changelog.grid_remove()
                     if manual:
@@ -827,53 +714,41 @@ class CKGHelperApp(ctk.CTk):
         self.clipboard_append("@stywn93")
         messagebox.showinfo("Berhasil", "Username Telegram disalin ke clipboard:\n@stywn93")
 
-
     def _build_log_console(self):
-        self.console_container = ctk.CTkFrame(self.main_container)
+        self.console_container = ui.card(self.main_container)
         self.console_container.grid(row=2, column=0, sticky="nsew")
         self.console_container.grid_columnconfigure(0, weight=1)
         self.console_container.grid_rowconfigure(1, weight=1)
 
         # Header Console
-        console_header = ctk.CTkFrame(self.console_container, fg_color="transparent", height=32)
-        console_header.grid(row=0, column=0, sticky="ew", padx=10, pady=(8, 4))
+        console_header = ctk.CTkFrame(self.console_container, fg_color="transparent")
+        console_header.grid(row=0, column=0, sticky="ew", padx=16, pady=(12, 8))
         console_header.grid_columnconfigure(0, weight=1)
 
         lbl_console = ctk.CTkLabel(
             console_header,
-            text="Terminal Output / Live Log",
-            font=ctk.CTkFont(weight="bold"),
+            text="  Terminal Output / Live Log",
+            image=ui.icon("terminal", 16),
+            compound="left",
+            font=font(13, "bold"),
+            text_color=C.TEXT,
+            anchor="w",
         )
         lbl_console.grid(row=0, column=0, sticky="w")
 
-        btn_copy = ctk.CTkButton(
-            console_header,
-            text="Salin Log",
-            width=70,
-            height=24,
-            command=self._copy_log,
+        btn_copy = ui.secondary_button(
+            console_header, "Salin Log", self._copy_log, "copy", height=28, size=12
         )
         btn_copy.grid(row=0, column=1, padx=(0, 6))
 
-        btn_clear = ctk.CTkButton(
-            console_header,
-            text="Bersihkan",
-            width=70,
-            height=24,
-            fg_color="gray40",
-            hover_color="gray30",
-            command=self._clear_log,
+        btn_clear = ui.secondary_button(
+            console_header, "Bersihkan", self._clear_log, "trash-2", height=28, size=12
         )
         btn_clear.grid(row=0, column=2)
 
         # Textbox
-        self.log_textbox = ctk.CTkTextbox(
-            self.console_container,
-            wrap="char",
-            font=ctk.CTkFont(family="Courier", size=12),
-        )
-        self.log_textbox.grid(row=1, column=0, sticky="nsew", padx=10, pady=(0, 10))
-
+        self.log_textbox = ui.textbox(self.console_container, mono=True, wrap="char")
+        self.log_textbox.grid(row=1, column=0, sticky="nsew", padx=16, pady=(0, 16))
 
     # -------------------------------------------------------------
     # Log & Callback Polling Handlers
@@ -927,21 +802,11 @@ class CKGHelperApp(ctk.CTk):
     # -------------------------------------------------------------
     def _select_category(self, category: str):
         self.active_category = category
-        self.header_title.configure(text="Support & Donasi" if category == "Support" else category)
+        self.header_title.configure(text=PAGE_TITLES.get(category, category))
 
         # Style active sidebar button
-        buttons = {
-            "CKG Umum": self.btn_umum,
-            "CKG Sekolah": self.btn_sekolah,
-            "ePuskesmas": self.btn_epuskesmas,
-            "Pengaturan": self.btn_settings,
-            "Support": self.btn_support,
-        }
-        for name, btn in buttons.items():
-            if name == category:
-                btn.configure(fg_color=["#3B8ED0", "#1F6AA5"])
-            else:
-                btn.configure(fg_color="transparent")
+        for name, btn in self.nav_buttons.items():
+            btn.set_active(name == category)
 
         if category == "Pengaturan":
             self.task_view_frame.grid_remove()
@@ -962,15 +827,13 @@ class CKGHelperApp(ctk.CTk):
             self.support_frame.grid_remove()
             self.main_container.grid_rowconfigure(1, weight=0)
             self.main_container.grid_rowconfigure(2, weight=1)
-            self.task_view_frame.grid(row=1, column=0, sticky="ew", pady=(0, 15))
+            self.task_view_frame.grid(row=1, column=0, sticky="ew", pady=(0, 14))
             self.console_container.grid(row=2, column=0, sticky="nsew")
             if category == "ePuskesmas":
-                self.epuskesmas_date_frame.grid(row=1, column=0, columnspan=2, padx=15, pady=4, sticky="ew")
+                self.epuskesmas_date_frame.grid(row=1, column=0, columnspan=2, padx=20, pady=4, sticky="ew")
             else:
                 self.epuskesmas_date_frame.grid_remove()
             self._update_task_options_for_category(category)
-
-
 
     def _update_task_options_for_category(self, category: str):
         matching_tasks = [m for m in MENU_ITEMS if m["label"] == category]
@@ -1106,24 +969,25 @@ class CKGHelperApp(ctk.CTk):
             "Unduh Chromium",
             "Chromium belum terpasang. Apakah Anda ingin mengunduhnya sekarang? (Perlu koneksi internet)",
         ):
-            self.lbl_status.configure(text="Status: Mengunduh Chromium...", text_color="#ffd43b")
+            self._set_status("Status: Mengunduh Chromium...", "warn")
             self.btn_run.configure(state="disabled")
 
             def do_install():
                 code = run_playwright_cli(["install", "chromium"])
                 if code == 0:
                     self.after(0, lambda: messagebox.showinfo("Sukses", "Chromium berhasil dipasang."))
-                    self.after(0, lambda: self.lbl_status.configure(text="Status: Siap", text_color="#69db7c"))
+                    self.after(0, lambda: self._set_status("Status: Siap", "ok"))
                 else:
                     self.after(0, lambda: messagebox.showerror("Gagal", "Gagal mengunduh Chromium."))
-                    self.after(0, lambda: self.lbl_status.configure(text="Status: Error Browser", text_color="#fa5252"))
+                    self.after(0, lambda: self._set_status("Status: Error Browser", "danger"))
                 self.after(0, lambda: self.btn_run.configure(state="normal"))
 
-            import threading
             threading.Thread(target=do_install, daemon=True).start()
 
     def _change_appearance_mode(self, mode: str):
         ctk.set_appearance_mode(mode)
+        self._appearance_mode = mode
+        ui.save_appearance(self.app_root, mode)
 
     # -------------------------------------------------------------
     # Task Execution Handler
@@ -1190,7 +1054,6 @@ class CKGHelperApp(ctk.CTk):
                         self._select_category("Pengaturan")
                     return
 
-
         # Atur file excel kustom jika user memilih file tertentu
         chosen_excel = Path(self.dataset_entry.get().strip())
         if chosen_excel.exists():
@@ -1212,26 +1075,23 @@ class CKGHelperApp(ctk.CTk):
             return
 
         # Inisialisasi Worker
-        self.btn_run.configure(state="disabled", fg_color="gray40")
-        self.btn_stop.configure(state="normal", fg_color="#c92a2a")
-        self.lbl_status.configure(text="Status: Berjalan...", text_color="#ffd43b")
+        self._ui_running()
+        self._set_status("Status: Berjalan...", "warn")
 
         def on_started():
             pass
 
         def on_finished(success: bool, msg: str):
             def update_ui():
-                self.btn_run.configure(state="normal", fg_color="#2b8a3e")
-                self.btn_stop.configure(state="disabled", fg_color="gray40")
+                self._ui_idle()
                 if success:
-                    self.lbl_status.configure(text="Status: Selesai", text_color="#69db7c")
+                    self._set_status("Status: Selesai", "ok")
                 else:
                     if "dihentikan" in msg.lower():
-                        self.lbl_status.configure(text="Status: Dihentikan", text_color="#ffd43b")
+                        self._set_status("Status: Dihentikan", "warn")
                     else:
-                        self.lbl_status.configure(text="Status: Gagal", text_color="#fa5252")
+                        self._set_status("Status: Gagal", "danger")
             self.after(0, update_ui)
-
 
         self.worker = TaskExecutionWorker(
             app_root=self.app_root,
