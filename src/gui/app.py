@@ -68,6 +68,7 @@ PAGES = [
 PAGE_TITLES = {key: title for key, title, _ in PAGES}
 WALI_GENDER_OPTIONS = ("Laki-laki", "Perempuan")
 WALI_GENDER_PLACEHOLDER = "Pilih Jenis Kelamin"
+SCHOOL_PREPARATION_DETAIL = "Persiapan Data CKG Sekolah"
 
 
 class CKGHelperApp(ctk.CTk):
@@ -365,6 +366,19 @@ class CKGHelperApp(ctk.CTk):
             size=12,
         )
         lbl_date_hint.grid(row=2, column=1, sticky="w", pady=(6, 4))
+
+        self.school_prep_options_frame = ctk.CTkFrame(
+            self.task_view_frame, fg_color="transparent"
+        )
+        self.school_prep_options_frame.grid_columnconfigure(0, minsize=130)
+        ui.field_label(self.school_prep_options_frame, "Opsi Scraping:").grid(
+            row=0, column=0, pady=4, sticky="w"
+        )
+        self.chk_repeat_all = ui.checkbox(
+            self.school_prep_options_frame, "Ulang Semua"
+        )
+        self.chk_repeat_all.grid(row=0, column=1, sticky="w")
+        self.school_prep_options_frame.grid_remove()
 
         # 3. File Excel Dataset
         ui.field_label(self.task_view_frame, "File Dataset:").grid(
@@ -858,6 +872,7 @@ class CKGHelperApp(ctk.CTk):
                 self.epuskesmas_date_frame.grid(row=1, column=0, columnspan=2, padx=20, pady=4, sticky="ew")
             else:
                 self.epuskesmas_date_frame.grid_remove()
+            self.school_prep_options_frame.grid_remove()
             self._update_task_options_for_category(category)
 
     def _update_task_options_for_category(self, category: str):
@@ -879,6 +894,12 @@ class CKGHelperApp(ctk.CTk):
             if item["label"] == self.active_category and item["detail"] == detail:
                 self.current_selected_task = item
                 self.lbl_sheet_info.configure(text=f"Sheet yang dibutuhkan: {item.get('sheet', '-')}")
+                if detail == SCHOOL_PREPARATION_DETAIL:
+                    self.school_prep_options_frame.grid(
+                        row=1, column=0, columnspan=2, padx=20, pady=4, sticky="ew"
+                    )
+                else:
+                    self.school_prep_options_frame.grid_remove()
                 return
 
     # -------------------------------------------------------------
@@ -1101,6 +1122,9 @@ class CKGHelperApp(ctk.CTk):
                     ):
                         self._select_category("Pengaturan")
                     return
+
+            if self.current_selected_task.get("detail") == SCHOOL_PREPARATION_DETAIL:
+                os.environ["CKG_REPEAT_ALL"] = "1" if self.chk_repeat_all.get() else "0"
 
         # Atur file excel kustom jika user memilih file tertentu
         chosen_excel = Path(self.dataset_entry.get().strip())

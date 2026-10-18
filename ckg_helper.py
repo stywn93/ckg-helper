@@ -94,7 +94,7 @@ MENU_ITEMS = [
     },
     {
         "label": "CKG Sekolah",
-        "detail": "Pelayanan CKG Sekolah",
+        "detail": "Persiapan Data CKG Sekolah",
         "script": Path("src") / "ckg-sekolah" / "pelayanan.py",
         "dataset_key": "pelayanan_sekolah",
         "sheet": "pelayanan_sekolah",
